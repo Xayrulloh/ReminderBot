@@ -1,0 +1,27 @@
+{
+  "name": "namoz-vaqti-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start:dev": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "dotenv": "^16.0.1",
+    "grammy": "^1.8.3",
+    "grammy-scenes": "^7.3.0",
+    "mongoose": "^6.3.6",
+    "node-schedule": "^2.1.0"
+  },
+  "imports": {
+    "#button": "./buttons/button.js",
+    "#database": "./db/db.js",
+    "#region": "./regions/regions.js",
+    "#daily/*": "./daily/*.js"
+  }
+}
