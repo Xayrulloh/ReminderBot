@@ -66,7 +66,7 @@ async function Times() {
             scheduler.scheduleJob({hour: el[0], minute: el[1]}, async() => {
                 let usersOfRegion = await Data.find({ location: region, notificationAllowed: true }, { userId: true, _id: false, location: true})
                 usersOfRegion.forEach(async(user) => {
-                    bot.api.sendMessage(user.userId, `🕌 ${namozTime[index]} vaqti bo'ldi birodar`)
+                    bot.api.sendMessage(user.userId, `🕌 ${namozTime[index]} vaqti bo'ldi`)
                 })
             })
         })

@@ -17,7 +17,7 @@ newScene.wait().on('message:text', async(ctx) => {
         
     } else {
         let buttons = replaceFunction('Andijan', 'Buxoro', 'Jizzax', 'Qashqadaryo', 'Navoi', 'Namangan', 'Samarqand', 'Sirdaryo', 'Surxandaryo', 'Toshkent', "Farg'ona", 'Xorazm')
-        ctx.reply('Qidirayotgan shaxaringizni belgilang ?', {reply_markup: {keyboard: buttons.build(), resize_keyboard: true }})
+        ctx.reply('Qidirayotgan shaxaringizni belgilang', {reply_markup: {keyboard: buttons.build(), resize_keyboard: true }})
     }
 })
 
