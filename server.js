@@ -55,7 +55,6 @@ setInterval(async() => {
 
     for (let region of regions) {
         let answer = await regionsFunction(region)
-        answer[1] = ['23:46', '23:46']
         answer[1].forEach((el, index) => {
             el = el.split(':').map(el => el.replace(/^0/, ''))
 
