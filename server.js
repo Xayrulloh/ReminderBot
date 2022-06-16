@@ -37,8 +37,13 @@ bot.command('search', async(ctx) => {
 
 bot.start()
 
+Times()
 // every day
 setInterval(async() => {
+    Times()
+}, 60000*24*60);
+
+async function Times() {
     // daily reminder
     let users = await Data.find({ }, { userId: true, _id: false, location: true})
     users.forEach(async(user) => {
@@ -66,4 +71,4 @@ setInterval(async() => {
             })
         })
     }
-}, 60000*24*60);
+}
