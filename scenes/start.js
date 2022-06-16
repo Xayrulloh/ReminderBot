@@ -26,9 +26,8 @@ newScene.wait().on('message:text', async(ctx) => {
 newScene.wait().on('message:text', async(ctx) => {
     if (['Roziman', 'Rozimasman'].includes(ctx.message.text)) {
         let data = await regionsFunction(ctx.session.location)
-        let time = data[1]
     
-        await Data.create({ userId: ctx.update.message.from.id, notificationAllowed: ctx.message.text == 'Roziman' ? true : false, location: ctx.session.location, bomdod: time[0], peshin: time[1], asr: time[2], shom: time[3], xufton: time[4] })
+        await Data.create({ userId: ctx.update.message.from.id, notificationAllowed: ctx.message.text == 'Roziman' ? true : false, location: ctx.session.location })
         
         ctx.reply(data[0], { reply_markup: {remove_keyboard: true} })
         ctx.scene.exit()
