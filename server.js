@@ -41,8 +41,8 @@ Times()
 // every day
 setInterval(async() => {
     Times()
-}, 60000*24*60);
-
+}, 86400000);
+// 86400000
 async function Times() {
     // daily reminder
     let users = await Data.find({ }, { userId: true, _id: false, location: true})
@@ -56,7 +56,7 @@ async function Times() {
 
     // time reminder
     let regions = ['Andijan', 'Buxoro', 'Jizzax', 'Qashqadaryo', 'Navoi', 'Namangan', 'Samarqand', 'Sirdaryo', 'Surxandaryo', 'Toshkent', "Farg'ona", 'Xorazm']
-    let namozTime = ['Bomdod','Peshin', 'Asr', 'Shom', 'Xufton']
+    let namozTime = ['Bomdod', 'Quyosh', 'Peshin', 'Asr', 'Shom', 'Xufton']
 
     for (let region of regions) {
         let answer = await regionsFunction(region)
@@ -66,7 +66,11 @@ async function Times() {
             scheduler.scheduleJob({hour: el[0], minute: el[1]}, async() => {
                 let usersOfRegion = await Data.find({ location: region, notificationAllowed: true }, { userId: true, _id: false, location: true})
                 usersOfRegion.forEach(async(user) => {
-                    bot.api.sendMessage(user.userId, `🕌 ${namozTime[index]} vaqti bo'ldi`)
+                    if (namozTime[index] == 'Quyosh') {
+                        bot.api.sendMessage(user.userId, 'Bomdod vaqti o\'tib ketdi')
+                    } else {
+                        bot.api.sendMessage(user.userId, `🕌 ${namozTime[index]} vaqti bo'ldi`)
+                    }
                 })
             })
         })
