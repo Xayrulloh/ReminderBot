@@ -48,6 +48,7 @@ async function Times() {
     let users = await Data.find({ }, { userId: true, _id: false, location: true})
     users.forEach(async(user) => {
         let data = await regionsFunction(user.location)
+        bot.api.sendMessage(user.userId, 'Bugungi namoz vaqtlari')
         bot.api.sendMessage(user.userId, data[0])
     })
     
