@@ -1,15 +1,15 @@
-import mongoose from 'mongoose'
-
-connect()
+import mongoose from "mongoose";
+import "dotenv/config";
+connect();
 
 const Schema = new mongoose.Schema({
-    userId: Number,
-    notificationAllowed: Boolean,
-    location: String
-})
+  userId: Number,
+  notificationAllowed: Boolean,
+  location: String,
+});
 
 async function connect() {
-    await mongoose.connect('mongodb://localhost:27017/Namoz')
+  await mongoose.connect(process.env.MONGO_URI);
 }
 
-export default mongoose.model('Main', Schema)
+export default mongoose.model("Main", Schema);
