@@ -5,8 +5,8 @@ import Data from "#database";
 import regionsFunction from "#region";
 import scheduler from "node-schedule";
 
-const token = process.env.TOKEN,
-  bot = new Bot(token);
+const token = process.env.TOKEN, bot = new Bot(token);
+console.log(token, process.env.MONGO_URI);
 
 // middlewares
 bot.use(session({ initial: () => ({}) }));
