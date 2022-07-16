@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-
+import "dotenv/config"
 connect()
 
 const Schema = new mongoose.Schema({
@@ -9,7 +9,8 @@ const Schema = new mongoose.Schema({
 })
 
 async function connect() {
-    await mongoose.connect('mongodb://localhost:27017/Namoz')
+    console.log(process.env.MONGO_URI)
+    await mongoose.connect(process.env.MONGO_URI)
 }
 
 export default mongoose.model('Main', Schema)

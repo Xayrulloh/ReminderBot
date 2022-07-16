@@ -1,12 +1,10 @@
 import { Bot, session } from 'grammy';
 import { scenes } from './scenes/index.js'
-import dotenv from 'dotenv'
+import 'dotenv/config'
 import Data from '#database'
 import regionsFunction from '#region'
 import scheduler from 'node-schedule'
 
-// initializing dotenv
-dotenv.config()
 const token = process.env.TOKEN, bot = new Bot(token);
 
 // middlewares
