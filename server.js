@@ -6,7 +6,6 @@ import regionsFunction from "#region";
 import scheduler from "node-schedule";
 
 const token = process.env.TOKEN, bot = new Bot(token);
-console.log(token, process.env.MONGO_URI);
 
 // middlewares
 bot.use(session({ initial: () => ({}) }));
@@ -15,10 +14,7 @@ bot.use(scenes);
 
 // Commands
 bot.command("start", async (ctx) => {
-  if (await Data.findOne({ userId: ctx.update.message.from.id })) {
-    ctx.reply("Siz ro'yxatdan o'tgansiz");
-    return;
-  }
+  if (await Data.findOne({ userId: ctx.update.message.from.id })) { ctx.reply("Siz ro'yxatdan o'tgansiz"); return; }
   await ctx.scenes.enter("Start");
 });
 
@@ -37,11 +33,13 @@ bot.command("search", async (ctx) => {
 bot.start();
 
 Times();
+
 // every day
 setInterval(async () => {
   Times();
 }, 86400000);
-// 86400000
+
+// 86400000 is one day
 async function Times() {
   // daily reminder
   let users = await Data.find({}, { userId: true, _id: false, location: true });
@@ -50,47 +48,27 @@ async function Times() {
     bot.api.sendMessage(user.userId, "Bugungi namoz vaqtlari");
     bot.api.sendMessage(user.userId, data[0]);
   });
-
+  
   // clear scheduler
   await scheduler.gracefulShutdown();
-
+  
   // time reminder
-  let regions = [
-    "Andijan",
-    "Buxoro",
-    "Jizzax",
-    "Qashqadaryo",
-    "Navoi",
-    "Namangan",
-    "Samarqand",
-    "Sirdaryo",
-    "Surxandaryo",
-    "Toshkent",
-    "Farg'ona",
-    "Xorazm",
-  ];
+  let regions = [ "Andijan", "Buxoro", "Jizzax", "Qashqadaryo", "Navoi", "Namangan", "Samarqand", "Sirdaryo", "Surxandaryo", "Toshkent", "Farg'ona", "Xorazm",];
   let namozTime = ["Bomdod", "Quyosh", "Peshin", "Asr", "Shom", "Xufton"];
-
+  
   for (let region of regions) {
     let answer = await regionsFunction(region);
+    
     answer[1].forEach((el, index) => {
       el = el.split(":").map((el) => el.replace(/^0/, ""));
       scheduler.scheduleJob({ hour: el[0], minute: el[1] }, async () => {
-        let usersOfRegion = await Data.find(
-          { location: region, notificationAllowed: true },
-          { userId: true, _id: false, location: true }
-        );
+        let usersOfRegion = await Data.find({ location: region, notificationAllowed: true }, { userId: true, _id: false, location: true });
         usersOfRegion.forEach(async (user) => {
-          if (namozTime[index] == "Quyosh") {
-            bot.api.sendMessage(user.userId, "Bomdod vaqti o'tib ketdi");
-          } else {
-            bot.api.sendMessage(
-              user.userId,
-              `🕌 ${namozTime[index]} vaqti bo'ldi`
-            );
-          }
+          if (namozTime[index] == "Quyosh") { bot.api.sendMessage(user.userId, "Bomdod vaqti o'tib ketdi");
+          } else { bot.api.sendMessage(user.userId,`🕌 ${namozTime[index]} vaqti bo'ldi`); }
+          });
         });
       });
-    });
+    }
   }
-}
+  

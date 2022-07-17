@@ -9,7 +9,6 @@ const Schema = new mongoose.Schema({
 });
 
 async function connect() {
-  console.log(process.env.MONGO_URI);
   await mongoose.connect(process.env.MONGO_URI);
 }
 
