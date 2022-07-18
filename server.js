@@ -33,11 +33,15 @@ bot.command("search", async (ctx) => {
 
 bot.start();
 
+Times()
+dailyReminder()
+
 if (remainingTime != 0) {
   let interval1 = setInterval(async () => {
     Times();
 
     setInterval(async () => {
+      dailyReminder()
       Times();
     }, 86400000);
     
@@ -47,18 +51,12 @@ if (remainingTime != 0) {
 
 } else {
   setInterval(async () => {
+    dailyReminder()
     Times();
   }, 86400000);
 }
 
 async function Times() {
-    // daily reminder
-    let users = await Data.find({}, { userId: true, _id: false, location: true });
-    users.forEach(async (user) => {
-      let data = await regionsFunction(user.location);
-      bot.api.sendMessage(user.userId, `Bugungi namoz vaqtlari\n${data[0]}`).catch(async error => {if (error.response && error.response.statusCode === 403) {}; await Data.deleteOne({userId: user.userId})})
-    });
-    
     // clear scheduler
     await scheduler.gracefulShutdown();
     
@@ -80,5 +78,14 @@ async function Times() {
         });
       });
     }
+}
+
+async function dailyReminder() {
+  // daily reminder
+  let users = await Data.find({}, { userId: true, _id: false, location: true });
+  users.forEach(async (user) => {
+    let data = await regionsFunction(user.location);
+    bot.api.sendMessage(user.userId, data[0]).catch(async error => {if (error.response && error.response.statusCode === 403) {}; await Data.deleteOne({userId: user.userId})})
+  });
 }
   
