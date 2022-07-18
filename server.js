@@ -34,7 +34,6 @@ bot.command("search", async (ctx) => {
 bot.start();
 
 Times()
-dailyReminder()
 
 if (remainingTime != 0) {
   let interval1 = setInterval(async () => {
