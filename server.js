@@ -38,7 +38,8 @@ Times()
 if (remainingTime != 0) {
   let interval1 = setInterval(async () => {
     Times();
-
+    dailyReminder()
+    
     setInterval(async () => {
       dailyReminder()
       Times();
