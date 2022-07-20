@@ -39,7 +39,7 @@ if (remainingTime != 0) {
   let interval1 = setInterval(async () => {
     Times();
     dailyReminder()
-    
+
     setInterval(async () => {
       dailyReminder()
       Times();
@@ -47,8 +47,7 @@ if (remainingTime != 0) {
     
     clearInterval(interval1)
   }, remainingTime);
-
-
+  
 } else {
   setInterval(async () => {
     dailyReminder()
@@ -88,4 +87,3 @@ async function dailyReminder() {
     bot.api.sendMessage(user.userId, data[0]).catch(async error => {if (error.response && error.response.statusCode === 403) {}; await Data.deleteOne({userId: user.userId})})
   });
 }
-  
