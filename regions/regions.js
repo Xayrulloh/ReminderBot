@@ -3,10 +3,10 @@ import axios from "axios";
 let regions = [ "Andijan", "Buxoro", "Jizzax", "Qashqadaryo", "Navoi", "Namangan", "Samarqand", "Sirdaryo", "Surxandaryo", "Toshkent", "Farg'ona", "Xorazm"];
 let badRegions = [ "andizhan", "buhara", "dzhizak", "kashkadarya", "navoi", "namangan", "samarkand", "gulistan", "termez", "tashkent", "fergana", "urgench"];
 const monthNames = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"];
-let [month, date, year] = new Date().toLocaleDateString("en-UZ").split("/");
-let hijriy = new Intl.DateTimeFormat('uz-FR-u-ca-islamic', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(Date.now());
 
 export default async function (region) {
+  let [month, date, year] = new Date().toLocaleDateString("en-UZ").split("/");
+  let hijriy = new Intl.DateTimeFormat('uz-FR-u-ca-islamic', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(Date.now());
   let data = await axios.get(`https://m69638.dcserver-1.ru/namoz/api/index.php?text=${badRegions[regions.findIndex((el) => el === region)]}`);
   let time = data.data.split("\n"), day = new Date(), response;
 
