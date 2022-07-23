@@ -1,6 +1,6 @@
 import axios from "axios";
 
-let regions = [ "Andijan", "Buxoro", "Jizzax", "Qashqadaryo", "Navoi", "Namangan", "Samarqand", "Sirdaryo", "Surxandaryo", "Toshkent", "Farg'ona", "Xorazm"];
+let regions = ["Andijon", "Buxoro", "Jizzax", "Qashqadaryo", "Navoiy", "Namangan", "Samarqand", "Sirdaryo", "Surxondaryo", "Toshkent", "Farg'ona", "Xorazm"];
 let badRegions = [ "andizhan", "buhara", "dzhizak", "kashkadarya", "navoi", "namangan", "samarkand", "gulistan", "termez", "tashkent", "fergana", "urgench"];
 const monthNames = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"];
 

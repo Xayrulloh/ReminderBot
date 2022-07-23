@@ -6,19 +6,19 @@ import regionsFunction from "#region";
 let newScene = new Scene("Start");
 
 newScene.do(async (ctx) => {
-  let buttons = replaceFunction( "Andijan", "Buxoro", "Jizzax", "Qashqadaryo", "Navoi", "Namangan", "Samarqand", "Sirdaryo", "Surxandaryo", "Toshkent", "Farg'ona", "Xorazm");
+  let buttons = replaceFunction("Andijon", "Buxoro", "Jizzax", "Qashqadaryo", "Navoiy", "Namangan", "Samarqand", "Sirdaryo", "Surxondaryo", "Toshkent", "Farg'ona", "Xorazm");
   ctx.reply("Joylashuvingizni beliglang", { reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
 });
 
 newScene.wait().on("message:text", async (ctx) => {
-  if (["Andijan", "Buxoro", "Jizzax", "Qashqadaryo", "Navoi", "Namangan", "Samarqand", "Sirdaryo", "Surxandaryo", "Toshkent", "Farg'ona", "Xorazm",].includes(ctx.message.text)) {
+  if (["Andijon", "Buxoro", "Jizzax", "Qashqadaryo", "Navoiy", "Namangan", "Samarqand", "Sirdaryo", "Surxondaryo", "Toshkent", "Farg'ona", "Xorazm",].includes(ctx.message.text)) {
     ctx.session.location = ctx.message.text;
 
     let buttons = replaceFunction("Roziman", "Rozimasman");
     ctx.reply("Har namoz vaqti bo'lganda ogohlantirishga rozimisiz ?", {reply_markup: { keyboard: buttons.build(), resize_keyboard: true },});
     ctx.scene.resume();
   } else {
-    let buttons = replaceFunction( "Andijan", "Buxoro", "Jizzax", "Qashqadaryo", "Navoi", "Namangan", "Samarqand", "Sirdaryo", "Surxandaryo", "Toshkent", "Farg'ona", "Xorazm");
+    let buttons = replaceFunction( "Andijon", "Buxoro", "Jizzax", "Qashqadaryo", "Navoiy", "Namangan", "Samarqand", "Sirdaryo", "Surxondaryo", "Toshkent", "Farg'ona", "Xorazm");
     ctx.reply("Joylashuvingizni beliglang", {reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
   }
 });
