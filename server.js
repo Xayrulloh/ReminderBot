@@ -15,7 +15,7 @@ bot.use(scenes);
 
 // Commands
 bot.command("start", async (ctx) => {
-  if (await Data.findOne({ userId: ctx.update.message.from.id })) { ctx.reply("Siz ro'yxatdan o'tgansiz"); return; }
+  if (await Data.findOne({ userId: ctx.update.message.from.id })) { ctx.reply('Assalomu alaykum.\n/notification — ushbu buyruq orqali siz har namoz vaqtidagi ogohlantirishni o\'zgartirishingiz mumkun.\n/search — ushbu buyruq orqali siz O\'zbekistonning qolgan hududlaridagi namoz vaqtlaridan xabardor bo\'lishingiz mumkun.\n/location — ushbu buyruq orqali siz joylashuvingizni qaytadan kiritishingiz mumkun.\nEslatib o\'tamiz ushbu buyruqlarning barchasi Menu xizmatida joylashgan.\nE\'tiboringiz uchun rahmat.'); return; }
   await ctx.scenes.enter("Start");
 });
 
@@ -30,6 +30,18 @@ bot.command("location", async (ctx) => {
 bot.command("search", async (ctx) => {
   await ctx.scenes.enter("Search");
 });
+
+bot.command("statistic", async (ctx) => {
+  await ctx.scenes.enter("Statistic");
+});
+
+bot.command("advertise", async (ctx) => {
+  await ctx.scenes.enter("Advertise");
+});
+
+bot.on('message:text', async (ctx) => {
+  ctx.reply('Assalomu alaykum.\n/notification — ushbu buyruq orqali siz har namoz vaqtidagi ogohlantirishni o\'zgartirishingiz mumkun.\n/search — ushbu buyruq orqali siz O\'zbekistonning qolgan hududlaridagi namoz vaqtlaridan xabardor bo\'lishingiz mumkun.\n/location — ushbu buyruq orqali siz joylashuvingizni qaytadan kiritishingiz mumkun.\nEslatib o\'tamiz ushbu buyruqlarning barchasi Menu xizmatida joylashgan.\nE\'tiboringiz uchun rahmat.')
+})
 
 bot.start();
 
@@ -60,7 +72,7 @@ async function Times() {
     await scheduler.gracefulShutdown();
     
     // time reminder
-    let regions = [ "Andijan", "Buxoro", "Jizzax", "Qashqadaryo", "Navoi", "Namangan", "Samarqand", "Sirdaryo", "Surxandaryo", "Toshkent", "Farg'ona", "Xorazm",];
+    let regions = ["Andijon", "Buxoro", "Jizzax", "Qashqadaryo", "Navoiy", "Namangan", "Samarqand", "Sirdaryo", "Surxondaryo", "Toshkent", "Farg'ona", "Xorazm"];
     let namozTime = ["Bomdod", "Quyosh", "Peshin", "Asr", "Shom", "Xufton"];
     
     for (let region of regions) {
