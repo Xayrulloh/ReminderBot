@@ -6,7 +6,7 @@ const monthNames = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", 
 
 export default async function (region) {
   let [month, date, year] = new Date().toLocaleDateString("en-UZ").split("/");
-  let hijriy = new Intl.DateTimeFormat('uz-FR-u-ca-islamic', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(Date.now());
+  let hijriy = new Intl.DateTimeFormat('uz-SA-u-ca-islamic-umalqura', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(Date.now());
   let day = new Date(), response;
   let data = await axios.get(`http://18.212.226.226:8000/${badRegions[regions.findIndex((el) => el === region)]}`)
   if (day.getDay() == 5) {
