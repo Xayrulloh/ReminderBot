@@ -83,8 +83,14 @@ async function Times() {
         scheduler.scheduleJob({ hour: el[0], minute: el[1] }, async () => {
           let usersOfRegion = await Data.find({ location: region, notificationAllowed: true }, { userId: true, _id: false, location: true });
           usersOfRegion.forEach(async (user) => {
-            if (namozTime[index] == "Quyosh") { bot.api.sendMessage(user.userId, "Bomdod vaqti o'tib ketdi").catch(async error => {if (error.response && error.response.statusCode === 403) {}; await Data.deleteOne({userId: user.userId})});
-            } else { bot.api.sendMessage(user.userId,`🕌 ${namozTime[index]} vaqti bo'ldi`).catch(async error => {if (error.response && error.response.statusCode === 403) {}; await Data.deleteOne({userId: user.userId})}); }
+            if (namozTime[index] == "Quyosh") { 
+              bot.api.sendMessage(user.userId, "Bomdod vaqti o'tib ketdi").catch(async error => {if (error.response && error.response.statusCode === 403) {}; await Data.deleteOne({userId: user.userId})});
+            } else if (namozTime[index] == "Peshin" && new Date().getDay() == 5) {
+              bot.api.sendMessage(user.userId, "Juma vaqti bo'ldi").catch(async error => {if (error.response && error.response.statusCode === 403) {}; await Data.deleteOne({userId: user.userId})})
+            } 
+            else { 
+              bot.api.sendMessage(user.userId,`🕌 ${namozTime[index]} vaqti bo'ldi`).catch(async error => {if (error.response && error.response.statusCode === 403) {}; await Data.deleteOne({userId: user.userId})})
+            }
           });
         });
       });
