@@ -109,7 +109,7 @@ async function Times() {
 
 async function dailyReminder() {
   // daily reminder
-  let users = await Data.find({}, { userId: true, _id: false, location: true }), buttons = new Keyboard().text('🔍 Qidirish').text('🔴/🟢 Ogohlantirishni o\'zgartirish').row().text('📍 Joylashuvni o\'zgartirish')
+  let users = await Data.find({}, { userId: true, _id: false, location: true }), buttons = new Keyboard().text('🔍 Qidirish').row().text('🔴/🟢 Ogohlantirishni o\'zgartirish').row().text('📍 Joylashuvni o\'zgartirish')
 
   users.forEach(async (user) => {
     let data = await regionsFunction(user.location);
