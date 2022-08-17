@@ -4,7 +4,7 @@ import Data from "#database";
 let newScene = new Scene("Advertise");
 
 newScene.do(async (ctx) => {
-  if ([1151533771, 962526857, 900604435, 722785022].includes(ctx.message.from.id)) {
+  if (1151533771 == ctx.message.from.id) {
     ctx.reply('Reklamani kiriting!')
   } else {
     ctx.reply('Siz admin emas siz!')

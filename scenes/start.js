@@ -2,6 +2,7 @@ import { Scene } from "grammy-scenes";
 import replaceFunction from "#button";
 import Data from "#database";
 import regionsFunction from "#region";
+import { Keyboard } from "grammy";
 
 let newScene = new Scene("Start");
 
@@ -25,11 +26,11 @@ newScene.wait().on("message:text", async (ctx) => {
 
 newScene.wait().on("message:text", async (ctx) => {
   if (["Roziman", "Rozi emasman"].includes(ctx.message.text)) {
-    let data = await regionsFunction(ctx.session.location);
+    let data = await regionsFunction(ctx.session.location), buttons = new Keyboard().text('🔍 Qidirish').row().text('🔴/🟢 Ogohlantirishni o\'zgartirish').row().text('📍 Joylashuvni o\'zgartirish')
 
     await Data.create({ userId: ctx.update.message.from.id, notificationAllowed: ctx.message.text == "Roziman" ? true : false, location: ctx.session.location,});
 
-    ctx.reply(data[0], { reply_markup: { remove_keyboard: true } });
+    ctx.reply(data[0], { reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
     ctx.scene.exit();
   } else {
     let buttons = replaceFunction("Roziman", "Rozi emasman");

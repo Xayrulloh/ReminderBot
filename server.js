@@ -4,6 +4,7 @@ import "dotenv/config";
 import Data from "#database";
 import regionsFunction from "#region";
 import scheduler from "node-schedule";
+import { Keyboard } from "grammy";
 
 const token = process.env.TOKEN, bot = new Bot(token);
 let remainingTime = 86400000 - (new Date().getHours() * 60 * 60 + new Date().getMinutes() * 60 + new Date().getSeconds()) * 1000;
@@ -40,7 +41,16 @@ bot.command("advertise", async (ctx) => {
 });
 
 bot.on('message:text', async (ctx) => {
-  ctx.reply('Assalomu alaykum.\n/notification — ushbu buyruq orqali siz har namoz vaqtidagi ogohlantirishni o\'zgartirishingiz mumkun.\n/search — ushbu buyruq orqali siz O\'zbekistonning qolgan hududlaridagi namoz vaqtlaridan xabardor bo\'lishingiz mumkun.\n/location — ushbu buyruq orqali siz joylashuvingizni qaytadan kiritishingiz mumkun.\nEslatib o\'tamiz ushbu buyruqlarning barchasi <b>Menu</b> xizmatida joylashgan.\nE\'tiboringiz uchun rahmat.', { parse_mode: "HTML" })
+  let buttons = new Keyboard().text('🔍 Qidirish').row().text('🔴/🟢 Ogohlantirishni o\'zgartirish').row().text('📍 Joylashuvni o\'zgartirish')
+  if (ctx.message.text === '🔍 Qidirish') {
+    ctx.scenes.enter('Search')
+  } else if (ctx.message.text === '🔴/🟢 Ogohlantirishni o\'zgartirish') {
+    ctx.scenes.enter('Notification')
+  } else if (ctx.message.text === '📍 Joylashuvni o\'zgartirish') {
+    ctx.scenes.enter('Location')
+  } else {
+    ctx.reply('Assalomu alaykum.\n/notification — ushbu buyruq orqali siz har namoz vaqtidagi ogohlantirishni o\'zgartirishingiz mumkun.\n/search — ushbu buyruq orqali siz O\'zbekistonning qolgan hududlaridagi namoz vaqtlaridan xabardor bo\'lishingiz mumkun.\n/location — ushbu buyruq orqali siz joylashuvingizni qaytadan kiritishingiz mumkun.\nEslatib o\'tamiz ushbu buyruqlarning barchasi <b>Menu</b> xizmatida joylashgan.\nE\'tiboringiz uchun rahmat.', { parse_mode: "HTML", reply_markup: { keyboard: buttons.build(), resize_keyboard: true } })
+  }
 })
 
 bot.start();
@@ -99,9 +109,10 @@ async function Times() {
 
 async function dailyReminder() {
   // daily reminder
-  let users = await Data.find({}, { userId: true, _id: false, location: true });
+  let users = await Data.find({}, { userId: true, _id: false, location: true }), buttons = new Keyboard().text('🔍 Qidirish').text('🔴/🟢 Ogohlantirishni o\'zgartirish').row().text('📍 Joylashuvni o\'zgartirish')
+
   users.forEach(async (user) => {
     let data = await regionsFunction(user.location);
-    bot.api.sendMessage(user.userId, data[0]).catch(async error => {if (error.response && error.response.statusCode === 403) {}; await Data.deleteOne({userId: user.userId})})
+    bot.api.sendMessage(user.userId, data[0], {reply_markup: { keyboard: buttons.build(), resize_keyboard: true }}).catch(async error => {if (error.response && error.response.statusCode === 403) {}; await Data.deleteOne({userId: user.userId})})
   });
 }
