@@ -3,32 +3,50 @@ import replaceFunction from "#button";
 import Data from "#database";
 import regionsFunction from "#region";
 import { Keyboard } from "grammy";
+import fs from 'fs'
+import path from 'path'
 
+let places = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'places', 'places.json')))
+let regions = Object.keys(places)
 let newScene = new Scene("Start");
 
 newScene.do(async (ctx) => {
-  let buttons = replaceFunction("Andijon", "Buxoro", "Jizzax", "Qashqadaryo", "Navoiy", "Namangan", "Samarqand", "Sirdaryo", "Surxondaryo", "Toshkent", "Farg'ona", "Xorazm");
-  ctx.reply("Joylashuvingizni beliglang", { reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
+  let buttons = replaceFunction(...regions);
+  ctx.reply("Tumanni belgilang", { reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
 });
 
 newScene.wait().on("message:text", async (ctx) => {
-  if (["Andijon", "Buxoro", "Jizzax", "Qashqadaryo", "Navoiy", "Namangan", "Samarqand", "Sirdaryo", "Surxondaryo", "Toshkent", "Farg'ona", "Xorazm",].includes(ctx.message.text)) {
+  if (regions.includes(ctx.message.text)) {
     ctx.session.location = ctx.message.text;
+    let buttons = replaceFunction(...Object.values(places[ctx.message.text]))
+
+    ctx.reply("Shaxarni belgilang", {reply_markup: { keyboard: buttons.build(), resize_keyboard: true },});
+    ctx.scene.resume();
+  } else {
+    let buttons = replaceFunction(...regions);
+    ctx.reply("Tumanni belgilang", {reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
+  }
+});
+
+newScene.wait().on("message:text", async (ctx) => {
+  let values = Object.values(places[ctx.session.location]), keys = Object.keys(places[ctx.session.location])
+
+  if (values.includes(ctx.message.text)) {
+    ctx.session.district = keys[values.findIndex(el => el == ctx.message.text)]
 
     let buttons = replaceFunction("Roziman", "Rozi emasman");
     ctx.reply("Har namoz vaqti bo'lganda ogohlantirishga rozimisiz ?", {reply_markup: { keyboard: buttons.build(), resize_keyboard: true },});
     ctx.scene.resume();
   } else {
-    let buttons = replaceFunction( "Andijon", "Buxoro", "Jizzax", "Qashqadaryo", "Navoiy", "Namangan", "Samarqand", "Sirdaryo", "Surxondaryo", "Toshkent", "Farg'ona", "Xorazm");
-    ctx.reply("Joylashuvingizni beliglang", {reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
+    let buttons = replaceFunction(...Object.values(places[ctx.session.location]));
+    ctx.reply("Shaxarni belgilang", {reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
   }
 });
 
 newScene.wait().on("message:text", async (ctx) => {
   if (["Roziman", "Rozi emasman"].includes(ctx.message.text)) {
-    let data = await regionsFunction(ctx.session.location), buttons = new Keyboard().text('🔍 Qidirish').row().text('🔴/🟢 Ogohlantirishni o\'zgartirish').row().text('📍 Joylashuvni o\'zgartirish')
-
-    await Data.create({ userId: ctx.update.message.from.id, notificationAllowed: ctx.message.text == "Roziman" ? true : false, location: ctx.session.location,});
+    let data = await regionsFunction(ctx.session.district), buttons = new Keyboard().text('🔍 Qidirish').row().text('🔴/🟢 Ogohlantirishni o\'zgartirish').row().text('📍 Joylashuvni o\'zgartirish')
+    await Data.create({ userId: ctx.update.message.from.id, notificationAllowed: ctx.message.text == "Roziman" ? true : false, location: ctx.session.location, district: ctx.session.district});
 
     ctx.reply(data[0], { reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
     ctx.scene.exit();

@@ -6,6 +6,7 @@ const Schema = new mongoose.Schema({
   userId: Number,
   notificationAllowed: Boolean,
   location: String,
+  district: String
 });
 
 async function connect() {
