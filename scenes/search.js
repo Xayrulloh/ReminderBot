@@ -33,7 +33,7 @@ newScene.wait().on("message:text", async (ctx) => {
     ctx.reply(data[0], { reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
     ctx.scene.exit();
   } else {
-    let buttons = replaceFunction(Object.values(places[ctx.session.location]));
+    let buttons = replaceFunction(...Object.values(places[ctx.session.location]));
     ctx.reply("Shaxarni belgilang", { reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
   }
 });
