@@ -5,8 +5,7 @@ import { Keyboard } from "grammy";
 import fs from 'fs'
 import path from 'path'
 
-let places = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'places', 'places.json')))
-let regions = Object.keys(places)
+let places = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'places', 'places.json'))), regions = Object.keys(places), cities = JSON.parse(fs.readFileSync(path.join(process.cwd(), "places", "cites.json")));
 let newScene = new Scene("Search");
 
 newScene.do(async (ctx) => {
@@ -29,8 +28,7 @@ newScene.wait().on("message:text", async (ctx) => {
 
 newScene.wait().on("message:text", async (ctx) => {
   if (Object.values(places[ctx.session.location]).includes(ctx.message.text)) {
-    let values = Object.values(places[ctx.session.location]), keys = Object.keys(places[ctx.session.location])
-    let data = await regionsFunction(keys[values.findIndex(el => el == ctx.message.text)]), buttons = new Keyboard().text('🔍 Qidirish').row().text('🔴/🟢 Ogohlantirishni o\'zgartirish').row().text('📍 Joylashuvni o\'zgartirish')
+    let data = await regionsFunction(cities[ctx.message.text]), buttons = new Keyboard().text('🔍 Qidirish').row().text('🔴/🟢 Ogohlantirishni o\'zgartirish').row().text('📍 Joylashuvni o\'zgartirish')
 
     ctx.reply(data[0], { reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
     ctx.scene.exit();

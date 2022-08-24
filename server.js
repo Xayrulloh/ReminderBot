@@ -1,4 +1,4 @@
-import { Bot, session } from "grammy";
+import { Bot, session, InlineKeyboard } from "grammy";
 import { scenes } from "./scenes/index.js";
 import "dotenv/config";
 import Data from "#database";
@@ -7,11 +7,16 @@ import scheduler from "node-schedule";
 import { Keyboard } from "grammy";
 import fs from 'fs'
 import path from 'path'
+import query from './inline_query/query.js'
 
 let places = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'places', 'places.json')))
 
 const token = process.env.TOKEN, bot = new Bot(token);
 let remainingTime = 86400000 - (new Date().getHours() * 60 * 60 + new Date().getMinutes() * 60 + new Date().getSeconds()) * 1000;
+
+bot.inlineQuery(/(.*)/gi, (ctx) => {
+  query(ctx)
+});
 
 // middlewares
 bot.use(session({ initial: () => ({}) }));

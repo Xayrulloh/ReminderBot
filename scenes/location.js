@@ -5,8 +5,7 @@ import { Keyboard } from "grammy";
 import fs from 'fs'
 import path from 'path'
 
-let places = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'places', 'places.json')))
-let regions = Object.keys(places)
+let places = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'places', 'places.json'))), regions = Object.keys(places), cities = JSON.parse(fs.readFileSync(path.join(process.cwd(), "places", "cites.json")));
 let newScene = new Scene("Location");
 
 newScene.do(async (ctx) => {
@@ -30,14 +29,13 @@ newScene.wait().on("message:text", async (ctx) => {
 newScene.wait().on("message:text", async (ctx) => {
   if (Object.values(places[ctx.session.location]).includes(ctx.message.text)) {
     let user = await Data.findOne( { userId: ctx.update.message.from.id }), buttons = new Keyboard().text('🔍 Qidirish').row().text('🔴/🟢 Ogohlantirishni o\'zgartirish').row().text('📍 Joylashuvni o\'zgartirish')
-    let values = Object.values(places[ctx.session.location]), keys = Object.keys(places[ctx.session.location])
 
-    if (keys[values.findIndex(el => el == ctx.message.text)] == user.district) {
+    if (cities[ctx.message.text] == user.district) {
       ctx.reply( `Joylashuvingiz o'z holicha qoldi. Sababi oldin ham sizning joylashuvingiz ${ctx.message.text} bo'lgan ekan`, { reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
       ctx.scene.exit();
     } else {
       user.location = ctx.session.location
-      user.district = keys[values.findIndex(el => el == ctx.message.text)]
+      user.district = cities[ctx.message.text]
       user.save()
 
       ctx.reply("Joylashuvingiz o'zgartirildi", { reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});

@@ -6,8 +6,7 @@ import { Keyboard } from "grammy";
 import fs from 'fs'
 import path from 'path'
 
-let places = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'places', 'places.json')))
-let regions = Object.keys(places)
+let places = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'places', 'places.json'))), regions = Object.keys(places), cities = JSON.parse(fs.readFileSync(path.join(process.cwd(), "places", "cites.json")));
 let newScene = new Scene("Start");
 
 newScene.do(async (ctx) => {
@@ -29,10 +28,9 @@ newScene.wait().on("message:text", async (ctx) => {
 });
 
 newScene.wait().on("message:text", async (ctx) => {
-  let values = Object.values(places[ctx.session.location]), keys = Object.keys(places[ctx.session.location])
 
-  if (values.includes(ctx.message.text)) {
-    ctx.session.district = keys[values.findIndex(el => el == ctx.message.text)]
+  if (cities[ctx.message.text]) {
+    ctx.session.district = cities[ctx.message.text]
 
     let buttons = replaceFunction("Roziman", "Rozi emasman");
     ctx.reply("Har namoz vaqti bo'lganda ogohlantirishga rozimisiz ?", {reply_markup: { keyboard: buttons.build(), resize_keyboard: true },});
