@@ -11,7 +11,7 @@ let newScene = new Scene("Start");
 
 newScene.do(async (ctx) => {
   let buttons = replaceFunction(...regions);
-  ctx.reply("Tumanni belgilang", { reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
+  ctx.reply("Viloyatni belgilang", { reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
 });
 
 newScene.wait().on("message:text", async (ctx) => {
@@ -23,7 +23,7 @@ newScene.wait().on("message:text", async (ctx) => {
     ctx.scene.resume();
   } else {
     let buttons = replaceFunction(...regions);
-    ctx.reply("Tumanni belgilang", {reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
+    ctx.reply("Viloyatni belgilang", {reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
   }
 });
 
