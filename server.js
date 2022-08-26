@@ -1,4 +1,4 @@
-import { Bot, session, InlineKeyboard } from "grammy";
+import { Bot, session } from "grammy";
 import { scenes } from "./scenes/index.js";
 import "dotenv/config";
 import Data from "#database";
@@ -120,7 +120,7 @@ async function dailyReminder() {
   let users = await Data.find({}, { userId: true, _id: false, location: true, district: true }), buttons = new Keyboard().text('🔍 Qidirish').row().text('🔴/🟢 Ogohlantirishni o\'zgartirish').row().text('📍 Joylashuvni o\'zgartirish')
   
   users.forEach(async (user) => {
-    let data = await regionsFunction(user.district);
+    let data = await regionsFunction(user.district, 'newDay');
     bot.api.sendMessage(user.userId, data[0], {reply_markup: { keyboard: buttons.build(), resize_keyboard: true }}).catch(async error => {if (error.response && error.response.statusCode === 403) {}; await Data.deleteOne({userId: user.userId})})
   });
 }

@@ -11,7 +11,6 @@ const city = Object.keys(data);
 export default async function (ctx) {
   if (ctx.inlineQuery?.query) {
     const request = await search(ctx.inlineQuery?.query);
-
     if (request.length === 0) {
       return await ctx.answerInlineQuery([
         {
@@ -33,9 +32,9 @@ export default async function (ctx) {
         type: "article",
         id: crypto.randomUUID(),
         title: key,
-        description: request[key] + "",
+        description: 'Bugungi namoz vaqtlar\n' + request[key].array.join(', ') + "",
         input_message_content: {
-          message_text: request[key],
+          message_text: request[key].string,
           parse_mode: "HTML",
         },
       }))
@@ -68,7 +67,8 @@ async function search(str) {
   let result = {};
   for (let i of search.slice(0, 3)) {
     let info = await regionsFunction(data[i]);
-    result[i] = info[0];
+    result[i] = {string: info[0], array: info[1]}
   }
+
   return result;
 }
