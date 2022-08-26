@@ -65,7 +65,7 @@ async function search(str) {
     return search;
   }
   let result = {};
-  for (let i of search.slice(0, 3)) {
+  for (let i of search) {
     let info = await regionsFunction(data[i]);
     result[i] = {string: info[0], array: info[1]}
   }
