@@ -10,7 +10,9 @@ await redisClient.connect()
 redisClient.on('error', (err) => console.log('Redis Client Error', err));
 
 export default async function (region, newDay) {
-  if (newDay) redisClient.flushAll()
+  if (newDay) {
+    await redisClient.flushAll()
+  }
 
   let [month, date, year] = new Date().toLocaleDateString("en-UZ").split("/");
   let hijriy = new Intl.DateTimeFormat('uz-SA-u-ca-islamic-umalqura', {day: 'numeric', month: 'long',weekday: 'long',year : 'numeric'}).format(Date.now());

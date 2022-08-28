@@ -119,8 +119,10 @@ async function dailyReminder() {
   // daily reminder
   let users = await Data.find({}, { userId: true, _id: false, location: true, district: true }), buttons = new Keyboard().text('🔍 Qidirish').row().text('🔴/🟢 Ogohlantirishni o\'zgartirish').row().text('📍 Joylashuvni o\'zgartirish')
   
+  await regionsFunction('tashkent', 'newDay')
+
   users.forEach(async (user) => {
-    let data = await regionsFunction(user.district, 'newDay');
+    let data = await regionsFunction(user.district);
     bot.api.sendMessage(user.userId, data[0], {reply_markup: { keyboard: buttons.build(), resize_keyboard: true }}).catch(async error => {if (error.response && error.response.statusCode === 403) {}; await Data.deleteOne({userId: user.userId})})
   });
 }
