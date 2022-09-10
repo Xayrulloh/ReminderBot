@@ -1,4 +1,4 @@
-import { Bot, session } from "grammy";
+import { Bot, session, GrammyError, HttpError } from "grammy";
 import { scenes } from "./scenes/index.js";
 import "dotenv/config";
 import Data from "#database";
@@ -30,7 +30,7 @@ bot.command("start", async (ctx) => {
 });
 
 bot.command("notification", async (ctx) => {
-  await ctx.scenes.enter("Notification");
+  await ctx.scenes.enter("Notificat");
 });
 
 bot.command("location", async (ctx) => {
@@ -61,6 +61,13 @@ bot.on('message:text', async (ctx) => {
     ctx.reply('Assalomu alaykum.\n/notification — ushbu buyruq orqali siz har namoz vaqtidagi ogohlantirishni o\'zgartirishingiz mumkun.\n/search — ushbu buyruq orqali siz O\'zbekistonning qolgan hududlaridagi namoz vaqtlaridan xabardor bo\'lishingiz mumkun.\n/location — ushbu buyruq orqali siz joylashuvingizni qaytadan kiritishingiz mumkun.\nEslatib o\'tamiz ushbu buyruqlarning barchasi <b>Menu</b> xizmatida joylashgan.\nE\'tiboringiz uchun rahmat.', { parse_mode: "HTML", reply_markup: { keyboard: buttons.build(), resize_keyboard: true } })
   }
 })
+
+bot.catch((err) => {
+  const ctx = err.ctx, error = err.error, name = err.name;
+  const response = `By: ${ctx.update.message.from.id}\nError: ${name}\nError message: ${error.message}`
+  bot.api.sendMessage(1151533771, response)
+  bot.api.sendMessage(722785022, response)
+});
 
 bot.start();
 
