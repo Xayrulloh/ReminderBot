@@ -64,7 +64,7 @@ bot.on('message:text', async (ctx) => {
 
 bot.catch((err) => {
   const ctx = err.ctx, error = err.error, name = err.name;
-  const response = `By: ${ctx.update.message.from.id}\nError: ${name}\nError message: ${error.message}`
+  const response = `By: ${ctx.update.message.from.id}\nUsername: @${ctx.update.message.from.username}\nError: ${name}\nError message: ${error.message}`
   bot.api.sendMessage(1151533771, response)
   bot.api.sendMessage(722785022, response)
 });
