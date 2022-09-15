@@ -75,13 +75,13 @@ Times()
 
 if (remainingTime != 0) {
   let interval1 = setInterval(async () => {
-    await dailyReminder()
-    await Times();
-    
     setInterval(async () => {
       await dailyReminder()
       await Times();
     }, 86400000);
+
+    await dailyReminder()
+    await Times();
     
     clearInterval(interval1)
   }, remainingTime);
@@ -91,6 +91,9 @@ if (remainingTime != 0) {
     await dailyReminder()
     await Times();
   }, 86400000);
+
+  await dailyReminder()
+  await Times();
 }
 
 async function Times() {
