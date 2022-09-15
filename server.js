@@ -30,7 +30,7 @@ bot.command("start", async (ctx) => {
 });
 
 bot.command("notification", async (ctx) => {
-  await ctx.scenes.enter("Notificat");
+  await ctx.scenes.enter("Notification");
 });
 
 bot.command("location", async (ctx) => {
