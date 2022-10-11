@@ -25,15 +25,24 @@ bot.use(scenes);
 
 // Commands
 bot.command("start", async (ctx) => {
-  if (await Data.findOne({ userId: ctx.update.message.from.id })) { ctx.reply('Assalomu alaykum.\n/notification — ushbu buyruq orqali siz har namoz vaqtidagi ogohlantirishni o\'zgartirishingiz mumkun.\n/search — ushbu buyruq orqali siz O\'zbekistonning qolgan hududlaridagi namoz vaqtlaridan xabardor bo\'lishingiz mumkun.\n/location — ushbu buyruq orqali siz joylashuvingizni qaytadan kiritishingiz mumkun.\nEslatib o\'tamiz ushbu buyruqlarning barchasi <b>Menu</b> xizmatida joylashgan.\nE\'tiboringiz uchun rahmat.', { parse_mode: "HTML" }); return; }
+  if (await Data.findOne({ userId: ctx.update.message.from.id })) { 
+    ctx.reply('Assalomu alaykum.\n/notification — ushbu buyruq orqali siz har namoz vaqtidagi ogohlantirishni o\'zgartirishingiz mumkun.\n/search — ushbu buyruq orqali siz O\'zbekistonning qolgan hududlaridagi namoz vaqtlaridan xabardor bo\'lishingiz mumkun.\n/location — ushbu buyruq orqali siz joylashuvingizni qaytadan kiritishingiz mumkun.\nEslatib o\'tamiz ushbu buyruqlarning barchasi <b>Menu</b> xizmatida joylashgan.\nE\'tiboringiz uchun rahmat.', { parse_mode: "HTML" }); 
+    return;
+  }
   await ctx.scenes.enter("Start");
 });
 
 bot.command("notification", async (ctx) => {
+  if (!(await Data.findOne({ userId: ctx.update.message.from.id }))) { 
+    return await ctx.scenes.enter("Start")
+  }
   await ctx.scenes.enter("Notification");
 });
 
 bot.command("location", async (ctx) => {
+  if (!(await Data.findOne({ userId: ctx.update.message.from.id }))) { 
+    return await ctx.scenes.enter("Start")
+  }
   await ctx.scenes.enter("Location");
 });
 
@@ -50,6 +59,9 @@ bot.command("advertise", async (ctx) => {
 });
 
 bot.on('message:text', async (ctx) => {
+  if (!(await Data.findOne({ userId: ctx.update.message.from.id }))) { 
+    return await ctx.scenes.enter("Start")
+  }
   let buttons = new Keyboard().text('🔍 Qidirish').row().text('🔴/🟢 Ogohlantirishni o\'zgartirish').row().text('📍 Joylashuvni o\'zgartirish')
   if (ctx.message.text === '🔍 Qidirish') {
     ctx.scenes.enter('Search')
