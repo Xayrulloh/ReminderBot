@@ -123,12 +123,12 @@ async function Times() {
           let usersOfRegion = await Data.find({ $or: [ { location: district }, { district: district } ], notificationAllowed: true }, { userId: true, _id: false, location: true });
           usersOfRegion.forEach(async (user) => {
             if (namozTime[index] == "Quyosh") { 
-              bot.api.sendMessage(user.userId, "Bomdod vaqti o'tib ketdi").catch(async error => {if (error.response && error.response.statusCode === 403) {}; await Data.deleteOne({userId: user.userId})});
+              bot.api.sendMessage(user.userId, "Bomdod vaqti o'tib ketdi").catch(async error => {if (error.description == 'Forbidden: bot was blocked by the user') {}; await Data.deleteOne({userId: user.userId})});
             } else if (namozTime[index] == "Peshin" && new Date().getDay() == 5) {
-              bot.api.sendMessage(user.userId, "Juma vaqti bo'ldi").catch(async error => {if (error.response && error.response.statusCode === 403) {}; await Data.deleteOne({userId: user.userId})})
+              bot.api.sendMessage(user.userId, "Juma vaqti bo'ldi").catch(async error => {if (error.description == 'Forbidden: bot was blocked by the user') {}; await Data.deleteOne({userId: user.userId})})
             } 
             else { 
-              bot.api.sendMessage(user.userId,`🕌 ${namozTime[index]} vaqti bo'ldi`).catch(async error => {if (error.response && error.response.statusCode === 403) {}; await Data.deleteOne({userId: user.userId})})
+              bot.api.sendMessage(user.userId,`🕌 ${namozTime[index]} vaqti bo'ldi`).catch(async error => {if (error.description == 'Forbidden: bot was blocked by the user') {}; await Data.deleteOne({userId: user.userId})})
             }
           });
         });
@@ -145,6 +145,6 @@ async function dailyReminder() {
 
   users.forEach(async (user) => {
     let data = await regionsFunction(user.district);
-    bot.api.sendMessage(user.userId, data[0], {reply_markup: { keyboard: buttons.build(), resize_keyboard: true }}).catch(async error => {if (error.response && error.response.statusCode === 403) {}; await Data.deleteOne({userId: user.userId})})
+    bot.api.sendMessage(user.userId, data[0], {reply_markup: { keyboard: buttons.build(), resize_keyboard: true }}).catch(async error => {if (error.description == 'Forbidden: bot was blocked by the user') {}; await Data.deleteOne({userId: user.userId})})
   });
 }
