@@ -3,7 +3,8 @@ import fs from 'fs'
 import path from 'path'
 import Redis from 'redis'
 
-let districts = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'places', 'districts.json'))), redisClient = Redis.createClient()
+let districts = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'places', 'districts.json')))
+let redisClient = Redis.createClient()
 const monthNames = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"];
 
 await redisClient.connect()
@@ -25,7 +26,7 @@ export default async function (region, newDay) {
     } else {
       response = `🗓 ${date} - ${monthNames[month - 1]} milodiy ${year} - yil\n🗓 ${hijriy.split(',')[1].split('-')[0]} - ${hijriy.split(',')[1].slice(hijriy.split(',')[1].indexOf('-') + 1)} hijriy ${hijriy.split(',')[2].slice(0, 5)} - yil\n\n🕌 ${districts[region]} shahar namoz vaqtlari\n\n🏙 Bomdod ${redisData[0]}\n🌅 Quyosh ${redisData[1]}\n🏞 Peshin ${redisData[2]}\n🌆 Asr ${redisData[3]}\n🌉 Shom ${redisData[4]}\n🌃 Xufton ${redisData[5]}\n\n إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَوْقُوتًا                     \n\nAlbatta, namoz mo'minlarga vaqtida farz qilingandir.\nNiso surasi 103-oyat`
     }
-    return [response, redisData]
+  return [response, redisData]
   }
   
   let data = await axios.get(`http://18.212.226.226:8000/${region}`).catch(error => console.log(error))
@@ -37,6 +38,5 @@ export default async function (region, newDay) {
   }
 
   redisClient.setEx(region, 86400000, JSON.stringify(data.data.data))
-  
   return [response, data.data.data];
 }

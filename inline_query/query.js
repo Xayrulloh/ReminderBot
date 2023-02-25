@@ -5,7 +5,9 @@ import regionsFunction from "#region";
 import crypto from "crypto";
 import fuzzy from "fuzzy";
 
-const data = JSON.parse(fs.readFileSync(path.join(process.cwd(), "places", "cites.json")));
+const data = JSON.parse(
+  fs.readFileSync(path.join(process.cwd(), "places", "cites.json"))
+);
 const city = Object.keys(data);
 
 export default async function (ctx) {
@@ -18,9 +20,15 @@ export default async function (ctx) {
           id: "404",
           title: "Xatolik yuz berdi!",
           description: `${ctx.inlineQuery?.query} ga oid natija topilmadi!`,
-          reply_markup: new InlineKeyboard().switchInlineCurrent("Qayta urinib ko'ramizmi?", ""),
+          reply_markup: new InlineKeyboard().switchInlineCurrent(
+            "Qayta urinib ko'ramizmi?",
+            ""
+          ),
           input_message_content: {
-            message_text: `<b>"${ctx.inlineQuery?.query}" ga oid natija mavjud emas!</b>` + `\n` + `Iltimos, qaytadan urinib ko'ring.`,
+            message_text:
+              `<b>"${ctx.inlineQuery?.query}" ga oid natija mavjud emas!</b>` +
+              `\n` +
+              `Iltimos, qaytadan urinib ko'ring.`,
             parse_mode: "HTML",
           },
         },
@@ -32,7 +40,8 @@ export default async function (ctx) {
         type: "article",
         id: crypto.randomUUID(),
         title: key,
-        description: 'Bugungi namoz vaqtlar\n' + request[key].array.join(', ') + "",
+        description:
+          "Bugungi namoz vaqtlar\n" + request[key].array.join(", ") + "",
         input_message_content: {
           message_text: request[key].string,
           parse_mode: "HTML",
@@ -48,9 +57,21 @@ export default async function (ctx) {
         id: "101",
         title: "Qidirishni boshlang!",
         description: "Qidirmoqchi bo'lgan shaxaringiz nomini yozing!",
-        reply_markup: new InlineKeyboard().switchInlineCurrent("Qayta urinib ko'ramizmi?", ""),
+        reply_markup: new InlineKeyboard().switchInlineCurrent(
+          "Qayta urinib ko'ramizmi?",
+          ""
+        ),
         input_message_content: {
-          message_text: `<b>Salom foydalanuvchi!</b>` + `\n` + `Siz inline rejim ishga tushurdingiz. Ushbu qulaylik yordamida siz O'zbekistondagi" ` + `namoz vaqtlarini bilib olish imkoniyatiga ega bo'lasiz.` + ` Qidirishni boshlash uchun ` + `\n` + `<code>@namoz5vbot &lt;shahar nomi&gt;</code>` + `\n` + `yozasiz`,
+          message_text:
+            `<b>Salom foydalanuvchi!</b>` +
+            `\n` +
+            `Siz inline rejim ishga tushurdingiz. Ushbu qulaylik yordamida siz O'zbekistondagi" ` +
+            `namoz vaqtlarini bilib olish imkoniyatiga ega bo'lasiz.` +
+            ` Qidirishni boshlash uchun ` +
+            `\n` +
+            `<code>@namoz5vbot &lt;shahar nomi&gt;</code>` +
+            `\n` +
+            `yozasiz`,
           parse_mode: "HTML",
         },
       },
@@ -67,7 +88,7 @@ async function search(str) {
   let result = {};
   for (let i of search) {
     let info = await regionsFunction(data[i]);
-    result[i] = {string: info[0], array: info[1]}
+    result[i] = { string: info[0], array: info[1] };
   }
 
   return result;
