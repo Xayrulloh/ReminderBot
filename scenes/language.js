@@ -1,6 +1,7 @@
 import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
 import inlineKFunction from '../keyboard/inline.js'
+import customKFunction from '../keyboard/custom.js'
 import HLanguage from '#helper/language'
 
 const scene = new Scene('Language')
@@ -23,6 +24,8 @@ scene.do(async (ctx) => {
 })
 
 scene.wait().on('callback_query:data', async (ctx) => {
+  ctx.answerCallbackQuery()
+
   const language = ctx.update.callback_query.data
   if (!['uz', 'ru', 'en'].includes(language)) {
     ctx.reply(ctx.session.message, { reply_markup: ctx.session.buttons })
@@ -33,8 +36,11 @@ scene.wait().on('callback_query:data', async (ctx) => {
   const message = HLanguage(language, 'changedLanguage')
 
   await Model.User.updateOne({ userId }, { language })
-  ctx.reply(message)
 
+  const keyboardText = HLanguage(language, 'mainKeyboard')
+  const buttons = customKFunction(2, ...keyboardText)
+
+  ctx.reply(message, { reply_markup: { keyboard: buttons.build(), resize_keyboard: true } })
   ctx.scene.exit()
 })
 

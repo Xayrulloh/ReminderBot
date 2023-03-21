@@ -2,6 +2,7 @@ import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
 import inlineKFunction from '../keyboard/inline.js'
 import HLanguage from '#helper/language'
+import { HReplace } from '#helper/replacer'
 
 let scene = new Scene('Location')
 
@@ -23,6 +24,7 @@ scene.do(async (ctx) => {
   ctx.session.userId = userId
   ctx.session.language = user.language
   ctx.session.regionId = Object.values(keyboardMessage)
+  ctx.session.regions = keyboardMessage
 
   ctx.reply(message, { reply_markup: buttons })
 })
@@ -30,22 +32,29 @@ scene.do(async (ctx) => {
 scene.wait().on('callback_query:data', async (ctx) => {
   if (ctx.session.regionId.includes(+ctx.update.callback_query.data)) {
     const now = new Date()
-    const today = now.getDay() + 1
+    const today = now.getDate()
     const message = HLanguage(ctx.session.language, 'infoPrayTime')
     const data = await Model.PrayTime.findOne({ day: today, regionId: +ctx.update.callback_query.data })
+    let regionName = ''
+
+    for (const key in ctx.session.regions) {
+      if (ctx.session.regions[key] === data.regionId) {
+        regionName = key
+        break
+      }
+    }
 
     await Model.User.updateOne(
       { userId: ctx.session.userId },
-      { region: data.region, regionId: +ctx.update.callback_query.data },
+      { region: regionName, regionId: +ctx.update.callback_query.data },
     )
 
-    let response = message.replace('$region', data.region)
-    response = response.replace('$fajr', data.fajr)
-    response = response.replace('$sunrise', data.sunrise)
-    response = response.replace('$zuhr', data.zuhr)
-    response = response.replace('$asr', data.asr)
-    response = response.replace('$maghrib', data.maghrib)
-    response = response.replace('$isha', data.isha)
+    let response = HReplace(
+      message,
+      ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha'],
+      [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha],
+    )
+
     const locationMessage = HLanguage(ctx.session.language, 'locationChange')
 
     ctx.reply(locationMessage)
@@ -54,6 +63,8 @@ scene.wait().on('callback_query:data', async (ctx) => {
   } else {
     ctx.reply(ctx.session.message, { reply_markup: ctx.session.buttons })
   }
+
+  ctx.answerCallbackQuery()
 })
 
 export default scene

@@ -2,13 +2,14 @@ import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
 import inlineKFunction from '../keyboard/inline.js'
 import HLanguage from '#helper/language'
+import { HReplace } from '#helper/replacer'
 
 let scene = new Scene('Search')
 
 scene.do(async (ctx) => {
   const userId = ctx.update.message.from.id
   const user = await Model.User.findOne({ userId })
-  const message = HLanguage(user.language, 'chooseRegion')
+  const message = HLanguage(user.language, 'searchRegion')
   const keyboardMessage = HLanguage(user.language, 'region')
   const keyboard = []
 
@@ -22,6 +23,7 @@ scene.do(async (ctx) => {
   ctx.session.buttons = buttons
   ctx.session.language = user.language
   ctx.session.regionId = Object.values(keyboardMessage)
+  ctx.session.regions = keyboardMessage
 
   ctx.reply(message, { reply_markup: buttons })
 })
@@ -29,24 +31,32 @@ scene.do(async (ctx) => {
 scene.wait().on('callback_query:data', async (ctx) => {
   if (ctx.session.regionId.includes(+ctx.update.callback_query.data)) {
     const now = new Date()
-    const today = now.getDay() + 1
+    const today = now.getDate()
 
     const message = HLanguage(ctx.session.language, 'infoPrayTime')
     const data = await Model.PrayTime.findOne({ day: today, regionId: ctx.update.callback_query.data })
+    let regionName = ''
 
-    let response = message.replace('$region', data.region)
-    response = response.replace('$fajr', data.fajr)
-    response = response.replace('$sunrise', data.sunrise)
-    response = response.replace('$zuhr', data.zuhr)
-    response = response.replace('$asr', data.asr)
-    response = response.replace('$maghrib', data.maghrib)
-    response = response.replace('$isha', data.isha)
+    for (const key in ctx.session.regions) {
+      if (ctx.session.regions[key] === data.regionId) {
+        regionName = key
+        break
+      }
+    }
+
+    let response = HReplace(
+      message,
+      ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha'],
+      [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha],
+    )
 
     ctx.reply(response)
     ctx.scene.exit()
   } else {
     ctx.reply(ctx.session.message, { reply_markup: ctx.session.buttons })
   }
+
+  ctx.answerCallbackQuery()
 })
 
 export default scene

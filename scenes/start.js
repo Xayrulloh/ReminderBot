@@ -3,6 +3,7 @@ import Model from '#config/database'
 import inlineKFunction from '../keyboard/inline.js'
 import customKFunction from '../keyboard/custom.js'
 import HLanguage from '#helper/language'
+import { HReplace } from '#helper/replacer'
 
 const scene = new Scene('Start')
 
@@ -31,6 +32,8 @@ scene.do(async (ctx) => {
 
 // region
 scene.wait().on('callback_query:data', async (ctx) => {
+  ctx.answerCallbackQuery()
+
   const language = ctx.update.callback_query.data
   ctx.session.language = language
 
@@ -52,7 +55,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
   ctx.session.regionId = Object.values(keyboardMessage)
   ctx.session.message = message
   ctx.session.buttons = buttons
-  ctx.session.keyboardMessage = keyboardMessage
+  ctx.session.regions = keyboardMessage
 
   ctx.reply(message, { reply_markup: buttons })
   ctx.scene.resume()
@@ -60,6 +63,8 @@ scene.wait().on('callback_query:data', async (ctx) => {
 
 // notification
 scene.wait().on('callback_query:data', async (ctx) => {
+  ctx.answerCallbackQuery()
+
   if (!ctx.session.regionId.includes(+ctx.update.callback_query.data)) {
     ctx.reply(ctx.session.message, { reply_markup: ctx.session.buttons })
     return
@@ -85,6 +90,8 @@ scene.wait().on('callback_query:data', async (ctx) => {
 
 // fasting
 scene.wait().on('callback_query:data', async (ctx) => {
+  ctx.answerCallbackQuery()
+
   if (!ctx.session.keyboardMessage.includes(ctx.update.callback_query.data)) {
     ctx.reply(ctx.session.message, { reply_markup: ctx.session.buttons })
     return
@@ -109,6 +116,8 @@ scene.wait().on('callback_query:data', async (ctx) => {
 
 // the end
 scene.wait().on('callback_query:data', async (ctx) => {
+  ctx.answerCallbackQuery()
+
   if (!ctx.session.keyboardMessage.includes(ctx.update.callback_query.data)) {
     ctx.reply(ctx.session.message, { reply_markup: ctx.session.buttons })
     return
@@ -117,9 +126,17 @@ scene.wait().on('callback_query:data', async (ctx) => {
   const fasting = ctx.session.keyboardMessage[0] == ctx.update.callback_query.data ? true : false
 
   const now = new Date()
-  const today = now.getDay() + 1
+  const today = now.getDate()
   const message = HLanguage(ctx.session.language, 'infoPrayTime')
   const data = await Model.PrayTime.findOne({ day: today, regionId: ctx.session.regionId })
+  let regionName = ''
+
+  for (const key in ctx.session.regions) {
+    if (ctx.session.regions[key] === data.regionId) {
+      regionName = key
+      break
+    }
+  }
 
   await Model.User.create({
     userId: ctx.session.userId,
@@ -127,21 +144,22 @@ scene.wait().on('callback_query:data', async (ctx) => {
     name: ctx.session.name,
     notification: ctx.session.notification,
     fasting,
-    region: data.region,
+    region: regionName,
     regionId: data.regionId,
     donate: 0,
     language: ctx.session.language,
   })
 
-  let response = message.replace('$region', data.region)
-  response = response.replace('$fajr', data.fajr)
-  response = response.replace('$sunrise', data.sunrise)
-  response = response.replace('$zuhr', data.zuhr)
-  response = response.replace('$asr', data.asr)
-  response = response.replace('$maghrib', data.maghrib)
-  response = response.replace('$isha', data.isha)
+  let response = HReplace(
+    message,
+    ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha'],
+    [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha],
+  )
 
-  ctx.reply(response)
+  const keyboardText = HLanguage(ctx.session.language, 'mainKeyboard')
+  const buttons = customKFunction(2, ...keyboardText)
+
+  ctx.reply(response, { reply_markup: { keyboard: buttons.build(), resize_keyboard: true } })
   ctx.scene.exit()
 })
 

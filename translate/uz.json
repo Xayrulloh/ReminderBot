@@ -18,10 +18,24 @@
     "Xiva": 21,
     "Marg'ilon": 13
   },
-  "chooseRegion": "Viloyatni belgilang",
+  "chooseRegion": "Joylashuvingizni belgilang",
   "infoPrayTime": "$region shahar namoz vaqtlari\n\n🏙 Bomdod $fajr\n🌅 Quyosh $sunrise\n🏞 Peshin $zuhr\n🌆 Asr $asr\n🌉 Shom $maghrib\n🌃 Xufton $isha\n\n إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَوْقُوتًا                     \n\nAlbatta, namoz mo'minlarga vaqtida farz qilingandir.\n\nNiso surasi 103-oyat",
   "notifChange": "O'zgartirildi",
   "locationChange": "Sizning joylashuvingiz o'zgartirildi",
   "agreementFasting": ["Ha", "Yo'q"],
-  "fastingMessage": "Ro'zadormisiz"
+  "fastingMessage": "Ro'zadormisiz",
+  "mainKeyboard": [
+    "🔍 Qidirish",
+    "Tilni o'zgartirish",
+    "Joylashuvni o'zgartirish",
+    "Ro'za",
+    "Xabarnomani o'zgartirish"
+  ],
+  "searchRegion": "Viloyatni belgilang",
+  "fajrTime": "Bomdod vaqti bo'ldi",
+  "sunriseTime": "Bomdod vaqti o'tib ketdi",
+  "dhuhrTime": "Peshin vaqti bo'ldi",
+  "asrTime": "Asr vaqti bo'ldi",
+  "maghribTime": "Shom vaqti bo'ldi",
+  "ishaTime": "Xufton vaqti bo'ldi"
 }

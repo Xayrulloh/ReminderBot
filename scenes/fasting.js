@@ -36,6 +36,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
   } else {
     ctx.reply(ctx.session.message, { reply_markup: ctx.session.buttons })
   }
+  ctx.answerCallbackQuery()
 })
 
 export default scene

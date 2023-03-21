@@ -23,5 +23,13 @@
   "notifChange": "Updated",
   "locationChange": "Your location is changed",
   "agreementFasting": ["Yes", "No"],
-  "fastingMessage": "Are you fasting?"
+  "fastingMessage": "Are you fasting?",
+  "mainKeyboard": ["🔍 Search", "Change language", "Change location", "Fasting", "Change notification"],
+  "searchRegion": "Choose a region",
+  "fajrTime": "Fajr time has started",
+  "sunriseTime": "Fajr time has passed",
+  "dhuhrTime": "Dhuhr time has started",
+  "asrTime": "Asr time has started",
+  "maghribTime": "Maghrib time has started",
+  "ishaTime": "Isha time has started"
 }
