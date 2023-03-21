@@ -1,50 +1,59 @@
-import { Scene } from "grammy-scenes";
-import replaceFunction from "#button";
-import Data from "#database";
-import { Keyboard } from "grammy";
-import fs from 'fs'
-import path from 'path'
+import { Scene } from 'grammy-scenes'
+import Model from '#config/database'
+import inlineKFunction from '../keyboard/inline.js'
+import HLanguage from '#helper/language'
 
-let places = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'places', 'places.json'))), regions = Object.keys(places), cities = JSON.parse(fs.readFileSync(path.join(process.cwd(), "places", "cites.json")));
-let newScene = new Scene("Location");
+let scene = new Scene('Location')
 
-newScene.do(async (ctx) => {
-  let buttons = replaceFunction(...regions);
-  ctx.reply("Viloyatni belgilang", { reply_markup: { keyboard: buttons.build(), resize_keyboard: true } });
-});
+scene.do(async (ctx) => {
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
+  const message = HLanguage(user.language, 'chooseRegion')
+  const keyboardMessage = HLanguage(user.language, 'region')
+  const keyboard = []
 
-newScene.wait().on("message:text", async (ctx) => {
-  if (regions.includes(ctx.message.text)) {
-    ctx.session.location = ctx.message.text;
-    let buttons = replaceFunction(...Object.values(places[ctx.message.text]))
-
-    ctx.reply("Shaxarni belgilang", {reply_markup: { keyboard: buttons.build(), resize_keyboard: true },});
-    ctx.scene.resume();
-  } else {
-    let buttons = replaceFunction(...regions);
-    ctx.reply("Viloyatni belgilang", {reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
+  for (let region in keyboardMessage) {
+    keyboard.push({ view: region, text: keyboardMessage[region] })
   }
-});
 
-newScene.wait().on("message:text", async (ctx) => {
-  if (Object.values(places[ctx.session.location]).includes(ctx.message.text)) {
-    let user = await Data.findOne( { userId: ctx.update.message.from.id }), buttons = new Keyboard().text('🔍 Qidirish').row().text('🔴/🟢 Ogohlantirishni o\'zgartirish').row().text('📍 Joylashuvni o\'zgartirish')
+  const buttons = inlineKFunction(3, ...keyboard)
 
-    if (cities[ctx.message.text] == user.district) {
-      ctx.reply( `Joylashuvingiz o'z holicha qoldi. Sababi oldin ham sizning joylashuvingiz ${ctx.message.text} bo'lgan ekan`, { reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
-      ctx.scene.exit();
-    } else {
-      user.location = ctx.session.location
-      user.district = cities[ctx.message.text]
-      user.save()
+  ctx.session.message = message
+  ctx.session.buttons = buttons
+  ctx.session.userId = userId
+  ctx.session.language = user.language
+  ctx.session.regionId = Object.values(keyboardMessage)
 
-      ctx.reply("Joylashuvingiz o'zgartirildi", { reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
-      ctx.scene.exit();
-    }
+  ctx.reply(message, { reply_markup: buttons })
+})
+
+scene.wait().on('callback_query:data', async (ctx) => {
+  if (ctx.session.regionId.includes(+ctx.update.callback_query.data)) {
+    const now = new Date()
+    const today = now.getDay() + 1
+    const message = HLanguage(ctx.session.language, 'infoPrayTime')
+    const data = await Model.PrayTime.findOne({ day: today, regionId: +ctx.update.callback_query.data })
+
+    await Model.User.updateOne(
+      { userId: ctx.session.userId },
+      { region: data.region, regionId: +ctx.update.callback_query.data },
+    )
+
+    let response = message.replace('$region', data.region)
+    response = response.replace('$fajr', data.fajr)
+    response = response.replace('$sunrise', data.sunrise)
+    response = response.replace('$zuhr', data.zuhr)
+    response = response.replace('$asr', data.asr)
+    response = response.replace('$maghrib', data.maghrib)
+    response = response.replace('$isha', data.isha)
+    const locationMessage = HLanguage(ctx.session.language, 'locationChange')
+
+    ctx.reply(locationMessage)
+    ctx.reply(response)
+    ctx.scene.exit()
   } else {
-    let buttons = replaceFunction(...Object.values(places[ctx.session.location]));
-    ctx.reply("Shaxarni belgilang", { reply_markup: { keyboard: buttons.build(), resize_keyboard: true }});
+    ctx.reply(ctx.session.message, { reply_markup: ctx.session.buttons })
   }
-});
+})
 
-export default newScene;
+export default scene

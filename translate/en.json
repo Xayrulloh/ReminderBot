@@ -1,0 +1,27 @@
+{
+  "chooseLanguage": "Choose your native language",
+  "changedLanguage": "Your language changed to English",
+  "agreementNotification": ["Agree", "Not agree"],
+  "notificationMessage": "Are you willing to receive notifications when it's time to pray?",
+  "region": {
+    "Tashkent": 27,
+    "Andijan": 1,
+    "Bukhara": 4,
+    "Gulistan": 5,
+    "Samarkand": 18,
+    "Namangan": 15,
+    "Navoi": 14,
+    "Jizzakh": 9,
+    "Nukus": 16,
+    "Karshi": 25,
+    "Kokand": 26,
+    "Khiva": 21,
+    "Margilan": 13
+  },
+  "chooseRegion": "Choose your region",
+  "infoPrayTime": "Prayer times for $region city\n\n🏙 Fajr $fajr\n🌅 Sunrise $sunrise\n🏞 Zuhr $zuhr\n🌆 Asr $asr\n🌉 Maghrib $maghrib\n🌃 Isha $isha\n\n إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَوْقُوتًا                     \n\nIndeed, prayer has been decreed upon the believers a decree of specified times.\n\nSurah Nisa 103 verse",
+  "notifChange": "Updated",
+  "locationChange": "Your location is changed",
+  "agreementFasting": ["Yes", "No"],
+  "fastingMessage": "Are you fasting?"
+}

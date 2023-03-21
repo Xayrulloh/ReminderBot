@@ -1,0 +1,27 @@
+{
+  "chooseLanguage": "Ona tilingizni tanlang",
+  "changedLanguage": "Sizning tilingiz O'zbek tiliga o'zgartirildi",
+  "agreementNotification": ["Roziman", "Rozimasman"],
+  "notificationMessage": "Har namoz vaqti bo'lganda ogohlantirishga rozimisiz?",
+  "region": {
+    "Toshkent": 27,
+    "Andijon": 1,
+    "Buxoro": 4,
+    "Guliston": 5,
+    "Samarqand": 18,
+    "Namangan": 15,
+    "Navoiy": 14,
+    "Jizzax": 9,
+    "Nukus": 16,
+    "Qarshi": 25,
+    "Qo'qon": 26,
+    "Xiva": 21,
+    "Marg'ilon": 13
+  },
+  "chooseRegion": "Viloyatni belgilang",
+  "infoPrayTime": "$region shahar namoz vaqtlari\n\n🏙 Bomdod $fajr\n🌅 Quyosh $sunrise\n🏞 Peshin $zuhr\n🌆 Asr $asr\n🌉 Shom $maghrib\n🌃 Xufton $isha\n\n إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَوْقُوتًا                     \n\nAlbatta, namoz mo'minlarga vaqtida farz qilingandir.\n\nNiso surasi 103-oyat",
+  "notifChange": "O'zgartirildi",
+  "locationChange": "Sizning joylashuvingiz o'zgartirildi",
+  "agreementFasting": ["Ha", "Yo'q"],
+  "fastingMessage": "Ro'zadormisiz"
+}

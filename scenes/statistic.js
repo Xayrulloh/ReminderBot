@@ -1,19 +1,18 @@
-import { Scene } from "grammy-scenes";
-import Data from "#database";
+import { Scene } from 'grammy-scenes'
+import Model from '#config/database'
 
-let newScene = new Scene("Statistic");
+const scene = new Scene('Statistic')
 
-newScene.do(async (ctx) => {
-  if ([1151533771, 962526857, 900604435, 722785022].includes(ctx.message.from.id)) {
-    let users = await Data.find(), notificationAllowed = await Data.find({ notificationAllowed: true }), humansInRegions = await Data.aggregate([{$group: { _id: "$location", locationCount: { $sum: 1 }}}])
-    let message = `All users are ${users.length}\nNotification allowed users are ${notificationAllowed.length}\nNotification not allowed users are ${users.length - notificationAllowed.length}\n`
-    humansInRegions.map(el => {message += `${el._id} has ${el.locationCount} person\n`})
-    ctx.reply(message)
+scene.do(async (ctx) => {
+  if ([1151533771].includes(ctx.message.from.id)) {
+    const users = await Model.User.find()
+
+    ctx.reply('All users are ' + users.length)
     ctx.scene.exit()
   } else {
-    ctx.reply('Siz admin emas siz!')
+    ctx.reply("You haven't a permission!")
     ctx.scene.exit()
   }
-});
+})
 
-export default newScene;
+export default scene

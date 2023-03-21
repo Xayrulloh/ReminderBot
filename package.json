@@ -5,7 +5,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start:dev": "nodemon server.js",
+    "start:dev": "clear && nodemon server.js",
     "start": "node server.js"
   },
   "author": "",
@@ -19,12 +19,13 @@
     "grammy-scenes": "^7.3.0",
     "mongoose": "^6.3.6",
     "node-schedule": "^2.1.0",
+    "pdf-parse": "^1.1.1",
     "redis": "^4.3.0"
   },
   "imports": {
-    "#button": "./buttons/button.js",
-    "#database": "./db/db.js",
+    "#config/*": "./config/*.js",
     "#region": "./regions/regions.js",
-    "#daily/*": "./daily/*.js"
+    "#daily/*": "./daily/*.js",
+    "#helper/*": "./helper/*.js"
   }
 }
