@@ -93,7 +93,8 @@ export async function reminder(bot) {
       const users = await Model.User.find({ regionId: region.regionId, notification: true })
 
       users.forEach((user) => {
-        const message = user.fasting ? HLanguage(user.language, 'closeFast') : HLanguage(user.language, 'fajrTime')
+        let message = user.fasting ? HLanguage(user.language, 'closeFast') : HLanguage(user.language, 'fajrTime')
+        message += `\n\nنَوَيْتُ أَنْ أَصُومَ صَوْمَ شَهْرَ رَمَضَانَ مِنَ الْفَجْرِ إِلَى الْمَغْرِبِ، خَالِصًا لِلهِ تَعَالَى أَللهُ أَكْبَرُ\n\nНавайту ан асувма совма шаҳри рамазона минал фажри илал мағриби, холисан лиллаҳи таъаалаа Аллоҳу акбар`
 
         bot.api.sendMessage(user.userId, message).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
@@ -149,7 +150,8 @@ export async function reminder(bot) {
       const users = await Model.User.find({ regionId: region.regionId, notification: true })
 
       users.forEach((user) => {
-        const message = user.fasting ? HLanguage(user.language, 'closeFast') : HLanguage(user.language, 'fajrTime')
+        let message = user.fasting ? HLanguage(user.language, 'closeFast') : HLanguage(user.language, 'fajrTime')
+        message += `\n\nاَللَّهُمَّ لَكَ صُمْتُ وَ بِكَ آمَنْتُ وَ عَلَيْكَ تَوَكَّلْتُ وَ عَلَى رِزْقِكَ أَفْتَرْتُ، فَغْفِرْلِى مَا قَدَّمْتُ وَ مَا أَخَّرْتُ بِرَحْمَتِكَ يَا أَرْحَمَ الرَّاحِمِينَ\n\nАллоҳумма лака сумту ва бика ааманту ва аълайка таваккалту ва аълаа ризқика афтарту, фағфирлий ма қоддамту ва маа аххорту бироҳматика йаа арҳамар рооҳимийн`
 
         bot.api.sendMessage(user.userId, message).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
