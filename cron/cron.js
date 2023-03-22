@@ -48,25 +48,14 @@ export async function monthly() {
 }
 
 export async function daily(bot) {
-  await schedule.gracefulShutdown()
-
   const now = new Date()
   const currentDay = now.getDate()
-
   const regions = await Model.PrayTime.find({ day: currentDay })
 
   for (let region of regions) {
     const users = await Model.User.find({ regionId: region.regionId })
 
     for (let user of users) {
-      // times
-      const fajr = region.fajr.split(':')
-      const sunrise = region.sunrise.split(':')
-      const dhuhr = region.dhuhr.split(':')
-      const asr = region.asr.split(':')
-      const maghrib = region.maghrib.split(':')
-      const isha = region.isha.split(':')
-
       const info = HLanguage(user.language, 'infoPrayTime')
       const message = HReplace(
         info,
@@ -74,67 +63,114 @@ export async function daily(bot) {
         [region.region, region.fajr, region.sunrise, region.dhuhr, region.asr, region.maghrib, region.isha],
       )
 
-      const fajrTime = HLanguage(user.language, 'fajrTime')
-      const sunriseTime = HLanguage(user.language, 'sunriseTime')
-      const dhuhrTime = HLanguage(user.language, 'dhuhrTime')
-      const asrTime = HLanguage(user.language, 'asrTime')
-      const maghribTime = HLanguage(user.language, 'maghribTime')
-      const ishaTime = HLanguage(user.language, 'ishaTime')
-
-      // schedule
-      schedule.scheduleJob({ hour: fajr[0], minute: fajr[1] }, async () => {
-        bot.api.sendMessage(user.userId, fajrTime).catch(async (error) => {
-          if (error.description == 'Forbidden: bot was blocked by the user') {
-          }
-          await Model.User.deleteOne({ userId: user.userId })
-        })
-      })
-
-      schedule.scheduleJob({ hour: sunrise[0], minute: sunrise[1] }, async () => {
-        bot.api.sendMessage(user.userId, sunriseTime).catch(async (error) => {
-          if (error.description == 'Forbidden: bot was blocked by the user') {
-          }
-          await Model.User.deleteOne({ userId: user.userId })
-        })
-      })
-
-      schedule.scheduleJob({ hour: dhuhr[0], minute: dhuhr[1] }, async () => {
-        bot.api.sendMessage(user.userId, dhuhrTime).catch(async (error) => {
-          if (error.description == 'Forbidden: bot was blocked by the user') {
-          }
-          await Model.User.deleteOne({ userId: user.userId })
-        })
-      })
-
-      schedule.scheduleJob({ hour: asr[0], minute: asr[1] }, async () => {
-        bot.api.sendMessage(user.userId, asrTime).catch(async (error) => {
-          if (error.description == 'Forbidden: bot was blocked by the user') {
-          }
-          await Model.User.deleteOne({ userId: user.userId })
-        })
-      })
-
-      schedule.scheduleJob({ hour: maghrib[0], minute: maghrib[1] }, async () => {
-        bot.api.sendMessage(user.userId, maghribTime).catch(async (error) => {
-          if (error.description == 'Forbidden: bot was blocked by the user') {
-          }
-          await Model.User.deleteOne({ userId: user.userId })
-        })
-      })
-
-      schedule.scheduleJob({ hour: isha[0], minute: isha[1] }, async () => {
-        bot.api.sendMessage(user.userId, ishaTime).catch(async (error) => {
-          if (error.description == 'Forbidden: bot was blocked by the user') {
-          }
-          await Model.User.deleteOne({ userId: user.userId })
-        })
-      })
-
       bot.api.sendMessage(user.userId, message).catch(async (error) => {
         if (error.description == 'Forbidden: bot was blocked by the user') {
         }
         await Model.User.deleteOne({ userId: user.userId })
       })
     }
+  }
+}
+
+export async function reminder(bot) {
+  await schedule.gracefulShutdown()
+
+  const now = new Date()
+  const currentDay = now.getDate()
+  const regions = await Model.PrayTime.find({ day: currentDay })
+
+  for (let region of regions) {
+    // times
+    const fajr = region.fajr.split(':')
+    const sunrise = region.sunrise.split(':')
+    const dhuhr = region.dhuhr.split(':')
+    const asr = region.asr.split(':')
+    const maghrib = region.maghrib.split(':')
+    const isha = region.isha.split(':')
+
+    // schedule
+    schedule.scheduleJob({ hour: fajr[0], minute: fajr[1] }, async () => {
+      const users = await Model.User.find({ regionId: region.regionId, notification: true })
+
+      users.forEach((user) => {
+        const message = user.fasting ? HLanguage(user.language, 'closeFast') : HLanguage(user.language, 'fajrTime')
+
+        bot.api.sendMessage(user.userId, message).catch(async (error) => {
+          if (error.description == 'Forbidden: bot was blocked by the user') {
+          }
+          await Model.User.deleteOne({ userId: user.userId })
+        })
+      })
+    })
+
+    schedule.scheduleJob({ hour: sunrise[0], minute: sunrise[1] }, async () => {
+      const users = await Model.User.find({ regionId: region.regionId, notification: true })
+
+      users.forEach((user) => {
+        const sunriseTime = HLanguage(user.language, 'sunriseTime')
+
+        bot.api.sendMessage(user.userId, sunriseTime).catch(async (error) => {
+          if (error.description == 'Forbidden: bot was blocked by the user') {
+          }
+          await Model.User.deleteOne({ userId: user.userId })
+        })
+      })
+    })
+
+    schedule.scheduleJob({ hour: dhuhr[0], minute: dhuhr[1] }, async () => {
+      const users = await Model.User.find({ regionId: region.regionId, notification: true })
+
+      users.forEach((user) => {
+        const dhuhrTime = HLanguage(user.language, 'dhuhrTime')
+
+        bot.api.sendMessage(user.userId, dhuhrTime).catch(async (error) => {
+          if (error.description == 'Forbidden: bot was blocked by the user') {
+          }
+          await Model.User.deleteOne({ userId: user.userId })
+        })
+      })
+    })
+
+    schedule.scheduleJob({ hour: asr[0], minute: asr[1] }, async () => {
+      const users = await Model.User.find({ regionId: region.regionId, notification: true })
+
+      users.forEach((user) => {
+        const asrTime = HLanguage(user.language, 'asrTime')
+
+        bot.api.sendMessage(user.userId, asrTime).catch(async (error) => {
+          if (error.description == 'Forbidden: bot was blocked by the user') {
+          }
+          await Model.User.deleteOne({ userId: user.userId })
+        })
+      })
+    })
+
+    schedule.scheduleJob({ hour: maghrib[0], minute: maghrib[1] }, async () => {
+      const users = await Model.User.find({ regionId: region.regionId, notification: true })
+
+      users.forEach((user) => {
+        const message = user.fasting ? HLanguage(user.language, 'closeFast') : HLanguage(user.language, 'fajrTime')
+
+        bot.api.sendMessage(user.userId, message).catch(async (error) => {
+          if (error.description == 'Forbidden: bot was blocked by the user') {
+          }
+          await Model.User.deleteOne({ userId: user.userId })
+        })
+      })
+    })
+
+    schedule.scheduleJob({ hour: isha[0], minute: isha[1] }, async () => {
+      const users = await Model.User.find({ regionId: region.regionId, notification: true })
+
+      users.forEach((user) => {
+        const ishaTime = HLanguage(user.language, 'ishaTime')
+
+        bot.api.sendMessage(user.userId, ishaTime).catch(async (error) => {
+          if (error.description == 'Forbidden: bot was blocked by the user') {
+          }
+          await Model.User.deleteOne({ userId: user.userId })
+        })
+      })
+    })
   }
 }

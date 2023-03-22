@@ -37,5 +37,7 @@
   "dhuhrTime": "Peshin vaqti bo'ldi",
   "asrTime": "Asr vaqti bo'ldi",
   "maghribTime": "Shom vaqti bo'ldi",
-  "ishaTime": "Xufton vaqti bo'ldi"
+  "ishaTime": "Xufton vaqti bo'ldi",
+  "breakFast": "Og'iz ochish vaqti bo'ldi",
+  "closeFast": "Og'iz yopish vaqti bo'ldi"
 }

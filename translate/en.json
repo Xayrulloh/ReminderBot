@@ -31,5 +31,7 @@
   "dhuhrTime": "Dhuhr time has started",
   "asrTime": "Asr time has started",
   "maghribTime": "Maghrib time has started",
-  "ishaTime": "Isha time has started"
+  "ishaTime": "Isha time has started",
+  "breakFast": "It's time to break the fast",
+  "closeFast": "It's time to close the fast"
 }
