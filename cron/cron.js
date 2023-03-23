@@ -4,6 +4,7 @@ import Model from '#config/database'
 import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
 import schedule from 'node-schedule'
+import customKFunction from '../keyboard/custom.js'
 
 export async function monthly() {
   const now = new Date()
@@ -63,11 +64,16 @@ export async function daily(bot) {
         [region.region, region.fajr, region.sunrise, region.dhuhr, region.asr, region.maghrib, region.isha],
       )
 
-      bot.api.sendMessage(user.userId, message).catch(async (error) => {
-        if (error.description == 'Forbidden: bot was blocked by the user') {
-        }
-        await Model.User.deleteOne({ userId: user.userId })
-      })
+      const keyboardText = HLanguage(user.language, 'mainKeyboard')
+      const buttons = customKFunction(2, ...keyboardText)
+
+      bot.api
+        .sendMessage(user.userId, message, { reply_markup: { keyboard: buttons.build(), resize_keyboard: true } })
+        .catch(async (error) => {
+          if (error.description == 'Forbidden: bot was blocked by the user') {
+          }
+          await Model.User.deleteOne({ userId: user.userId })
+        })
     }
   }
 }
