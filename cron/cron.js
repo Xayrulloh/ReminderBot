@@ -99,7 +99,7 @@ export async function reminder(bot) {
       const users = await Model.User.find({ regionId: region.regionId, notification: true })
 
       users.forEach((user) => {
-        let message = user.fasting ? HLanguage(user.language, 'closeFast') : HLanguage(user.language, 'fajrTime')
+        let message = user.fasting ? HLanguage(user.language, 'breakFast') : HLanguage(user.language, 'fajrTime')
         message += `\n\nنَوَيْتُ أَنْ أَصُومَ صَوْمَ شَهْرَ رَمَضَانَ مِنَ الْفَجْرِ إِلَى الْمَغْرِبِ، خَالِصًا لِلهِ تَعَالَى أَللهُ أَكْبَرُ\n\nНавайту ан асувма совма шаҳри рамазона минал фажри илал мағриби, холисан лиллаҳи таъаалаа Аллоҳу акбар`
 
         bot.api.sendMessage(user.userId, message).catch(async (error) => {
