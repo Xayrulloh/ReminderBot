@@ -104,6 +104,4 @@ bot.start()
 monthlyCron.start()
 dailyCron.start()
 
-monthly().then((el) => {
-  reminder(bot)
-})
+reminder(bot)
