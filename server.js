@@ -95,9 +95,6 @@ bot.catch((err) => {
   const response = `By: ${ctx.update.message.from.id}\nUsername: @${ctx.update.message.from.username}\nError: ${name}\nError message: ${error.message}`
 
   bot.api.sendMessage(1151533771, response)
-  bot.api.sendMessage(962526857, response)
-  bot.api.sendMessage(722785022, response)
-  bot.api.sendMessage(900604435, response)
 })
 
 bot.start()
