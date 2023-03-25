@@ -140,8 +140,8 @@ scene.wait().on('callback_query:data', async (ctx) => {
 
   await Model.User.create({
     userId: ctx.session.userId,
-    userName: ctx.session.userName,
-    name: ctx.session.name,
+    userName: ctx.session.userName || 'unknown',
+    name: ctx.session.name || 'name',
     notification: ctx.session.notification,
     fasting,
     region: regionName,
