@@ -88,15 +88,15 @@ bot.on('message:text', async (ctx) => {
 
 // error handling
 bot.catch((err) => {
-  const ctx = err.ctx
-  const error = err.error
-  const name = err.name
+  // const ctx = err.ctx
+  // const error = err.error
+  // const name = err.name
 
-  const response = `By: ${ctx?.update?.message?.from?.id || ctx?.update?.callback_query?.from?.id}\nUsername: @${
-    ctx?.update?.message?.from?.username || ctx?.update?.callback_query?.from?.username
-  }\nError: ${name}\nError message: ${error?.message}`
+  // const response = `By: ${ctx?.update?.message?.from?.id || ctx?.update?.callback_query?.from?.id}\nUsername: @${
+  //   ctx?.update?.message?.from?.username || ctx?.update?.callback_query?.from?.username
+  // }\nError: ${name}\nError message: ${error}`
 
-  bot.api.sendMessage(1151533771, response)
+  bot.api.sendMessage(1151533771, JSON.stringify(err))
 })
 
 bot.start()
