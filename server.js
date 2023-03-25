@@ -92,7 +92,10 @@ bot.catch((err) => {
   const error = err.error
   const name = err.name
 
-  const response = `By: ${ctx.update.message.from.id}\nUsername: @${ctx.update.message.from.username}\nError: ${name}\nError message: ${error.message}`
+  console.log(ctx, 'ctx')
+  console.log(error, 'error')
+  console.log(name, 'name')
+  const response = `By: ${ctx?.update?.message?.from?.id}\nUsername: @${ctx?.update?.message?.from?.username}\nError: ${name}\nError message: ${error?.message}`
 
   bot.api.sendMessage(1151533771, response)
 })
