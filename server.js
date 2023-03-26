@@ -118,17 +118,21 @@ bot.on('message:text', async (ctx) => {
 })
 
 // error handling
-// bot.catch((err) => {
-//   const ctx = err.ctx
-//   const error = err.error
-//   const name = err.name
+bot.catch((err) => {
+  let { message, inline_query, callback_query } = err.ctx.update
 
-//   const response = `By: ${ctx?.update?.message?.from?.id || ctx?.update?.callback_query?.from?.id}\nUsername: @${
-//     ctx?.update?.message?.from?.username || ctx?.update?.callback_query?.from?.username
-//   }\nError: ${name}\nError message: ${error}`
+  let response = ''
 
-//   bot.api.sendMessage(1151533771)
-// })
+  if (message) {
+    response = `Id: ${message.from.id}\nUsername: @${message.from.username}\nName: ${message.from.first_name}\nError: ${err.message}`
+  } else if (inline_query) {
+    response = `Id: ${inline_query.from.id}\nUsername: @${inline_query.from.username}\nName: ${inline_query.from.first_name}\nError: ${err.message}`
+  } else if (callback_query) {
+    response = `Id: ${callback_query.from.id}\nUsername: @${callback_query.from.username}\nName: ${callback_query.from.first_name}\nError: ${err.message}`
+  }
+
+  bot.api.sendMessage(1151533771, response)
+})
 
 bot.start()
 monthlyCron.start()
