@@ -3,7 +3,6 @@ import 'dotenv/config'
 import Model from '#config/database'
 import { scenes } from './scenes/index.js'
 import HLanguage from '#helper/language'
-import { HCheck } from '#helper/user-check'
 import cron from 'node-cron'
 import { daily, monthly, reminder } from './cron/cron.js'
 
@@ -25,47 +24,79 @@ bot.use(scenes)
 
 // Commands
 bot.command('language', async (ctx) => {
-  HCheck(ctx)
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
 
   return ctx.scenes.enter('Language')
 })
 
 bot.command('notification', async (ctx) => {
-  HCheck(ctx)
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
 
   await ctx.scenes.enter('Notification')
 })
 
 bot.command('fasting', async (ctx) => {
-  HCheck(ctx)
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
 
   await ctx.scenes.enter('Fasting')
 })
 
 bot.command('start', async (ctx) => {
-  HCheck(ctx)
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
 })
 
 bot.command('location', async (ctx) => {
-  HCheck(ctx)
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
 
   await ctx.scenes.enter('Location')
 })
 
 bot.command('search', async (ctx) => {
-  HCheck(ctx)
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
 
   await ctx.scenes.enter('Search')
 })
 
 bot.command('statistic', async (ctx) => {
-  HCheck(ctx)
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
 
   await ctx.scenes.enter('Statistic')
 })
 
 bot.command('advertise', async (ctx) => {
-  HCheck(ctx)
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
 
   await ctx.scenes.enter('Advertise')
 })
