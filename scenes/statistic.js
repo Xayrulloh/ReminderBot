@@ -8,8 +8,9 @@ scene.do(async (ctx) => {
   const userId = ctx.update.message.from.id
   const user = await Model.User.findOne({ id: userId })
   const users = await Model.User.find()
-  const countMessage = HLanguage(user.language, 'usersCount')
-  const shareMessage = HLanguage(user.language, 'shareMessage')
+  const language = user.language
+  const countMessage = HLanguage(language, 'usersCount')
+  const shareMessage = HLanguage(language, 'shareMessage')
 
   ctx.reply(countMessage + users.length + '.\n\n' + shareMessage)
   ctx.scene.exit()
