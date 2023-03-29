@@ -9,7 +9,7 @@ import { daily, monthly, reminder } from './cron/cron.js'
 const token = process.env.TOKEN
 const bot = new Bot(token)
 
-const monthlyCron = cron.schedule('0 0 1 * *', async () => {
+const monthlyCron = cron.schedule('30 0 1 * *', async () => {
   await monthly()
 })
 const dailyCron = cron.schedule('0 1 * * *', async () => {
@@ -115,6 +115,7 @@ bot.on('message:text', async (ctx) => {
   if (ctx.message.text === keyboardText[2]) ctx.scenes.enter('Location')
   if (ctx.message.text === keyboardText[3]) ctx.scenes.enter('Fasting')
   if (ctx.message.text === keyboardText[4]) ctx.scenes.enter('Notification')
+  if (ctx.message.text === keyboardText[5]) ctx.scenes.enter('Statistic')
 })
 
 // error handling

@@ -2,7 +2,7 @@
   "chooseLanguage": "Ona tilingizni tanlang",
   "changedLanguage": "Sizning tilingiz O'zbek tiliga o'zgartirildi",
   "agreementNotification": ["Roziman", "Rozimasman"],
-  "notificationMessage": "Har namoz vaqti bo'lganda ogohlantirishga rozimisiz?",
+  "notificationMessage": "Har namoz vaqti bo'lganda ogohlantirilishga rozimisiz?",
   "region": {
     "Toshkent": 27,
     "Andijon": 1,
@@ -23,13 +23,14 @@
   "notifChange": "O'zgartirildi",
   "locationChange": "Sizning joylashuvingiz o'zgartirildi",
   "agreementFasting": ["Ha", "Yo'q"],
-  "fastingMessage": "Ro'zadormisiz",
+  "fastingMessage": "Saxarlik va iftorlik vaqtida ogohlantirilishga rozimisiz?",
   "mainKeyboard": [
     "🔍 Qidirish",
     "🌐 Tilni o'zgartirish",
     "🌍 Joylashuvni o'zgartirish",
     "🍽 Ro'za",
-    "🔔 Xabarnomani o'zgartirish"
+    "🔔 Xabarnomani o'zgartirish",
+    "📊 Statistika"
   ],
   "searchRegion": "Shaxarni belgilang",
   "fajrTime": "Bomdod vaqti bo'ldi",
@@ -39,5 +40,7 @@
   "maghribTime": "Shom vaqti bo'ldi",
   "ishaTime": "Xufton vaqti bo'ldi",
   "breakFast": "Og'iz ochish vaqti bo'ldi",
-  "closeFast": "Og'iz yopish vaqti bo'ldi"
+  "closeFast": "Og'iz yopish vaqti bo'ldi",
+  "usersCount": "Barcha foydalanuvchilar soni: ",
+  "shareMessage": "Ushbu botni yaqinlaringizga ham ulashing va namoz o'z vaqtida o'qilishiga sababchi bo'ling"
 }
