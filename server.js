@@ -118,6 +118,14 @@ bot.on('message:text', async (ctx) => {
   if (ctx.message.text === keyboardText[5]) ctx.scenes.enter('Statistic')
 })
 
+bot.on('callback_query', async (ctx) => {
+  const userId = ctx.callbackQuery.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.callbackQuery.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
+})
+
 // error handling
 bot.catch((err) => {
   let { message, inline_query, callback_query } = err.ctx.update
