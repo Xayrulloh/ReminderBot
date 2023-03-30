@@ -9,9 +9,9 @@ const scene = new Scene('Start')
 
 // language
 scene.do(async (ctx) => {
-  const userId = ctx.update.message.from.id
-  const userName = ctx.update.message.from.username
-  const name = ctx.update.message.from.first_name
+  const userId = ctx.update.message?.from?.id || ctx.update.callback_query?.from?.id
+  const userName = ctx.update.message?.from?.username || ctx.update.callback_query?.from?.username
+  const name = ctx.update.message?.from?.first_name || ctx.update.callback_query?.from?.first_name
 
   const buttons = inlineKFunction(
     Infinity,
