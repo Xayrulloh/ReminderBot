@@ -7,5 +7,16 @@ import fasting from './fasting.js'
 import statistic from './statistic.js'
 import advertise from './advertise.js'
 import language from './language.js'
+import donate from './donate.js'
 
-export const scenes = new ScenesComposer(language, notification, search, advertise, statistic, location, fasting, start)
+export const scenes = new ScenesComposer(
+  language,
+  notification,
+  search,
+  advertise,
+  statistic,
+  location,
+  fasting,
+  start,
+  donate,
+)

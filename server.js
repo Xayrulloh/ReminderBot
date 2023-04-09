@@ -71,6 +71,16 @@ bot.command('location', async (ctx) => {
   await ctx.scenes.enter('Location')
 })
 
+bot.command('donate', async (ctx) => {
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
+
+  await ctx.scenes.enter('Donate')
+})
+
 bot.command('search', async (ctx) => {
   const userId = ctx.update.message.from.id
   const user = await Model.User.findOne({ userId })
@@ -116,6 +126,7 @@ bot.on('message:text', async (ctx) => {
   if (ctx.message.text === keyboardText[3]) ctx.scenes.enter('Fasting')
   if (ctx.message.text === keyboardText[4]) ctx.scenes.enter('Notification')
   if (ctx.message.text === keyboardText[5]) ctx.scenes.enter('Statistic')
+  if (ctx.message.text === keyboardText[6]) ctx.scenes.enter('Donate')
 })
 
 bot.on('callback_query', async (ctx) => {

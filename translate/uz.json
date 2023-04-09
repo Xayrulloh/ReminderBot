@@ -30,7 +30,8 @@
     "🌍 Joylashuvni o'zgartirish",
     "🍽 Ro'za",
     "🔔 Xabarnomani o'zgartirish",
-    "📊 Statistika"
+    "📊 Statistika",
+    "🎁 Qo'llab quvvatlash"
   ],
   "searchRegion": "Shaxarni belgilang",
   "fajrTime": "Bomdod vaqti bo'ldi",
@@ -42,5 +43,9 @@
   "breakFast": "Og'iz ochish vaqti bo'ldi",
   "closeFast": "Og'iz yopish vaqti bo'ldi",
   "usersCount": "Barcha foydalanuvchilar soni: ",
-  "shareMessage": "Ushbu botni yaqinlaringizga ham ulashing va namoz o'z vaqtida o'qilishiga sababchi bo'ling"
+  "shareMessage": "Ushbu botni yaqinlaringizga ham ulashing va namoz o'z vaqtida o'qilishiga sababchi bo'ling",
+  "donateMessage": "Qancha pul to'lamoqchimisiz?",
+  "donateError": "Serverda xatolik yuz berdi",
+  "donateUrl": "To'lov uchun havola ",
+  "donateThanks": "To'lovingiz uchun rahmat"
 }
