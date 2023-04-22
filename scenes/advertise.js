@@ -19,7 +19,7 @@ scene.wait().on('message:text', async (ctx) => {
     ctx.api.sendMessage(user.userId, ctx.message.text).catch(async (error) => {
       if (error.description == 'Forbidden: bot was blocked by the user') {
       }
-      await Model.User.deleteOne({ userId: user.userId })
+      // await Model.User.deleteOne({ userId: user.userId })
     })
   })
   ctx.scene.exit()

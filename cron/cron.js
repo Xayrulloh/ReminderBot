@@ -72,7 +72,7 @@ export async function daily(bot) {
         .catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           }
-          await Model.User.deleteOne({ userId: user.userId })
+          // await Model.User.deleteOne({ userId: user.userId })
         })
     }
   }
@@ -111,7 +111,7 @@ export async function reminder(bot) {
         bot.api.sendMessage(user.userId, message).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           }
-          await Model.User.deleteOne({ userId: user.userId })
+          // await Model.User.deleteOne({ userId: user.userId })
         })
       })
     })
@@ -125,7 +125,7 @@ export async function reminder(bot) {
         bot.api.sendMessage(user.userId, sunriseTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           }
-          await Model.User.deleteOne({ userId: user.userId })
+          // await Model.User.deleteOne({ userId: user.userId })
         })
       })
     })
@@ -139,7 +139,7 @@ export async function reminder(bot) {
         bot.api.sendMessage(user.userId, dhuhrTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           }
-          await Model.User.deleteOne({ userId: user.userId })
+          // await Model.User.deleteOne({ userId: user.userId })
         })
       })
     })
@@ -153,7 +153,7 @@ export async function reminder(bot) {
         bot.api.sendMessage(user.userId, asrTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           }
-          await Model.User.deleteOne({ userId: user.userId })
+          // await Model.User.deleteOne({ userId: user.userId })
         })
       })
     })
@@ -174,7 +174,7 @@ export async function reminder(bot) {
         bot.api.sendMessage(user.userId, message).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           }
-          await Model.User.deleteOne({ userId: user.userId })
+          // await Model.User.deleteOne({ userId: user.userId })
         })
       })
     })
@@ -188,7 +188,7 @@ export async function reminder(bot) {
         bot.api.sendMessage(user.userId, ishaTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           }
-          await Model.User.deleteOne({ userId: user.userId })
+          // await Model.User.deleteOne({ userId: user.userId })
         })
       })
     })
@@ -204,7 +204,7 @@ export async function weekly(bot) {
     bot.api.sendMessage(user.userId, message).catch(async (error) => {
       if (error.description == 'Forbidden: bot was blocked by the user') {
       }
-      await Model.User.deleteOne({ userId: user.userId })
+      // await Model.User.deleteOne({ userId: user.userId })
     })
   }
 }
