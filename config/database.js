@@ -8,7 +8,7 @@ const User = new mongoose.Schema(
       type: Number,
     },
     userName: {
-      required: true,
+      required: false,
       type: String,
     },
     name: {
