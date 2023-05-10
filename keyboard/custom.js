@@ -1,4 +1,6 @@
-import { Keyboard } from "grammy";
+import {
+  Keyboard,
+} from "https://deno.land/x/grammy@v1.16.0/mod.ts";
 
 export default function customKFunction(num, ...buttons) {
   let keyboard = new Keyboard();

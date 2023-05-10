@@ -1,4 +1,4 @@
-import { ScenesComposer } from 'grammy-scenes'
+import { ScenesComposer } from 'npm:grammy-scenes'
 import start from './start.js'
 import location from './location.js'
 import search from './search.js'

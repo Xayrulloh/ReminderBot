@@ -1,9 +1,9 @@
-import { Scene } from 'grammy-scenes'
-import Model from '#config/database'
+import { Scene } from 'npm:grammy-scenes'
+import Model from '../config/database.js'
 import inlineKFunction from '../keyboard/inline.js'
 import customKFunction from '../keyboard/custom.js'
-import HLanguage from '#helper/language'
-import { HReplace } from '#helper/replacer'
+import HLanguage from '../helper/language.js'
+import { HReplace } from '../helper/replacer.js'
 
 const scene = new Scene('Start')
 

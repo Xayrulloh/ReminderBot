@@ -1,5 +1,5 @@
-import mongoose from 'mongoose'
-import 'dotenv/config'
+import "https://deno.land/x/dotenv/load.ts";
+import * as mongoose from 'npm:mongoose'
 
 const User = new mongoose.Schema(
   {
@@ -89,6 +89,6 @@ const PrayTime = new mongoose.Schema(
 mongoose.model('User', User)
 mongoose.model('PrayTime', PrayTime)
 mongoose.set('strictQuery', false)
-mongoose.connect(process.env.MONGO_URL)
+mongoose.connect(Deno.env.get("MONGO_URL"))
 
 export default mongoose.models

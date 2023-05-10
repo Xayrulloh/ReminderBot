@@ -1,12 +1,15 @@
-import { Bot, session } from 'grammy'
-import 'dotenv/config'
-import Model from '#config/database'
-import { scenes } from './scenes/index.js'
-import HLanguage from '#helper/language'
-import cron from 'node-cron'
-import { daily, monthly, reminder, weekly } from './cron/cron.js'
+import {
+  Bot,
+  session,
+} from "https://deno.land/x/grammy@v1.16.0/mod.ts";
+import "https://deno.land/x/dotenv/load.ts";
+import Model from "./config/database.js";
+import { scenes } from "./scenes/index.js";
+import HLanguage from "./helper/language.js";
+import cron from 'npm:node-cron'
+import { daily, monthly, reminder, weekly } from "./cron/cron.js";
 
-const token = process.env.TOKEN
+const token = Deno.env.get("TOKEN")
 const bot = new Bot(token)
 
 // crones

@@ -1,11 +1,11 @@
-import axios from 'axios'
-import pdfParser from 'pdf-parse'
-import Model from '#config/database'
-import HLanguage from '#helper/language'
-import { HReplace } from '#helper/replacer'
-import schedule from 'node-schedule'
+import axios from 'https://cdn.skypack.dev/axios'
+import * as pdfParser from "https://deno.land/x/pdf_parser@v1.1.2/main.js";
+import Model from '../config/database.js'
+import HLanguage from '../helper/language.js'
+import { HReplace } from '../helper/replacer.js'
+import schedule from 'npm:node-schedule'
 import customKFunction from '../keyboard/custom.js'
-import fs from 'fs'
+import fs from "node:fs";
 
 export async function monthly() {
   const now = new Date()
@@ -18,7 +18,7 @@ export async function monthly() {
   await Model.PrayTime.deleteMany()
 
   for (let i = 0; i < regions.length; i++) {
-    const pdf = await axios.get(process.env.TIME_API + regionIds[i] + '/' + currentMonth, {
+    const pdf = await axios.get(Deno.env.get("TIME_API") + regionIds[i] + '/' + currentMonth, {
       responseType: 'arraybuffer',
     })
     const pdfData = await pdfParser(pdf.data, { normalizeWhitespace: true })
