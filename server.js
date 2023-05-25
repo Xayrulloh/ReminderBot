@@ -5,6 +5,7 @@ import { scenes } from './scenes/index.js'
 import HLanguage from '#helper/language'
 import cron from 'node-cron'
 import { daily, monthly, reminder, weekly } from './cron/cron.js'
+import { inlineQuery } from './query/inline.js'
 
 const token = process.env.TOKEN
 const bot = new Bot(token)
@@ -22,6 +23,15 @@ const weeklyCron = cron.schedule('0 13 * * 1', async () => {
 })
 
 // middleware
+bot.inlineQuery(/(.*)/gi, async (ctx) => {
+  const userId = ctx.update.inline_query.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.inline_query.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
+
+  inlineQuery(ctx)
+})
 bot.use(session({ initial: () => ({}) }))
 bot.use(scenes.manager())
 bot.use(scenes)

@@ -48,5 +48,12 @@
   "donateError": "Server is not available",
   "donateUrl": "The link for payment ",
   "donateThanks": "Thanks for your donation",
-  "shareBot": "Hello. Dear user, if you find this bot useful, please don't forget to share it with your loved ones"
+  "shareBot": "Hello. Dear user, if you find this bot useful, please don't forget to share it with your loved ones",
+  "startSearch": "Start Search!",
+  "searchPlace": "Enter the name of the city or region you want to find!",
+  "tryAgain": "Try Again?",
+  "hintMessage": "<b>Hello user!</b>\nYou have enabled inline mode.\nWith this convenient feature, you can find prayer times in Uzbekistan.\nTo start your search, type \n <code>@namoz5vbot &lt;city or region name&gt;</code> \n",
+  "notFound": "Nothing found for the query",
+  "notFoundDescription": "No results found for $inlineQueryText!",
+  "notFoundContent": "<b>No results found for $inlineQueryText!</b>\nPlease try again."
 }

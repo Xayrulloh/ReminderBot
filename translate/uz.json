@@ -48,5 +48,12 @@
   "donateError": "Serverda xatolik yuz berdi",
   "donateUrl": "To'lov uchun havola ",
   "donateThanks": "To'lovingiz uchun rahmat",
-  "shareBot": "Assalamu alaykum. Aziz foydalanuvchi, agarda ushbu botni foydali deb hisoblasangiz, iltimos o'z yaqinlaringiz bilan ulashishni unutmang"
+  "shareBot": "Assalamu alaykum. Aziz foydalanuvchi, agarda ushbu botni foydali deb hisoblasangiz, iltimos o'z yaqinlaringiz bilan ulashishni unutmang",
+  "startSearch": "Qidirishni boshlang!",
+  "searchPlace": "Qidirmoqchi bo'lgan shaxar yoki viloyat nomini yozing!",
+  "tryAgain": "Qayta urinib ko'ramizmi?",
+  "hintMessage": "<b>Salom foydalanuvchi!</b>\nSiz inline rejimni ishga tushurdingiz.\nUshbu qulaylik yordamida siz O'zbekistondagi namoz vaqtlarini bilib olish imkoniyatiga ega bo'lasiz.\nQidirishni boshlash uchun \n <code>@namoz5vbot &lt;shahar yoki viloyat nomini&gt;</code> \n yozing",
+  "notFound": "So'rov bo'yicha xech narsa topilmadi",
+  "notFoundDescription": "$inlineQueryText ga oid natija topilmadi!",
+  "notFoundContent": "<b>$inlineQueryText ga oid natija mavjud emas!</b>\nIltimos, qaytadan urinib ko'ring."
 }
