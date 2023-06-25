@@ -18,7 +18,7 @@ dependencies:
     version: 1.8.3
   grammy-scenes:
     specifier: 7.3.0
-    version: 7.3.0(grammy@1.8.3)
+    version: 7.3.0(grammy@1.8.3)(typescript@5.1.3)
   mongoose:
     specifier: 6.3.6
     version: 6.3.6
@@ -267,7 +267,7 @@ packages:
       has-symbols: 1.0.3
     dev: false
 
-  /grammy-scenes@7.3.0(grammy@1.8.3):
+  /grammy-scenes@7.3.0(grammy@1.8.3)(typescript@5.1.3):
     resolution: {integrity: sha512-/Oq2tJ5+3m5Aw4g88iBEP3RdtyvWu/e+D9OoogvwsWbF506YyN2JyyzYYWibz/ydG7xnUJ73DX9PuYVMhQ/k8g==}
     peerDependencies:
       grammy: ^1.5.4
@@ -277,7 +277,7 @@ packages:
         optional: true
     dependencies:
       grammy: 1.8.3
-      ts-essentials: 9.3.0
+      ts-essentials: 9.3.0(typescript@5.1.3)
       uuid: 8.3.2
     transitivePeerDependencies:
       - typescript
@@ -526,10 +526,18 @@ packages:
       punycode: 2.3.0
     dev: false
 
-  /ts-essentials@9.3.0:
+  /ts-essentials@9.3.0(typescript@5.1.3):
     resolution: {integrity: sha512-XeiCboEyBG8UqXZtXl59bWEi4ZgOqRsogFDI6WDGIF1LmzbYiAkIwjkXN6zZWWl4re/lsOqMlYfe8KA0XiiEPw==}
     peerDependencies:
       typescript: '>=4.1.0'
+    dependencies:
+      typescript: 5.1.3
+    dev: false
+
+  /typescript@5.1.3:
+    resolution: {integrity: sha512-XH627E9vkeqhlZFQuL+UsyAXEnibT0kWR2FWONlr4sTjvxyJYnyefgrkyECLzM5NenmKzRAy2rR/OlYLA1HkZw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
     dev: false
 
   /uuid@8.3.2:
