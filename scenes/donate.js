@@ -26,7 +26,6 @@ scene.wait().on('message:text', async (ctx) => {
         number: process.env.CARD,
         amount,
       })
-      console.log('🚀 ~ response:', response?.data)
 
       if (!response.data?.success) {
         const message = HLanguage(ctx.session.language, 'donateError')
