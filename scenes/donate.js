@@ -26,6 +26,14 @@ scene.wait().on('message:text', async (ctx) => {
         number: process.env.CARD,
         amount,
       })
+      console.log('🚀 ~ response:', response?.data)
+
+      if (!response.data?.success) {
+        const message = HLanguage(ctx.session.language, 'donateError')
+        ctx.reply(message)
+        ctx.scene.exit()
+        return
+      }
 
       const endpoint = process.env.PAYME_ENDPOINT + response.data?.result?.chequeid
       const message = HLanguage(ctx.session.language, 'donateUrl')
