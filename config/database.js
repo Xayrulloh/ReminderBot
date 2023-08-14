@@ -86,8 +86,19 @@ const PrayTime = new mongoose.Schema(
   { versionKey: false },
 )
 
+const Hadith = new mongoose.Schema(
+  {
+    content: {
+      required: true,
+      type: String,
+    },
+  },
+  { versionKey: false },
+)
+
 mongoose.model('User', User)
 mongoose.model('PrayTime', PrayTime)
+mongoose.model('Hadith', Hadith)
 mongoose.set('strictQuery', false)
 mongoose.connect(process.env.MONGO_URL)
 

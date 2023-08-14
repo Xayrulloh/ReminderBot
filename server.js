@@ -4,7 +4,7 @@ import Model from '#config/database'
 import { scenes } from './scenes/index.js'
 import HLanguage from '#helper/language'
 import cron from 'node-cron'
-import { daily, monthly, reminder, weekly } from './cron/cron.js'
+import { daily, monthly, reminder, weekly, dailyHadith } from './cron/cron.js'
 import { inlineQuery } from './query/inline.js'
 
 const token = process.env.TOKEN
@@ -20,6 +20,9 @@ const dailyCron = cron.schedule('0 1 * * *', async () => {
 })
 const weeklyCron = cron.schedule('0 13 * * 1', async () => {
   await weekly(bot)
+})
+const dailyHadithCron = cron.schedule('0 14 * * *', async () => {
+  await dailyHadith(bot)
 })
 
 // middleware
@@ -85,15 +88,15 @@ bot.command('location', async (ctx) => {
   await ctx.scenes.enter('Location')
 })
 
-bot.command('donate', async (ctx) => {
-  const userId = ctx.update.message.from.id
-  const user = await Model.User.findOne({ userId })
+// bot.command('donate', async (ctx) => {
+//   const userId = ctx.update.message.from.id
+//   const user = await Model.User.findOne({ userId })
 
-  if (ctx.update.message.from.is_bot) return
-  if (!user) return ctx.scenes.enter('Start')
+//   if (ctx.update.message.from.is_bot) return
+//   if (!user) return ctx.scenes.enter('Start')
 
-  await ctx.scenes.enter('Donate')
-})
+//   await ctx.scenes.enter('Donate')
+// })
 
 bot.command('search', async (ctx) => {
   const userId = ctx.update.message.from.id
@@ -123,6 +126,16 @@ bot.command('advertise', async (ctx) => {
   if (!user) return ctx.scenes.enter('Start')
 
   await ctx.scenes.enter('Advertise')
+})
+
+bot.command('hadith', async (ctx) => {
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
+
+  await ctx.scenes.enter('Hadith')
 })
 
 bot.on('message:text', async (ctx) => {
@@ -172,5 +185,6 @@ bot.start()
 monthlyCron.start()
 dailyCron.start()
 weeklyCron.start()
+dailyHadithCron.start()
 
 reminder(bot)

@@ -23,7 +23,7 @@
   "notifChange": "Updated",
   "locationChange": "Your location is changed",
   "agreementFasting": ["Yes", "No"],
-  "fastingMessage": "Do you agree to be alerted during fasting and breaking the fast?",
+  "fastingMessage": "Are you fasting?",
   "mainKeyboard": [
     "🔍 Search",
     "🌐 Change language",

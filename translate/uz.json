@@ -23,7 +23,7 @@
   "notifChange": "O'zgartirildi",
   "locationChange": "Sizning joylashuvingiz o'zgartirildi",
   "agreementFasting": ["Ha", "Yo'q"],
-  "fastingMessage": "Saxarlik va iftorlik vaqtida ogohlantirilishga rozimisiz?",
+  "fastingMessage": "Ro'za tutyapsizmi?",
   "mainKeyboard": [
     "🔍 Qidirish",
     "🌐 Tilni o'zgartirish",

@@ -8,6 +8,7 @@ import statistic from './statistic.js'
 import advertise from './advertise.js'
 import language from './language.js'
 import donate from './donate.js'
+import hadith from './hadith.js'
 
 export const scenes = new ScenesComposer(
   language,
@@ -19,4 +20,5 @@ export const scenes = new ScenesComposer(
   fasting,
   start,
   donate,
+  hadith,
 )

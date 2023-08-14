@@ -208,6 +208,23 @@ export async function weekly(bot) {
       }
     })
   }
+}
+
+export async function dailyHadith(bot) {
+  const hadith = await Model.Hadith.find()
+  const users = await Model.User.find()
 
   fs.writeFileSync('users.json', JSON.stringify(users))
+
+  if (hadith.length <= 50) return
+
+  for (const user of users) {
+    const message = hadith[(Math.random() * hadith.length) | 0]
+
+    bot.api.sendMessage(user.userId, message.content).catch(async (error) => {
+      if (error.description == 'Forbidden: bot was blocked by the user') {
+        // await Model.User.deleteOne({ userId: user.userId })
+      }
+    })
+  }
 }
