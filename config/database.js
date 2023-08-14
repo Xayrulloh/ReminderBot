@@ -40,6 +40,10 @@ const User = new mongoose.Schema(
       required: true,
       type: String,
     },
+    status: {
+      required: false,
+      type: Boolean,
+    },
   },
   { versionKey: false },
 )
