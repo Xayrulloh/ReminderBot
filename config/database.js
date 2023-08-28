@@ -96,6 +96,10 @@ const Hadith = new mongoose.Schema(
       required: true,
       type: String,
     },
+    category: {
+      required: false,
+      type: String,
+    },
   },
   { versionKey: false },
 )

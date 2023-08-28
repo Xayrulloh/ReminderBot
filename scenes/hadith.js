@@ -13,11 +13,22 @@ scene.do(async (ctx) => {
 })
 
 scene.wait().on('message:text', async (ctx) => {
-  await Model.Hadith.create({
-    content: ctx.message.text,
+  ctx.session.hadith = ctx.message.text
+
+  ctx.reply('Give the category of hadith')
+
+  ctx.scene.resume()
+})
+
+scene.wait().on('message:text', async (ctx) => {
+  const category = ctx.message.text == 'not' ? undefined : ctx.message.text
+
+  const data = await Model.Hadith.create({
+    content: ctx.session.hadith,
+    category,
   })
 
-  ctx.reply('Hadith wrote. Thank you')
+  ctx.reply('Hadith wrote thank you. You are doing your best')
 
   ctx.scene.exit()
 })

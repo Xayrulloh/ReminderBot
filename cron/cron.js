@@ -6,6 +6,7 @@ import { HReplace } from '#helper/replacer'
 import schedule from 'node-schedule'
 import customKFunction from '../keyboard/custom.js'
 import fs from 'fs'
+import { InputFile } from 'grammy'
 
 export async function monthly() {
   const now = new Date()
@@ -50,6 +51,17 @@ export async function monthly() {
 }
 
 export async function daily(bot) {
+  // daily backup
+  const users = await Model.User.find()
+  fs.access('users.json', fs.constants.F_OK, (err) => {
+    if (err) fs.writeFileSync('users.json', JSON.stringify(users))
+    else {
+      const currentUsers = JSON.parse(fs.readFileSync('users.json'))
+      if (currentUsers.length > users.length) fs.writeFileSync('users.json', JSON.stringify(users))
+    }
+  })
+
+  // sending message
   const now = new Date()
   const currentDay = now.getDate()
   const regions = await Model.PrayTime.find({ day: currentDay })
@@ -68,19 +80,47 @@ export async function daily(bot) {
       const keyboardText = HLanguage(user.language, 'mainKeyboard')
       const buttons = customKFunction(2, ...keyboardText)
 
-      bot.api
-        .sendMessage(user.userId, message, { reply_markup: { keyboard: buttons.build(), resize_keyboard: true } })
-        .then(() => {
-          user.status = true
-        })
-        .catch(async (error) => {
-          if (error.description == 'Forbidden: bot was blocked by the user') {
-            user.status = false
-          }
-        })
-        .finally(() => {
-          user.save()
-        })
+      if (now.getDay() == 1) {
+        let hadith = await Model.Hadith.find({ category: 'juma' })
+        hadith = hadith[(Math.random() * hadith.length) | 0]
+
+        bot.api
+          .sendPhoto(user.userId, new InputFile('./uploads/JumaMuborak.jpg'), {
+            caption: message + `${hadith ? `\n\n${hadith.content}` : undefined}`,
+            reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
+          })
+          .then(() => {
+            user.status = true
+          })
+          .catch(async (error) => {
+            if (error.description == 'Forbidden: bot was blocked by the user') {
+              user.status = false
+            }
+          })
+          .finally(() => {
+            user.save()
+          })
+        return
+      } else {
+        let hadith = await Model.Hadith.find({ category: { $ne: 'juma' } })
+        hadith = hadith[(Math.random() * hadith.length) | 0]
+
+        bot.api
+          .sendMessage(user.userId, message + `${hadith ? `\n\n${hadith.content}` : undefined}`, {
+            reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
+          })
+          .then(() => {
+            user.status = true
+          })
+          .catch(async (error) => {
+            if (error.description == 'Forbidden: bot was blocked by the user') {
+              user.status = false
+            }
+          })
+          .finally(() => {
+            user.save()
+          })
+      }
     }
   }
 }
@@ -203,24 +243,6 @@ export async function weekly(bot) {
     const message = HLanguage(user.language, 'shareBot')
 
     bot.api.sendMessage(user.userId, message).catch(async (error) => {
-      if (error.description == 'Forbidden: bot was blocked by the user') {
-      }
-    })
-  }
-}
-
-export async function dailyHadith(bot) {
-  const hadith = await Model.Hadith.find()
-  const users = await Model.User.find()
-
-  fs.writeFileSync('users.json', JSON.stringify(users))
-
-  if (hadith.length <= 50) return
-
-  for (const user of users) {
-    const message = hadith[(Math.random() * hadith.length) | 0]
-
-    bot.api.sendMessage(user.userId, message.content).catch(async (error) => {
       if (error.description == 'Forbidden: bot was blocked by the user') {
       }
     })

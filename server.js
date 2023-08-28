@@ -4,7 +4,7 @@ import Model from '#config/database'
 import { scenes } from './scenes/index.js'
 import HLanguage from '#helper/language'
 import cron from 'node-cron'
-import { daily, monthly, reminder, weekly, dailyHadith } from './cron/cron.js'
+import { daily, monthly, reminder, weekly } from './cron/cron.js'
 import { inlineQuery } from './query/inline.js'
 
 const token = process.env.TOKEN
@@ -20,9 +20,6 @@ const dailyCron = cron.schedule('0 1 * * *', async () => {
 })
 const weeklyCron = cron.schedule('0 13 * * 1', async () => {
   await weekly(bot)
-})
-const dailyHadithCron = cron.schedule('0 14 * * *', async () => {
-  await dailyHadith(bot)
 })
 
 // middleware
@@ -185,6 +182,5 @@ bot.start()
 monthlyCron.start()
 dailyCron.start()
 weeklyCron.start()
-dailyHadithCron.start()
 
 reminder(bot)

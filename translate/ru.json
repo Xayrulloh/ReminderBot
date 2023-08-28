@@ -19,7 +19,7 @@
     "Маргилан": 13
   },
   "chooseRegion": "Выберите свой город",
-  "infoPrayTime": "Время молитвa для города $region\n\n🏙 Фаджр $fajr\n🌅 Восход $sunrise\n🏞 Зухр $zuhr\n🌆 Аср $asr\n🌉 Магриб $maghrib\n🌃 Иша $isha\n\n إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَوْقُوتًا                     \n\nВоистину, намаз предписан верующим в определенное время.\n\nСура Ниса 103 аят",
+  "infoPrayTime": "Время молитвa для города $region\n\n🏙 Фаджр $fajr\n🌅 Восход $sunrise\n🏞 Зухр $zuhr\n🌆 Аср $asr\n🌉 Магриб $maghrib\n🌃 Иша $isha",
   "notifChange": "Изменено",
   "locationChange": "Ваше местоположение изменено",
   "agreementFasting": ["Да", "Нет"],
