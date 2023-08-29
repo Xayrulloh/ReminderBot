@@ -22,6 +22,8 @@ const weeklyCron = cron.schedule('0 13 * * 1', async () => {
   await weekly(bot)
 })
 
+await daily(bot)
+
 // middleware
 bot.inlineQuery(/(.*)/gi, async (ctx) => {
   const userId = ctx.update.inline_query.from.id

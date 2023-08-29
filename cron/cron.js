@@ -86,7 +86,7 @@ export async function daily(bot) {
 
         bot.api
           .sendPhoto(user.userId, new InputFile('./uploads/JumaMuborak.jpg'), {
-            caption: message + `${hadith ? `\n\n${hadith.content}` : undefined}`,
+            caption: message + (hadith ? `\n\n${hadith.content}` : ''),
             reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
           })
           .then(() => {
@@ -106,7 +106,7 @@ export async function daily(bot) {
         hadith = hadith[(Math.random() * hadith.length) | 0]
 
         bot.api
-          .sendMessage(user.userId, message + `${hadith ? `\n\n${hadith.content}` : undefined}`, {
+          .sendMessage(user.userId, message + (hadith ? `\n\n${hadith.content}` : ''), {
             reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
           })
           .then(() => {
