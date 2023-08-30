@@ -19,7 +19,7 @@
     "Margilan": 13
   },
   "chooseRegion": "Choose your city",
-  "infoPrayTime": "Prayer times for $region city\n\n🏙 Fajr $fajr\n🌅 Sunrise $sunrise\n🏞 Zuhr $zuhr\n🌆 Asr $asr\n🌉 Maghrib $maghrib\n🌃 Isha $isha\n\n إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَوْقُوتًا                     \n\nIndeed, prayer has been decreed upon the believers a decree of specified times.\n\nSurah Nisa 103 verse",
+  "infoPrayTime": "Prayer times for $region city\n\n🏙 Fajr $fajr\n🌅 Sunrise $sunrise\n🏞 Zuhr $zuhr\n🌆 Asr $asr\n🌉 Maghrib $maghrib\n🌃 Isha $isha",
   "notifChange": "Updated",
   "locationChange": "Your location is changed",
   "agreementFasting": ["Yes", "No"],

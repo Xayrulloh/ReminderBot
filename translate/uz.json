@@ -19,7 +19,7 @@
     "Marg'ilon": 13
   },
   "chooseRegion": "Shaxaringizni belgilang",
-  "infoPrayTime": "$region shahar namoz vaqtlari\n\n🏙 Bomdod $fajr\n🌅 Quyosh $sunrise\n🏞 Peshin $zuhr\n🌆 Asr $asr\n🌉 Shom $maghrib\n🌃 Xufton $isha\n\n إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَوْقُوتًا                     \n\nAlbatta, namoz mo'minlarga vaqtida farz qilingandir.\n\nNiso surasi 103-oyat",
+  "infoPrayTime": "$region shahar namoz vaqtlari\n\n🏙 Bomdod $fajr\n🌅 Quyosh $sunrise\n🏞 Peshin $zuhr\n🌆 Asr $asr\n🌉 Shom $maghrib\n🌃 Xufton $isha",
   "notifChange": "O'zgartirildi",
   "locationChange": "Sizning joylashuvingiz o'zgartirildi",
   "agreementFasting": ["Ha", "Yo'q"],
