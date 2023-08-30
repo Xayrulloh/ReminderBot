@@ -80,7 +80,7 @@ export async function daily(bot) {
       const keyboardText = HLanguage(user.language, 'mainKeyboard')
       const buttons = customKFunction(2, ...keyboardText)
 
-      if (now.getDay() == 1) {
+      if (now.getDay() == 5) {
         let hadith = await Model.Hadith.find({ category: 'juma' })
         hadith = hadith[(Math.random() * hadith.length) | 0]
 
