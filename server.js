@@ -181,6 +181,6 @@ bot.catch((err) => {
 bot.start()
 monthlyCron.start()
 dailyCron.start()
-weeklyCron.start()
+// weeklyCron.start()
 
 reminder(bot)
