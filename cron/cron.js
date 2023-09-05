@@ -7,6 +7,7 @@ import schedule from 'node-schedule'
 import customKFunction from '../keyboard/custom.js'
 import fs from 'fs'
 import { InputFile } from 'grammy'
+import path from 'path'
 
 export async function monthly() {
   const now = new Date()
@@ -66,12 +67,27 @@ export async function daily(bot) {
   const currentDay = now.getDate()
   const regions = await Model.PrayTime.find({ day: currentDay })
 
+  // taking hadith
+  if (now.getDay() == 5) {
+    var hadith = await Model.Hadith.find({ category: 'juma' })
+    hadith = hadith[(Math.random() * hadith.length) | 0]
+  } else {
+    var hadith = await Model.Hadith.find({ category: { $ne: 'juma' } })
+    hadith = hadith[(Math.random() * hadith.length) | 0]
+  }
+
+  fs.writeFileSync(
+    path.join(process.cwd(), 'translate', 'localStorage.json'),
+    JSON.stringify({ dailyHadith: hadith ? `\n\n${hadith.content}` : '' }),
+    'utf8',
+  )
+
   for (let region of regions) {
     const users = await Model.User.find({ regionId: region.regionId })
 
     for (let user of users) {
       const info = HLanguage(user.language, 'infoPrayTime')
-      const message = HReplace(
+      let message = HReplace(
         info,
         ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha'],
         [region.region, region.fajr, region.sunrise, region.dhuhr, region.asr, region.maghrib, region.isha],
@@ -81,9 +97,6 @@ export async function daily(bot) {
       const buttons = customKFunction(2, ...keyboardText)
 
       if (now.getDay() == 5) {
-        let hadith = await Model.Hadith.find({ category: 'juma' })
-        hadith = hadith[(Math.random() * hadith.length) | 0]
-
         bot.api
           .sendPhoto(user.userId, new InputFile('./uploads/JumaMuborak.jpg'), {
             caption: message + (hadith ? `\n\n${hadith.content}` : ''),
@@ -102,9 +115,6 @@ export async function daily(bot) {
           })
         return
       } else {
-        let hadith = await Model.Hadith.find({ category: { $ne: 'juma' } })
-        hadith = hadith[(Math.random() * hadith.length) | 0]
-
         bot.api
           .sendMessage(user.userId, message + (hadith ? `\n\n${hadith.content}` : ''), {
             reply_markup: { keyboard: buttons.build(), resize_keyboard: true },

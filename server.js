@@ -178,9 +178,12 @@ bot.catch((err) => {
   bot.api.sendMessage(1151533771, response)
 })
 
-bot.start()
+// bot.start()
 monthlyCron.start()
 dailyCron.start()
 // weeklyCron.start()
 
 reminder(bot)
+
+bot.api.setWebhook('https://reposu.org/xayrullohbot/3600')
+export default bot
