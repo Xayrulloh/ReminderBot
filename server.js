@@ -6,9 +6,19 @@ import HLanguage from '#helper/language'
 import cron from 'node-cron'
 import { daily, monthly, reminder, weekly } from './cron/cron.js'
 import { inlineQuery } from './query/inline.js'
+import express from "express"
 
 const token = process.env.TOKEN
 const bot = new Bot(token)
+
+const PORT = process.env?.PORT || 3600
+const server = express()
+server.use( express.json() )
+server.post(`/${token}`, (req, res) => {
+  const { body } = req;
+  bot.processUpdate(body);
+  res.sendStatus(200);
+});
 
 // crones
 const monthlyCron = cron.schedule('30 0 1 * *', async () => {
@@ -178,9 +188,13 @@ bot.catch((err) => {
   bot.api.sendMessage(1151533771, response)
 })
 
-bot.start()
+// bot.start()
 monthlyCron.start()
 dailyCron.start()
 // weeklyCron.start()
 
 reminder(bot)
+
+bot.api.setWebhook('https://reposu.org/xayrullohbot/' + token)
+server.listen(PORT, () => console.log("TelegramBot Webhook started: ", PORT))
+export default bot

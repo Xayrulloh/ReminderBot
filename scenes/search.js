@@ -3,6 +3,8 @@ import Model from '#config/database'
 import inlineKFunction from '../keyboard/inline.js'
 import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
+import fs from 'fs'
+import path from 'path'
 
 let scene = new Scene('Search')
 
@@ -50,7 +52,11 @@ scene.wait().on('callback_query:data', async (ctx) => {
       [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha],
     )
 
-    ctx.reply(response)
+    const dailyHadith = JSON.parse(
+      fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json')),
+    ).dailyHadith
+
+    ctx.reply(response + dailyHadith)
     ctx.scene.exit()
   } else {
     ctx.reply(ctx.session.message, { reply_markup: ctx.session.buttons })
