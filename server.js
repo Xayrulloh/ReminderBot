@@ -195,6 +195,6 @@ dailyCron.start()
 
 reminder(bot)
 
-bot.api.setWebhook('https://reposu.org/xayrullohbot/3600')
+bot.api.setWebhook('https://reposu.org/xayrullohbot/' + token)
 server.listen(PORT, () => console.log("TelegramBot Webhook started: ", PORT))
 export default bot
