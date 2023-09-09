@@ -156,9 +156,7 @@ export async function reminder(bot) {
       const users = await Model.User.find({
         regionId: region.regionId,
         notification: true,
-        notifcationSetting: {
-          fajr: true,
-        },
+        "notificationSetting.fajr": true,
       })
 
       users.forEach((user) => {
@@ -182,9 +180,7 @@ export async function reminder(bot) {
       const users = await Model.User.find({
         regionId: region.regionId,
         notification: true,
-        notifcationSetting: {
-          sunrise: true,
-        },
+        "notificationSetting.sunrise": true,
       })
 
       users.forEach((user) => {
@@ -201,9 +197,7 @@ export async function reminder(bot) {
       const users = await Model.User.find({
         regionId: region.regionId,
         notification: true,
-        notifcationSetting: {
-          dhuhr: true,
-        },
+        "notificationSetting.dhuhr": true,
       })
       users.forEach((user) => {
         const dhuhrTime = HLanguage(user.language, 'dhuhrTime')
@@ -219,9 +213,7 @@ export async function reminder(bot) {
       const users = await Model.User.find({
         regionId: region.regionId,
         notification: true,
-        notifcationSetting: {
-          asr: true,
-        },
+        "notificationSetting.asr": true,
       })
 
       users.forEach((user) => {
@@ -238,9 +230,7 @@ export async function reminder(bot) {
       const users = await Model.User.find({
         regionId: region.regionId,
         notification: true,
-        notifcationSetting: {
-          maghrib: true,
-        },
+        "notificationSetting.maghrib": true,
       })
 
       users.forEach((user) => {
@@ -264,9 +254,7 @@ export async function reminder(bot) {
       const users = await Model.User.find({
         regionId: region.regionId,
         notification: true,
-        notifcationSetting: {
-          isha: true,
-        },
+        "notificationSetting.isha": true,
       })
 
       users.forEach((user) => {
