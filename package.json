@@ -27,6 +27,7 @@
     "#config/*": "./config/*.js",
     "#region": "./regions/regions.js",
     "#daily/*": "./daily/*.js",
+    "#middlewares/*": "./middlewares/*.js",
     "#helper/*": "./helper/*.js"
   }
 }

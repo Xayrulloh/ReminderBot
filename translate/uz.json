@@ -54,5 +54,17 @@
   "hintMessage": "<b>Salom foydalanuvchi!</b>\nSiz inline rejimni ishga tushurdingiz.\nUshbu qulaylik yordamida siz O'zbekistondagi namoz vaqtlarini bilib olish imkoniyatiga ega bo'lasiz.\nQidirishni boshlash uchun \n <code>@namoz5vbot &lt;shahar yoki viloyat nomini&gt;</code> \n yozing",
   "notFound": "So'rov bo'yicha xech narsa topilmadi",
   "notFoundDescription": "$inlineQueryText ga oid natija topilmadi!",
-  "notFoundContent": "<b>$inlineQueryText ga oid natija mavjud emas!</b>\nIltimos, qaytadan urinib ko'ring."
+  "notFoundContent": "<b>$inlineQueryText ga oid natija mavjud emas!</b>\nIltimos, qaytadan urinib ko'ring.",
+  "wrongSelection": "Quyidagilardan birini tanlang",
+  "welcome": "Xush kelibsiz",
+  "setPrayerTimes": "Xabarnoma kelishini hohlagan namoz vaqtlarini belgilang va saqlang",
+  "setPrayerTimesKeyboard": {
+    "fajr": "🏙 Bomdod $state",
+    "sunrise": "🌅 Quyosh $state",
+    "dhuhr": "🏞 Peshin $state",
+    "asr": "🌆 Asr $state",
+    "maghrib": "🌉 Shom $state",
+    "isha": "🌃 Xufton $state",
+    "save": "✅ Saqlash"
+  }
 }

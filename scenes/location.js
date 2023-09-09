@@ -7,10 +7,8 @@ import { HReplace } from '#helper/replacer'
 let scene = new Scene('Location')
 
 scene.do(async (ctx) => {
-  const userId = ctx.update.message.from.id
-  const user = await Model.User.findOne({ userId })
-  const message = HLanguage(user.language, 'chooseRegion')
-  const keyboardMessage = HLanguage(user.language, 'region')
+  const message = HLanguage(ctx.user.language, 'chooseRegion')
+  const keyboardMessage = HLanguage(ctx.user.language, 'region')
   const keyboard = []
 
   for (let region in keyboardMessage) {
@@ -21,8 +19,6 @@ scene.do(async (ctx) => {
 
   ctx.session.message = message
   ctx.session.buttons = buttons
-  ctx.session.userId = userId
-  ctx.session.language = user.language
   ctx.session.regionId = Object.values(keyboardMessage)
   ctx.session.regions = keyboardMessage
 
@@ -33,7 +29,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
   if (ctx.session.regionId.includes(+ctx.update.callback_query.data)) {
     const now = new Date()
     const today = now.getDate()
-    const message = HLanguage(ctx.session.language, 'infoPrayTime')
+    const message = HLanguage(ctx.user.language, 'infoPrayTime')
     const data = await Model.PrayTime.findOne({ day: today, regionId: +ctx.update.callback_query.data })
     let regionName = ''
 
@@ -45,7 +41,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
     }
 
     await Model.User.updateOne(
-      { userId: ctx.session.userId },
+      { userId: ctx.user.userId },
       { region: regionName, regionId: +ctx.update.callback_query.data },
     )
 
@@ -55,7 +51,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
       [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha],
     )
 
-    const locationMessage = HLanguage(ctx.session.language, 'locationChange')
+    const locationMessage = HLanguage(ctx.user.language, 'locationChange')
 
     ctx.reply(locationMessage)
     ctx.reply(response)

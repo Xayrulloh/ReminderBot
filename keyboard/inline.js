@@ -1,14 +1,14 @@
-import { InlineKeyboard } from "grammy";
+import { InlineKeyboard } from 'grammy'
 
 export default function inlineKFunction(num, ...buttons) {
-  let keyboard = new InlineKeyboard();
+  let keyboard = new InlineKeyboard()
 
   buttons.forEach((el, index) => {
     if (index % num == 0) {
-      keyboard.row();
+      keyboard.row()
     }
-    keyboard.text(el.view, el.text);
-  });
+    keyboard.text(el.view, el.text)
+  })
 
-  return keyboard;
+  return keyboard
 }

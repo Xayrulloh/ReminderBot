@@ -5,13 +5,11 @@ import HLanguage from '#helper/language'
 const scene = new Scene('Statistic')
 
 scene.do(async (ctx) => {
-  const userId = ctx.update.message.from.id
-  const user = await Model.User.findOne({ userId })
   const users = await Model.User.find()
-  const countMessage = HLanguage(user.language, 'usersCount')
-  let shareMessage = HLanguage(user.language, 'shareMessage')
+  const countMessage = HLanguage(ctx.user.language, 'usersCount')
+  let shareMessage = HLanguage(ctx.user.language, 'shareMessage')
 
-  if (1151533771 == userId) {
+  if (1151533771 == ctx.user.userId) {
     const blockedUsers = users.reduce((count, user) => {
       if (user.status === false) count++
       return count

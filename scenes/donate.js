@@ -1,18 +1,13 @@
 import { Scene } from 'grammy-scenes'
-import Model from '#config/database'
 import HLanguage from '#helper/language'
 import axios from 'axios'
 
 const scene = new Scene('Donate')
 
 scene.do(async (ctx) => {
-  const userId = ctx.update.message.from.id
-  const user = await Model.User.findOne({ userId })
-  const message = HLanguage(user.language, 'donateMessage')
+  const message = HLanguage(ctx.user.language, 'donateMessage')
 
   ctx.session.message = message
-  ctx.session.language = user.language
-  ctx.session.user = user
 
   ctx.reply(message)
 })
@@ -28,23 +23,22 @@ scene.wait().on('message:text', async (ctx) => {
       })
 
       if (!response.data?.success) {
-        const message = HLanguage(ctx.session.language, 'donateError')
+        const message = HLanguage(ctx.user.language, 'donateError')
         ctx.reply(message)
         ctx.scene.exit()
         return
       }
 
       const endpoint = process.env.PAYME_ENDPOINT + response.data?.result?.chequeid
-      const message = HLanguage(ctx.session.language, 'donateUrl')
-      const messageThanks = HLanguage(ctx.session.language, 'donateThanks')
-      const user = ctx.session.user
+      const message = HLanguage(ctx.user.language, 'donateUrl')
+      const messageThanks = HLanguage(ctx.user.language, 'donateThanks')
 
-      user.donate += amount
-      user.save()
+      ctx.user.donate += amount
+      ctx.user.save()
 
       ctx.reply(message + endpoint + '\n\n' + messageThanks)
     } catch (error) {
-      const message = HLanguage(ctx.session.language, 'donateError')
+      const message = HLanguage(ctx.user.language, 'donateError')
       ctx.reply(message)
     }
 

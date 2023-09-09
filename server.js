@@ -1,12 +1,13 @@
 import { Bot, session, webhookCallback } from 'grammy'
 import 'dotenv/config'
-import Model from '#config/database'
 import { scenes } from './scenes/index.js'
 import HLanguage from '#helper/language'
 import cron from 'node-cron'
 import { daily, monthly, reminder, weekly } from './cron/cron.js'
-import { inlineQuery } from './query/inline.js'
+import customKFunction from './keyboard/custom.js'
 import express from 'express'
+import { keyboardMapper } from '#helper/keyboardMapper'
+import { authMiddleware } from '#middlewares/auth'
 
 const token = process.env.TOKEN
 const bot = new Bot(token)
@@ -24,142 +25,68 @@ const weeklyCron = cron.schedule('0 13 * * 1', async () => {
 })
 
 // middleware
-bot.inlineQuery(/(.*)/gi, async (ctx) => {
-  const userId = ctx.update.inline_query.from.id
-  const user = await Model.User.findOne({ userId })
-
-  if (ctx.update.inline_query.from.is_bot) return
-  if (!user) return ctx.scenes.enter('Start')
-
-  inlineQuery(ctx)
-})
 bot.use(session({ initial: () => ({}) }))
 bot.use(scenes.manager())
+bot.use(authMiddleware)
 bot.use(scenes)
 
 // Commands
 bot.command('language', async (ctx) => {
-  const userId = ctx.update.message.from.id
-  const user = await Model.User.findOne({ userId })
-
-  if (ctx.update.message.from.is_bot) return
-  if (!user) return ctx.scenes.enter('Start')
-
   return ctx.scenes.enter('Language')
 })
 
 bot.command('notification', async (ctx) => {
-  const userId = ctx.update.message.from.id
-  const user = await Model.User.findOne({ userId })
-
-  if (ctx.update.message.from.is_bot) return
-  if (!user) return ctx.scenes.enter('Start')
-
   await ctx.scenes.enter('Notification')
 })
 
 bot.command('fasting', async (ctx) => {
-  const userId = ctx.update.message.from.id
-  const user = await Model.User.findOne({ userId })
-
-  if (ctx.update.message.from.is_bot) return
-  if (!user) return ctx.scenes.enter('Start')
-
   await ctx.scenes.enter('Fasting')
 })
 
 bot.command('start', async (ctx) => {
-  const userId = ctx.update.message.from.id
-  const user = await Model.User.findOne({ userId })
+  const welcomeText = HLanguage(ctx.user.language, 'welcome')
+  const keyboardText = HLanguage(ctx.user.language, 'mainKeyboard')
+  const buttons = customKFunction(2, ...keyboardText)
 
-  if (ctx.update.message.from.is_bot) return
-  if (!user) return ctx.scenes.enter('Start')
+  await ctx.reply(welcomeText, {
+    reply_markup: {
+      keyboard: buttons.build(),
+      resize_keyboard: true,
+    },
+  })
 })
 
 bot.command('location', async (ctx) => {
-  const userId = ctx.update.message.from.id
-  const user = await Model.User.findOne({ userId })
-
-  if (ctx.update.message.from.is_bot) return
-  if (!user) return ctx.scenes.enter('Start')
-
   await ctx.scenes.enter('Location')
 })
 
 // bot.command('donate', async (ctx) => {
-//   const userId = ctx.update.message.from.id
-//   const user = await Model.User.findOne({ userId })
-
-//   if (ctx.update.message.from.is_bot) return
-//   if (!user) return ctx.scenes.enter('Start')
-
 //   await ctx.scenes.enter('Donate')
 // })
 
 bot.command('search', async (ctx) => {
-  const userId = ctx.update.message.from.id
-  const user = await Model.User.findOne({ userId })
-
-  if (ctx.update.message.from.is_bot) return
-  if (!user) return ctx.scenes.enter('Start')
-
   await ctx.scenes.enter('Search')
 })
 
 bot.command('statistic', async (ctx) => {
-  const userId = ctx.update.message.from.id
-  const user = await Model.User.findOne({ userId })
-
-  if (ctx.update.message.from.is_bot) return
-  if (!user) return ctx.scenes.enter('Start')
-
   await ctx.scenes.enter('Statistic')
 })
 
 bot.command('advertise', async (ctx) => {
-  const userId = ctx.update.message.from.id
-  const user = await Model.User.findOne({ userId })
-
-  if (ctx.update.message.from.is_bot) return
-  if (!user) return ctx.scenes.enter('Start')
-
   await ctx.scenes.enter('Advertise')
 })
 
 bot.command('hadith', async (ctx) => {
-  const userId = ctx.update.message.from.id
-  const user = await Model.User.findOne({ userId })
-
-  if (ctx.update.message.from.is_bot) return
-  if (!user) return ctx.scenes.enter('Start')
-
   await ctx.scenes.enter('Hadith')
 })
 
 bot.on('message:text', async (ctx) => {
-  const userId = ctx.update.message.from.id
-  const user = await Model.User.findOne({ userId })
+  const mappedScene = keyboardMapper(ctx.user.language, ctx.message.text)
+  if (mappedScene) {
+    return ctx.scenes.enter(mappedScene)
+  }
 
-  if (ctx.update.message.from.is_bot) return
-  if (!user) return ctx.scenes.enter('Start')
-
-  const keyboardText = HLanguage(user.language, 'mainKeyboard')
-
-  if (ctx.message.text === keyboardText[0]) ctx.scenes.enter('Search')
-  if (ctx.message.text === keyboardText[1]) ctx.scenes.enter('Language')
-  if (ctx.message.text === keyboardText[2]) ctx.scenes.enter('Location')
-  if (ctx.message.text === keyboardText[3]) ctx.scenes.enter('Fasting')
-  if (ctx.message.text === keyboardText[4]) ctx.scenes.enter('Notification')
-  if (ctx.message.text === keyboardText[5]) ctx.scenes.enter('Statistic')
-  // if (ctx.message.text === keyboardText[6]) ctx.scenes.enter('Donate')
-})
-
-bot.on('callback_query', async (ctx) => {
-  const userId = ctx.callbackQuery.from.id
-  const user = await Model.User.findOne({ userId })
-
-  if (ctx.callbackQuery.from.is_bot) return
-  if (!user) return ctx.scenes.enter('Start')
+  ctx.reply(HLanguage(user.language, 'wrongSelection'))
 })
 
 // error handling
@@ -179,7 +106,6 @@ bot.catch((err) => {
   bot.api.sendMessage(1151533771, response)
 })
 
-// bot.start()
 monthlyCron.start()
 dailyCron.start()
 // weeklyCron.start()
@@ -187,12 +113,14 @@ dailyCron.start()
 reminder(bot)
 
 // webhook
-const PORT = process.env?.PORT || 3600
-const server = express()
-server.use(express.json())
-server.use(`/${token}`, webhookCallback(bot, 'express'))
-
-server.listen(PORT, async () => {
-  await bot.api.setWebhook('https://reposu.org/xayrullohbot/' + token)
-  console.log(await bot.api.getWebhookInfo())
-})
+if (process.env.NODE_ENV === 'dev') {
+  bot.start()
+} else {
+  const PORT = process.env?.PORT || 3600
+  const server = express()
+  server.use(express.json())
+  server.use(`/${token}`, webhookCallback(bot, 'express'))
+  server.listen(PORT, async () => {
+    await bot.api.setWebhook('https://reposu.org/xayrullohbot/' + token)
+  })
+}

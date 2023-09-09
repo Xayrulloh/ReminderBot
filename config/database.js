@@ -44,6 +44,32 @@ const User = new mongoose.Schema(
       required: false,
       type: Boolean,
     },
+    notificationSetting: {
+      fajr: {
+        default: true,
+        type: Boolean,
+      },
+      sunrise: {
+        default: true,
+        type: Boolean,
+      },
+      dhuhr: {
+        default: true,
+        type: Boolean,
+      },
+      asr: {
+        default: true,
+        type: Boolean,
+      },
+      maghrib: {
+        default: true,
+        type: Boolean,
+      },
+      isha: {
+        default: true,
+        type: Boolean,
+      },
+    },
   },
   { versionKey: false },
 )
