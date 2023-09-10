@@ -156,7 +156,7 @@ export async function reminder(bot) {
       const users = await Model.User.find({
         regionId: region.regionId,
         notification: true,
-        "notificationSetting.fajr": true,
+        $or: [{ 'notificationSetting.maghrib': true }, { fasting: true }],
       })
 
       users.forEach((user) => {
@@ -230,7 +230,7 @@ export async function reminder(bot) {
       const users = await Model.User.find({
         regionId: region.regionId,
         notification: true,
-        "notificationSetting.maghrib": true,
+        $or: [{ 'notificationSetting.maghrib': true }, { fasting: true }],
       })
 
       users.forEach((user) => {
