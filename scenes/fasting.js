@@ -3,13 +3,13 @@ import Model from '#config/database'
 import inlineKFunction from '../keyboard/inline.js'
 import HLanguage from '#helper/language'
 
-const scene = new Scene('Notification')
+const scene = new Scene('Fasting')
 
 scene.do(async (ctx) => {
   const userId = ctx.update.message.from.id
   const user = await Model.User.findOne({ userId })
-  const message = HLanguage(user.language, 'notificationMessage')
-  const keyboardMessage = HLanguage(user.language, 'agreementNotification')
+  const message = HLanguage(user.language, 'fastingMessage')
+  const keyboardMessage = HLanguage(user.language, 'agreementFasting')
   const buttons = inlineKFunction(
     Infinity,
     { view: keyboardMessage[0], text: keyboardMessage[0] },
@@ -27,8 +27,8 @@ scene.do(async (ctx) => {
 
 scene.wait().on('callback_query:data', async (ctx) => {
   if (ctx.session.keyboardMessage.includes(ctx.update.callback_query.data)) {
-    const notification = ctx.session.keyboardMessage[0] == ctx.update.callback_query.data ? true : false
-    await Model.User.updateOne({ userId: ctx.session.userId }, { notification })
+    const fasting = ctx.session.keyboardMessage[0] == ctx.update.callback_query.data ? true : false
+    await Model.User.updateOne({ userId: ctx.session.userId }, { fasting })
     const message = HLanguage(ctx.session.language, 'notifChange')
 
     ctx.reply(message)
@@ -36,7 +36,6 @@ scene.wait().on('callback_query:data', async (ctx) => {
   } else {
     ctx.reply(ctx.session.message, { reply_markup: ctx.session.buttons })
   }
-
   ctx.answerCallbackQuery()
 })
 

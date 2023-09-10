@@ -1,23 +1,27 @@
-import { Scene } from "grammy-scenes";
-import Data from "#database";
+import { Scene } from 'grammy-scenes'
+import Model from '#config/database'
 
-let newScene = new Scene("Advertise");
+const scene = new Scene('Advertise')
 
-newScene.do(async (ctx) => {
+scene.do(async (ctx) => {
   if (1151533771 == ctx.message.from.id) {
-    ctx.reply('Reklamani kiriting!')
+    ctx.reply('Give me a message to send every user')
   } else {
-    ctx.reply('Siz admin emas siz!')
+    ctx.reply("You haven't a permission!")
     ctx.scene.exit()
   }
-});
+})
 
-newScene.wait().on("message:text", async (ctx) => {
-  let users = await Data.find();
+scene.wait().on('message:text', async (ctx) => {
+  const users = await Model.User.find()
+
   users.forEach(async (user) => {
-    ctx.api.sendMessage(user.userId, ctx.message.text)
-  });
+    ctx.api.sendMessage(user.userId, ctx.message.text).catch(async (error) => {
+      if (error.description == 'Forbidden: bot was blocked by the user') {
+      }
+    })
+  })
   ctx.scene.exit()
-});
+})
 
-export default newScene;
+export default scene

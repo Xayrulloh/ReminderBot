@@ -1,86 +1,198 @@
-import { Bot, session, GrammyError, HttpError } from "grammy";
-import { scenes } from "./scenes/index.js";
-import "dotenv/config";
-import Data from "#database";
-import { Keyboard } from "grammy";
-import query from "./inline_query/query.js";
-import Heart from "./helper/heart.js";
+import { Bot, session, webhookCallback } from 'grammy'
+import 'dotenv/config'
+import Model from '#config/database'
+import { scenes } from './scenes/index.js'
+import HLanguage from '#helper/language'
+import cron from 'node-cron'
+import { daily, monthly, reminder, weekly } from './cron/cron.js'
+import { inlineQuery } from './query/inline.js'
+import express from 'express'
 
 const token = process.env.TOKEN
-const bot = new Bot(token);
+const bot = new Bot(token)
 
-// middlewares
-bot.use(session({ initial: () => ({}) }));
-bot.use(scenes.manager());
-bot.use(scenes);
+// crones
+const monthlyCron = cron.schedule('30 0 1 * *', async () => {
+  await monthly()
+})
+const dailyCron = cron.schedule('0 1 * * *', async () => {
+  await daily(bot)
+  await reminder(bot)
+})
+const weeklyCron = cron.schedule('0 13 * * 1', async () => {
+  await weekly(bot)
+})
 
-// inline query
-bot.inlineQuery(/(.*)/gi, (ctx) => {
-  query(ctx);
-});
+// middleware
+bot.inlineQuery(/(.*)/gi, async (ctx) => {
+  const userId = ctx.update.inline_query.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.inline_query.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
+
+  inlineQuery(ctx)
+})
+bot.use(session({ initial: () => ({}) }))
+bot.use(scenes.manager())
+bot.use(scenes)
 
 // Commands
-bot.command("start", async (ctx) => {
-  if (await Data.findOne({ userId: ctx.update.message.from.id })) {
-    ctx.reply(
-      "Assalomu alaykum.\n/notification — ushbu buyruq orqali siz har namoz vaqtidagi ogohlantirishni o'zgartirishingiz mumkun.\n/search — ushbu buyruq orqali siz O'zbekistonning qolgan hududlaridagi namoz vaqtlaridan xabardor bo'lishingiz mumkun.\n/location — ushbu buyruq orqali siz joylashuvingizni qaytadan kiritishingiz mumkun.\nEslatib o'tamiz ushbu buyruqlarning barchasi <b>Menu</b> xizmatida joylashgan.\nE'tiboringiz uchun rahmat.",
-      { parse_mode: "HTML" }
-    );
-    return;
-  }
-  await ctx.scenes.enter("Start");
-});
+bot.command('language', async (ctx) => {
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
 
-bot.command("notification", async (ctx) => {
-  if (!(await Data.findOne({ userId: ctx.update.message.from.id }))) {
-    return await ctx.scenes.enter("Start");
-  }
-  await ctx.scenes.enter("Notification");
-});
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
 
-bot.command("location", async (ctx) => {
-  if (!(await Data.findOne({ userId: ctx.update.message.from.id }))) {
-    return await ctx.scenes.enter("Start");
-  }
-  await ctx.scenes.enter("Location");
-});
+  return ctx.scenes.enter('Language')
+})
 
-bot.command("search", async (ctx) => {
-  await ctx.scenes.enter("Search");
-});
+bot.command('notification', async (ctx) => {
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
 
-bot.command("statistic", async (ctx) => {
-  await ctx.scenes.enter("Statistic");
-});
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
 
-bot.command("advertise", async (ctx) => {
-  await ctx.scenes.enter("Advertise");
-});
+  await ctx.scenes.enter('Notification')
+})
 
-bot.on("message:text", async (ctx) => {
-  if (!(await Data.findOne({ userId: ctx.update.message.from.id }))) {
-    return await ctx.scenes.enter("Start");
-  }
-  let buttons = new Keyboard().text('🔍 Qidirish').row().text('🔴/🟢 Ogohlantirishni o\'zgartirish').row().text('📍 Joylashuvni o\'zgartirish')
-  if (ctx.message.text === '🔍 Qidirish') {
-    ctx.scenes.enter('Search')
-  } else if (ctx.message.text === '🔴/🟢 Ogohlantirishni o\'zgartirish') {
-    ctx.scenes.enter('Notification')
-  } else if (ctx.message.text === '📍 Joylashuvni o\'zgartirish') {
-    ctx.scenes.enter('Location')
-  } else {
-    ctx.reply('Assalomu alaykum.\n/notification — ushbu buyruq orqali siz har namoz vaqtidagi ogohlantirishni o\'zgartirishingiz mumkun.\n/search — ushbu buyruq orqali siz O\'zbekistonning qolgan hududlaridagi namoz vaqtlaridan xabardor bo\'lishingiz mumkun.\n/location — ushbu buyruq orqali siz joylashuvingizni qaytadan kiritishingiz mumkun.\nEslatib o\'tamiz ushbu buyruqlarning barchasi <b>Menu</b> xizmatida joylashgan.\nE\'tiboringiz uchun rahmat.', { parse_mode: "HTML", reply_markup: { keyboard: buttons.build(), resize_keyboard: true } })
-  }
+bot.command('fasting', async (ctx) => {
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
+
+  await ctx.scenes.enter('Fasting')
+})
+
+bot.command('start', async (ctx) => {
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
+})
+
+bot.command('location', async (ctx) => {
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
+
+  await ctx.scenes.enter('Location')
+})
+
+// bot.command('donate', async (ctx) => {
+//   const userId = ctx.update.message.from.id
+//   const user = await Model.User.findOne({ userId })
+
+//   if (ctx.update.message.from.is_bot) return
+//   if (!user) return ctx.scenes.enter('Start')
+
+//   await ctx.scenes.enter('Donate')
+// })
+
+bot.command('search', async (ctx) => {
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
+
+  await ctx.scenes.enter('Search')
+})
+
+bot.command('statistic', async (ctx) => {
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
+
+  await ctx.scenes.enter('Statistic')
+})
+
+bot.command('advertise', async (ctx) => {
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
+
+  await ctx.scenes.enter('Advertise')
+})
+
+bot.command('hadith', async (ctx) => {
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
+
+  await ctx.scenes.enter('Hadith')
+})
+
+bot.on('message:text', async (ctx) => {
+  const userId = ctx.update.message.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.update.message.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
+
+  const keyboardText = HLanguage(user.language, 'mainKeyboard')
+
+  if (ctx.message.text === keyboardText[0]) ctx.scenes.enter('Search')
+  if (ctx.message.text === keyboardText[1]) ctx.scenes.enter('Language')
+  if (ctx.message.text === keyboardText[2]) ctx.scenes.enter('Location')
+  if (ctx.message.text === keyboardText[3]) ctx.scenes.enter('Fasting')
+  if (ctx.message.text === keyboardText[4]) ctx.scenes.enter('Notification')
+  if (ctx.message.text === keyboardText[5]) ctx.scenes.enter('Statistic')
+  // if (ctx.message.text === keyboardText[6]) ctx.scenes.enter('Donate')
+})
+
+bot.on('callback_query', async (ctx) => {
+  const userId = ctx.callbackQuery.from.id
+  const user = await Model.User.findOne({ userId })
+
+  if (ctx.callbackQuery.from.is_bot) return
+  if (!user) return ctx.scenes.enter('Start')
 })
 
 // error handling
 bot.catch((err) => {
-  const ctx = err.ctx, error = err.error, name = err.name;
-  const response = `By: ${ctx.update.message.from.id}\nUsername: @${ctx.update.message.from.username}\nError: ${name}\nError message: ${error.message}`
+  let { message, inline_query, callback_query } = err.ctx.update
+
+  let response = ''
+
+  if (message) {
+    response = `Id: ${message.from.id}\nUsername: @${message.from.username}\nName: ${message.from.first_name}\nError: ${err.message}`
+  } else if (inline_query) {
+    response = `Id: ${inline_query.from.id}\nUsername: @${inline_query.from.username}\nName: ${inline_query.from.first_name}\nError: ${err.message}`
+  } else if (callback_query) {
+    response = `Id: ${callback_query.from.id}\nUsername: @${callback_query.from.username}\nName: ${callback_query.from.first_name}\nError: ${err.message}`
+  }
+
   bot.api.sendMessage(1151533771, response)
-  bot.api.sendMessage(722785022, response)
-});
+})
 
-bot.start();
+// bot.start()
+monthlyCron.start()
+dailyCron.start()
+// weeklyCron.start()
 
-Heart();
+reminder(bot)
+
+// webhook
+const PORT = process.env?.PORT || 3600
+const server = express()
+server.use(express.json())
+server.use(`/${token}`, webhookCallback(bot, 'express'))
+
+server.listen(PORT, async () => {
+  await bot.api.setWebhook('https://reposu.org/xayrullohbot/' + token)
+  console.log(await bot.api.getWebhookInfo())
+})
