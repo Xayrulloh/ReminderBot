@@ -123,11 +123,12 @@ reminder(bot)
 if (process.env.NODE_ENV === 'dev') {
   bot.start()
 } else {
-  const PORT = process.env?.PORT || 3600
+  const port = Number(process.env?.PORT) || 3600
+  const domain = String(process.env.DOMAIN);
   const server = express()
   server.use(express.json())
   server.use(`/${token}`, webhookCallback(bot, 'express'))
-  server.listen(PORT, async () => {
-    await bot.api.setWebhook('https://reposu.org/xayrullohbot/' + token)
+  server.listen(port, async () => {
+    await bot.api.setWebhook(`https://${domain}/${token}`);
   })
 }
