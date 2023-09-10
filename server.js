@@ -1,4 +1,4 @@
-import { Bot, session, webhookCallback } from 'grammy'
+import { Bot, MemorySessionStorage, session, webhookCallback } from 'grammy'
 import 'dotenv/config'
 import { scenes } from './scenes/index.js'
 import HLanguage from '#helper/language'
@@ -25,7 +25,10 @@ const weeklyCron = cron.schedule('0 13 * * 1', async () => {
 })
 
 // middleware
-bot.use(session({ initial: () => ({}) }))
+bot.use(session({ 
+  initial: () => ({}),
+  storage: new MemorySessionStorage(process.env.SESSION_TTL)
+}))
 bot.use(scenes.manager())
 bot.use(authMiddleware)
 bot.use(scenes)
