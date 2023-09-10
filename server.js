@@ -12,16 +12,20 @@ const token = process.env.TOKEN
 const bot = new Bot(token)
 
 // crones
+const scheduleOptions = {
+  timezone: "Asia/Tashkent",
+  runOnInit: true
+}
 const monthlyCron = cron.schedule('30 0 1 * *', async () => {
   await monthly()
-})
+}, scheduleOptions)
 const dailyCron = cron.schedule('0 1 * * *', async () => {
   await daily(bot)
   await reminder(bot)
-})
+}, scheduleOptions)
 const weeklyCron = cron.schedule('0 13 * * 1', async () => {
   await weekly(bot)
-})
+}, scheduleOptions)
 
 // middleware
 bot.use(
