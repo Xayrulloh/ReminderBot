@@ -53,14 +53,14 @@ export async function monthly() {
 
 export async function daily(bot) {
   // daily backup
-  const users = await Model.User.find()
-  fs.access('users.json', fs.constants.F_OK, (err) => {
-    if (err) fs.writeFileSync('users.json', JSON.stringify(users))
-    else {
-      const currentUsers = JSON.parse(fs.readFileSync('users.json'))
-      if (currentUsers.length > users.length) fs.writeFileSync('users.json', JSON.stringify(users))
-    }
-  })
+  // const users = await Model.User.find()
+  // fs.access('users.json', fs.constants.F_OK, (err) => {
+    // if (err) fs.writeFileSync('users.json', JSON.stringify(users))
+    // else {
+      // const currentUsers = JSON.parse(fs.readFileSync('users.json'))
+      // if (currentUsers.length > users.length) fs.writeFileSync('users.json', JSON.stringify(users))
+    // }
+  // })
 
   // sending message
   const now = new Date()
@@ -76,11 +76,11 @@ export async function daily(bot) {
     hadith = hadith[(Math.random() * hadith.length) | 0]
   }
 
-  fs.writeFileSync(
-    path.join(process.cwd(), 'translate', 'localStorage.json'),
-    JSON.stringify({ dailyHadith: hadith ? `\n\n${hadith.content}` : '' }),
-    'utf8',
-  )
+  // fs.writeFileSync(
+    // path.join(process.cwd(), 'translate', 'localStorage.json'),
+    // JSON.stringify({ dailyHadith: hadith ? `\n\n${hadith.content}` : '' }),
+    // 'utf8',
+  // )
 
   for (let region of regions) {
     const users = await Model.User.find({ regionId: region.regionId })
