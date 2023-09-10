@@ -153,7 +153,11 @@ export async function reminder(bot) {
 
     // schedule
     schedule.scheduleJob({ hour: fajr[0], minute: fajr[1] }, async () => {
-      const users = await Model.User.find({ regionId: region.regionId, notification: true })
+      const users = await Model.User.find({
+        regionId: region.regionId,
+        notification: true,
+        $or: [{ 'notificationSetting.maghrib': true }, { fasting: true }],
+      })
 
       users.forEach((user) => {
         let message
@@ -173,7 +177,11 @@ export async function reminder(bot) {
     })
 
     schedule.scheduleJob({ hour: sunrise[0], minute: sunrise[1] }, async () => {
-      const users = await Model.User.find({ regionId: region.regionId, notification: true })
+      const users = await Model.User.find({
+        regionId: region.regionId,
+        notification: true,
+        "notificationSetting.sunrise": true,
+      })
 
       users.forEach((user) => {
         const sunriseTime = HLanguage(user.language, 'sunriseTime')
@@ -186,8 +194,11 @@ export async function reminder(bot) {
     })
 
     schedule.scheduleJob({ hour: dhuhr[0], minute: dhuhr[1] }, async () => {
-      const users = await Model.User.find({ regionId: region.regionId, notification: true })
-
+      const users = await Model.User.find({
+        regionId: region.regionId,
+        notification: true,
+        "notificationSetting.dhuhr": true,
+      })
       users.forEach((user) => {
         const dhuhrTime = HLanguage(user.language, 'dhuhrTime')
 
@@ -199,7 +210,11 @@ export async function reminder(bot) {
     })
 
     schedule.scheduleJob({ hour: asr[0], minute: asr[1] }, async () => {
-      const users = await Model.User.find({ regionId: region.regionId, notification: true })
+      const users = await Model.User.find({
+        regionId: region.regionId,
+        notification: true,
+        "notificationSetting.asr": true,
+      })
 
       users.forEach((user) => {
         const asrTime = HLanguage(user.language, 'asrTime')
@@ -212,7 +227,11 @@ export async function reminder(bot) {
     })
 
     schedule.scheduleJob({ hour: maghrib[0], minute: maghrib[1] }, async () => {
-      const users = await Model.User.find({ regionId: region.regionId, notification: true })
+      const users = await Model.User.find({
+        regionId: region.regionId,
+        notification: true,
+        $or: [{ 'notificationSetting.maghrib': true }, { fasting: true }],
+      })
 
       users.forEach((user) => {
         let message
@@ -232,7 +251,11 @@ export async function reminder(bot) {
     })
 
     schedule.scheduleJob({ hour: isha[0], minute: isha[1] }, async () => {
-      const users = await Model.User.find({ regionId: region.regionId, notification: true })
+      const users = await Model.User.find({
+        regionId: region.regionId,
+        notification: true,
+        "notificationSetting.isha": true,
+      })
 
       users.forEach((user) => {
         const ishaTime = HLanguage(user.language, 'ishaTime')

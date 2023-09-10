@@ -1,14 +1,14 @@
-import { Keyboard } from "grammy";
+import { Keyboard } from 'grammy'
 
 export default function customKFunction(num, ...buttons) {
-  let keyboard = new Keyboard();
+  let keyboard = new Keyboard()
 
   buttons.forEach((el, index) => {
     if (index % num == 0) {
-      keyboard.row();
+      keyboard.row()
     }
-    keyboard.text(el);
-  });
+    keyboard.text(el)
+  })
 
-  return keyboard;
+  return keyboard
 }

@@ -13,9 +13,7 @@ scene.do(async (ctx) => {
     { view: '🇷🇺', text: 'ru' },
     { view: '🇺🇸', text: 'en' },
   )
-  const userId = ctx.update.message.from.id
-  const user = await Model.User.findOne({ userId })
-  const message = HLanguage(user.language, 'chooseLanguage')
+  const message = HLanguage(ctx.user.language, 'chooseLanguage')
 
   ctx.session.message = message
   ctx.session.buttons = buttons

@@ -54,5 +54,17 @@
   "hintMessage": "<b>Hello user!</b>\nYou have enabled inline mode.\nWith this convenient feature, you can find prayer times in Uzbekistan.\nTo start your search, type \n <code>@namoz5vbot &lt;city or region name&gt;</code> \n",
   "notFound": "Nothing found for the query",
   "notFoundDescription": "No results found for $inlineQueryText!",
-  "notFoundContent": "<b>No results found for $inlineQueryText!</b>\nPlease try again."
+  "notFoundContent": "<b>No results found for $inlineQueryText!</b>\nPlease try again.",
+  "wrongSelection": "Select one of the following",
+  "welcome": "Welcome back",
+  "setPrayerTimes": "Set and save the prayer times you want to be notified",
+  "setPrayerTimesKeyboard": {
+    "fajr": "🏙 Fajr $state",
+    "sunrise": "🌅 Sunrise $state",
+    "dhuhr": "🏞 Zuhr $state",
+    "asr": "🌆 Asr $state",
+    "maghrib": "🌉 Maghrib $state",
+    "isha": "🌃 Isha $state",
+    "save": "✅ Save"
+  }
 }

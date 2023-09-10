@@ -9,10 +9,8 @@ import path from 'path'
 let scene = new Scene('Search')
 
 scene.do(async (ctx) => {
-  const userId = ctx.update.message.from.id
-  const user = await Model.User.findOne({ userId })
-  const message = HLanguage(user.language, 'searchRegion')
-  const keyboardMessage = HLanguage(user.language, 'region')
+  const message = HLanguage(ctx.user.language, 'searchRegion')
+  const keyboardMessage = HLanguage(ctx.user.language, 'region')
   const keyboard = []
 
   for (let region in keyboardMessage) {
@@ -23,7 +21,6 @@ scene.do(async (ctx) => {
 
   ctx.session.message = message
   ctx.session.buttons = buttons
-  ctx.session.language = user.language
   ctx.session.regionId = Object.values(keyboardMessage)
   ctx.session.regions = keyboardMessage
 
@@ -35,7 +32,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
     const now = new Date()
     const today = now.getDate()
 
-    const message = HLanguage(ctx.session.language, 'infoPrayTime')
+    const message = HLanguage(ctx.user.language, 'infoPrayTime')
     const data = await Model.PrayTime.findOne({ day: today, regionId: ctx.update.callback_query.data })
     let regionName = ''
 
