@@ -113,7 +113,6 @@ export async function daily(bot) {
           .finally(() => {
             user.save()
           })
-        return
       } else {
         bot.api
           .sendMessage(user.userId, message + (hadith ? `\n\n${hadith.content}` : ''), {
@@ -178,9 +177,9 @@ export async function reminder(bot) {
 
     schedule.scheduleJob({ hour: sunrise[0], minute: sunrise[1] }, async () => {
       const users = await Model.User.find({
-        regionId: region.regionId,
-        notification: true,
-        "notificationSetting.sunrise": true,
+        'regionId': region.regionId,
+        'notification': true,
+        'notificationSetting.sunrise': true,
       })
 
       users.forEach((user) => {
@@ -195,9 +194,9 @@ export async function reminder(bot) {
 
     schedule.scheduleJob({ hour: dhuhr[0], minute: dhuhr[1] }, async () => {
       const users = await Model.User.find({
-        regionId: region.regionId,
-        notification: true,
-        "notificationSetting.dhuhr": true,
+        'regionId': region.regionId,
+        'notification': true,
+        'notificationSetting.dhuhr': true,
       })
       users.forEach((user) => {
         const dhuhrTime = HLanguage(user.language, 'dhuhrTime')
@@ -211,9 +210,9 @@ export async function reminder(bot) {
 
     schedule.scheduleJob({ hour: asr[0], minute: asr[1] }, async () => {
       const users = await Model.User.find({
-        regionId: region.regionId,
-        notification: true,
-        "notificationSetting.asr": true,
+        'regionId': region.regionId,
+        'notification': true,
+        'notificationSetting.asr': true,
       })
 
       users.forEach((user) => {
@@ -252,9 +251,9 @@ export async function reminder(bot) {
 
     schedule.scheduleJob({ hour: isha[0], minute: isha[1] }, async () => {
       const users = await Model.User.find({
-        regionId: region.regionId,
-        notification: true,
-        "notificationSetting.isha": true,
+        'regionId': region.regionId,
+        'notification': true,
+        'notificationSetting.isha': true,
       })
 
       users.forEach((user) => {
