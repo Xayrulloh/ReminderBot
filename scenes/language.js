@@ -22,13 +22,13 @@ scene.do(async (ctx) => {
 })
 
 scene.wait().on('callback_query:data', async (ctx) => {
-  ctx.answerCallbackQuery()
-
   const language = ctx.update.callback_query.data
+
   if (!['uz', 'ru', 'en'].includes(language)) {
-    ctx.reply(ctx.session.message, { reply_markup: ctx.session.buttons })
-    return
+    return ctx.editMessageText(message, { reply_markup: buttons })
   }
+
+  ctx.answerCallbackQuery()
 
   const userId = ctx.update.callback_query.from.id
   const message = HLanguage(language, 'changedLanguage')
@@ -38,6 +38,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
   const keyboardText = HLanguage(language, 'mainKeyboard')
   const buttons = customKFunction(2, ...keyboardText)
 
+  ctx.deleteMessage()
   ctx.reply(message, { reply_markup: { keyboard: buttons.build(), resize_keyboard: true } })
   ctx.scene.exit()
 })

@@ -29,6 +29,8 @@ scene.do(async (ctx) => {
 
 scene.wait().on('callback_query:data', async (ctx) => {
   if (ctx.session.regionId.includes(+ctx.update.callback_query.data)) {
+    ctx.answerCallbackQuery()
+
     const now = new Date()
     const today = now.getDate()
 
@@ -53,13 +55,11 @@ scene.wait().on('callback_query:data', async (ctx) => {
       fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json')),
     )?.dailyHadith
 
-    ctx.reply(response + dailyHadith)
+    ctx.editMessageText(response + dailyHadith)
     ctx.scene.exit()
   } else {
-    ctx.reply(ctx.session.message, { reply_markup: ctx.session.buttons })
+    ctx.answerCallbackQuery(HLanguage(ctx.user.language, 'wrongSelection'))
   }
-
-  ctx.answerCallbackQuery()
 })
 
 export default scene
