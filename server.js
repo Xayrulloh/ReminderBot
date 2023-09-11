@@ -6,6 +6,7 @@ import cron from 'node-cron'
 import { daily, monthly, reminder, weekly } from './cron/cron.js'
 import customKFunction from './keyboard/custom.js'
 import express from 'express'
+import { keyboardMapper } from '#helper/keyboardMapper'
 import { authMiddleware } from '#middlewares/auth'
 
 const token = process.env.TOKEN
@@ -24,12 +25,10 @@ const weeklyCron = cron.schedule('0 13 * * 1', async () => {
 })
 
 // middleware
-bot.use(
-  session({
-    initial: () => ({}),
-    storage: new MemorySessionStorage(process.env.SESSION_TTL),
-  }),
-)
+bot.use(session({ 
+  initial: () => ({}),
+  storage: new MemorySessionStorage(process.env.SESSION_TTL)
+}))
 bot.use(scenes.manager())
 bot.use(authMiddleware)
 bot.use(scenes)
@@ -64,6 +63,10 @@ bot.command('location', async (ctx) => {
   await ctx.scenes.enter('Location')
 })
 
+// bot.command('donate', async (ctx) => {
+//   await ctx.scenes.enter('Donate')
+// })
+
 bot.command('search', async (ctx) => {
   await ctx.scenes.enter('Search')
 })
@@ -78,6 +81,15 @@ bot.command('advertise', async (ctx) => {
 
 bot.command('hadith', async (ctx) => {
   await ctx.scenes.enter('Hadith')
+})
+
+bot.on('message:text', async (ctx) => {
+  const mappedScene = keyboardMapper(ctx.user.language, ctx.message.text)
+  if (mappedScene) {
+    return ctx.scenes.enter(mappedScene)
+  }
+
+  ctx.reply(HLanguage(user.language, 'wrongSelection'))
 })
 
 // error handling
@@ -99,6 +111,7 @@ bot.catch((err) => {
 
 monthlyCron.start()
 dailyCron.start()
+// weeklyCron.start()
 
 reminder(bot)
 
@@ -114,20 +127,3 @@ if (process.env.NODE_ENV === 'dev') {
     await bot.api.setWebhook('https://reposu.org/xayrullohbot/' + token)
   })
 }
-
-// commented works
-
-// bot.command('donate', async (ctx) => {
-//   await ctx.scenes.enter('Donate')
-// })
-
-// weeklyCron.start()
-
-// bot.on('message:text', async (ctx) => {
-//   const mappedScene = keyboardMapper(ctx.user.language, ctx.message.text)
-//   if (mappedScene) {
-//     return ctx.scenes.enter(mappedScene)
-//   }
-
-//   ctx.reply(HLanguage(ctx.user.language, 'wrongSelection'))
-// })

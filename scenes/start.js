@@ -34,14 +34,15 @@ scene.do(async (ctx) => {
 
 // region
 scene.wait().on('callback_query:data', async (ctx) => {
+  ctx.answerCallbackQuery()
+
   const language = ctx.update.callback_query.data
   ctx.session.language = language
 
   if (!['uz', 'ru', 'en'].includes(language)) {
-    return ctx.answerCallbackQuery(HLanguage('uz', 'wrongSelection'))
+    ctx.reply(ctx.session.message, { reply_markup: ctx.session.buttons })
+    return
   }
-
-  ctx.answerCallbackQuery()
 
   const message = HLanguage(language, 'chooseRegion')
   const keyboardMessage = HLanguage(language, 'region')
@@ -58,17 +59,18 @@ scene.wait().on('callback_query:data', async (ctx) => {
   ctx.session.buttons = buttons
   ctx.session.regions = keyboardMessage
 
-  ctx.editMessageText(message, { reply_markup: buttons })
+  ctx.reply(message, { reply_markup: buttons })
   ctx.scene.resume()
 })
 
 // notification
 scene.wait().on('callback_query:data', async (ctx) => {
-  if (!ctx.session.regionId.includes(+ctx.update.callback_query.data)) {
-    return ctx.answerCallbackQuery(HLanguage(ctx.session.language, 'wrongSelection'))
-  }
-
   ctx.answerCallbackQuery()
+
+  if (!ctx.session.regionId.includes(+ctx.update.callback_query.data)) {
+    ctx.reply(ctx.session.message, { reply_markup: ctx.session.buttons })
+    return
+  }
 
   ctx.session.regionId = +ctx.update.callback_query.data
 
@@ -84,17 +86,18 @@ scene.wait().on('callback_query:data', async (ctx) => {
   ctx.session.buttons = buttons
   ctx.session.keyboardMessage = keyboardMessage
 
-  ctx.editMessageText(message, { reply_markup: buttons })
+  ctx.reply(message, { reply_markup: buttons })
   ctx.scene.resume()
 })
 
 // fasting
 scene.wait().on('callback_query:data', async (ctx) => {
-  if (!ctx.session.keyboardMessage.includes(ctx.update.callback_query.data)) {
-    return ctx.answerCallbackQuery(HLanguage(ctx.session.language, 'wrongSelection'))
-  }
-
   ctx.answerCallbackQuery()
+
+  if (!ctx.session.keyboardMessage.includes(ctx.update.callback_query.data)) {
+    ctx.reply(ctx.session.message, { reply_markup: ctx.session.buttons })
+    return
+  }
 
   const message = HLanguage(ctx.session.language, 'fastingMessage')
   const keyboardMessage = HLanguage(ctx.session.language, 'agreementFasting')
@@ -109,17 +112,18 @@ scene.wait().on('callback_query:data', async (ctx) => {
   ctx.session.message = message
   ctx.session.buttons = buttons
 
-  ctx.editMessageText(message, { reply_markup: buttons })
+  ctx.reply(message, { reply_markup: buttons })
   ctx.scene.resume()
 })
 
 // the end
 scene.wait().on('callback_query:data', async (ctx) => {
-  if (!ctx.session.keyboardMessage.includes(ctx.update.callback_query.data)) {
-    return ctx.answerCallbackQuery(HLanguage(ctx.session.language, 'wrongSelection'))
-  }
-
   ctx.answerCallbackQuery()
+
+  if (!ctx.session.keyboardMessage.includes(ctx.update.callback_query.data)) {
+    ctx.reply(ctx.session.message, { reply_markup: ctx.session.buttons })
+    return
+  }
 
   const fasting = ctx.session.keyboardMessage[0] == ctx.update.callback_query.data ? true : false
 
@@ -160,10 +164,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
   const keyboardText = HLanguage(ctx.session.language, 'mainKeyboard')
   const buttons = customKFunction(2, ...keyboardText)
 
-  ctx.deleteMessage()
-  ctx.reply(response + dailyHadith, {
-    reply_markup: { inline_keyboard: null, keyboard: buttons.build(), resize_keyboard: true },
-  })
+  ctx.reply(response + dailyHadith, { reply_markup: { keyboard: buttons.build(), resize_keyboard: true } })
   ctx.scene.exit()
 })
 

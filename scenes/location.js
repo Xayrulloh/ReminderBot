@@ -29,8 +29,6 @@ scene.do(async (ctx) => {
 
 scene.wait().on('callback_query:data', async (ctx) => {
   if (ctx.session.regionId.includes(+ctx.update.callback_query.data)) {
-    ctx.answerCallbackQuery()
-
     const now = new Date()
     const today = now.getDate()
     const message = HLanguage(ctx.user.language, 'infoPrayTime')
@@ -60,11 +58,14 @@ scene.wait().on('callback_query:data', async (ctx) => {
 
     const locationMessage = HLanguage(ctx.user.language, 'locationChange')
 
-    ctx.editMessageText(locationMessage + '\n\n' + response + dailyHadith)
+    ctx.reply(locationMessage)
+    ctx.reply(response + dailyHadith)
     ctx.scene.exit()
   } else {
-    ctx.answerCallbackQuery(HLanguage(ctx.user.language, 'wrongSelection'))
+    ctx.reply(ctx.session.message, { reply_markup: ctx.session.buttons })
   }
+
+  ctx.answerCallbackQuery()
 })
 
 export default scene

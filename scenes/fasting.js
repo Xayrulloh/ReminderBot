@@ -23,19 +23,16 @@ scene.do(async (ctx) => {
 
 scene.wait().on('callback_query:data', async (ctx) => {
   if (ctx.session.keyboardMessage.includes(ctx.update.callback_query.data)) {
-    ctx.answerCallbackQuery()
-
     const fasting = ctx.session.keyboardMessage[0] == ctx.update.callback_query.data ? true : false
-
     await Model.User.updateOne({ userId: ctx.user.userId }, { fasting })
-
     const message = HLanguage(ctx.user.language, 'notifChange')
 
-    ctx.editMessageText(message)
+    ctx.reply(message)
     ctx.scene.exit()
   } else {
-    ctx.answerCallbackQuery(HLanguage(ctx.user.language, 'wrongSelection'))
+    ctx.reply(ctx.session.message, { reply_markup: ctx.session.buttons })
   }
+  ctx.answerCallbackQuery()
 })
 
 export default scene

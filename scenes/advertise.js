@@ -7,6 +7,7 @@ scene.do(async (ctx) => {
   if (1151533771 == ctx.message.from.id) {
     ctx.reply('Give me a message to send every user')
   } else {
+    ctx.reply("You haven't a permission!")
     ctx.scene.exit()
   }
 })
@@ -20,7 +21,6 @@ scene.wait().on('message:text', async (ctx) => {
       }
     })
   })
-
   ctx.scene.exit()
 })
 
