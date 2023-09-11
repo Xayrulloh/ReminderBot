@@ -21,7 +21,7 @@
   "chooseRegion": "Shaxaringizni belgilang",
   "infoPrayTime": "$region shahar namoz vaqtlari\n\n🏙 Bomdod $fajr\n🌅 Quyosh $sunrise\n🏞 Peshin $zuhr\n🌆 Asr $asr\n🌉 Shom $maghrib\n🌃 Xufton $isha",
   "notifChange": "O'zgartirildi",
-  "locationChange": "Sizning joylashuvingiz o'zgartirildi",
+  "locationChange": "Sizning joylashuvingiz o'zgartirildi.",
   "agreementFasting": ["Ha", "Yo'q"],
   "fastingMessage": "Ro'za tutyapsizmi?",
   "mainKeyboard": [

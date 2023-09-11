@@ -8,7 +8,6 @@ scene.do(async (ctx) => {
   if (1151533771 == ctx.message.from.id) {
     ctx.reply('Give me the hadith')
   } else {
-    ctx.reply("You don't have permission!")
     ctx.scene.exit()
   }
 })
