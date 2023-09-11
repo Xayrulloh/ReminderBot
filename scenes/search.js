@@ -51,7 +51,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
 
     const dailyHadith = JSON.parse(
       fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json')),
-    ).dailyHadith
+    )?.dailyHadith
 
     ctx.reply(response + dailyHadith)
     ctx.scene.exit()

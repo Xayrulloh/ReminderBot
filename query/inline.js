@@ -4,9 +4,10 @@ import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
 import crypto from 'crypto'
 import fuzzy from 'fuzzy'
+import path from 'path'
+import fs from 'fs'
 
 export async function inlineQuery(ctx) {
-
   const inlineQueryMessage = ctx.inlineQuery?.query
   const tryAgain = HLanguage(ctx.user.language, 'tryAgain')
   const responseObj = {
@@ -59,6 +60,9 @@ export async function inlineQuery(ctx) {
   const regionTranslations = HLanguage(ctx.user.language, 'region')
   const regions = await Model.PrayTime.find({ day: currentDay, regionId: regionIds })
   const message = HLanguage(ctx.user.language, 'infoPrayTime')
+  const dailyHadith = JSON.parse(
+    fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json')),
+  )?.dailyHadith
   const response = []
 
   for (const region of regions) {
@@ -82,7 +86,7 @@ export async function inlineQuery(ctx) {
       title: regionName,
       description: content,
       input_message_content: {
-        message_text: content,
+        message_text: content + dailyHadith,
         parse_mode: 'HTML',
       },
     })
