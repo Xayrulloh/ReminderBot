@@ -4,6 +4,8 @@ import inlineKFunction from '../keyboard/inline.js'
 import customKFunction from '../keyboard/custom.js'
 import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
+import fs from 'fs'
+import path from 'path'
 
 const scene = new Scene('Start')
 
@@ -155,11 +157,14 @@ scene.wait().on('callback_query:data', async (ctx) => {
     ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha'],
     [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha],
   )
+  const dailyHadith = JSON.parse(
+    fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json')),
+  )?.dailyHadith
 
   const keyboardText = HLanguage(ctx.session.language, 'mainKeyboard')
   const buttons = customKFunction(2, ...keyboardText)
 
-  ctx.reply(response, { reply_markup: { keyboard: buttons.build(), resize_keyboard: true } })
+  ctx.reply(response + dailyHadith, { reply_markup: { keyboard: buttons.build(), resize_keyboard: true } })
   ctx.scene.exit()
 })
 
