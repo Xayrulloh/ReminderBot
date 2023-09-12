@@ -53,14 +53,14 @@ export async function monthly() {
 
 export async function daily(bot) {
   // daily backup
-  // const users = await Model.User.find()
-  // fs.access('users.json', fs.constants.F_OK, (err) => {
-    // if (err) fs.writeFileSync('users.json', JSON.stringify(users))
-    // else {
-      // const currentUsers = JSON.parse(fs.readFileSync('users.json'))
-      // if (currentUsers.length > users.length) fs.writeFileSync('users.json', JSON.stringify(users))
-    // }
-  // })
+  const users = await Model.User.find()
+  fs.access('users.json', fs.constants.F_OK, (err) => {
+    if (err) fs.writeFileSync('users.json', JSON.stringify(users))
+    else {
+      const currentUsers = JSON.parse(fs.readFileSync('users.json'))
+      if (currentUsers.length > users.length) fs.writeFileSync('users.json', JSON.stringify(users))
+    }
+  })
 
   // sending message
   const now = new Date()
@@ -76,11 +76,11 @@ export async function daily(bot) {
     hadith = hadith[(Math.random() * hadith.length) | 0]
   }
 
-  // fs.writeFileSync(
-    // path.join(process.cwd(), 'translate', 'localStorage.json'),
-    // JSON.stringify({ dailyHadith: hadith ? `\n\n${hadith.content}` : '' }),
-    // 'utf8',
-  // )
+  fs.writeFileSync(
+    path.join(process.cwd(), 'translate', 'localStorage.json'),
+    JSON.stringify({ dailyHadith: hadith ? `\n\n${hadith.content}` : '' }),
+    'utf8',
+  )
 
   for (let region of regions) {
     const users = await Model.User.find({ regionId: region.regionId })
@@ -151,7 +151,7 @@ export async function reminder(bot) {
     const isha = region.isha.split(':')
 
     // schedule
-    schedule.scheduleJob({ hour: fajr[0], minute: fajr[1], tz: "Asia/Tashkent" }, async () => {
+    schedule.scheduleJob({ hour: fajr[0], minute: fajr[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find({
         regionId: region.regionId,
         notification: true,
@@ -175,7 +175,7 @@ export async function reminder(bot) {
       })
     })
 
-    schedule.scheduleJob({ hour: sunrise[0], minute: sunrise[1], tz: "Asia/Tashkent" }, async () => {
+    schedule.scheduleJob({ hour: sunrise[0], minute: sunrise[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find({
         'regionId': region.regionId,
         'notification': true,
@@ -192,7 +192,7 @@ export async function reminder(bot) {
       })
     })
 
-    schedule.scheduleJob({ hour: dhuhr[0], minute: dhuhr[1], tz: "Asia/Tashkent" }, async () => {
+    schedule.scheduleJob({ hour: dhuhr[0], minute: dhuhr[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find({
         'regionId': region.regionId,
         'notification': true,
@@ -208,7 +208,7 @@ export async function reminder(bot) {
       })
     })
 
-    schedule.scheduleJob({ hour: asr[0], minute: asr[1], tz: "Asia/Tashkent" }, async () => {
+    schedule.scheduleJob({ hour: asr[0], minute: asr[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find({
         'regionId': region.regionId,
         'notification': true,
@@ -225,7 +225,7 @@ export async function reminder(bot) {
       })
     })
 
-    schedule.scheduleJob({ hour: maghrib[0], minute: maghrib[1], tz: "Asia/Tashkent" }, async () => {
+    schedule.scheduleJob({ hour: maghrib[0], minute: maghrib[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find({
         regionId: region.regionId,
         notification: true,
@@ -249,7 +249,7 @@ export async function reminder(bot) {
       })
     })
 
-    schedule.scheduleJob({ hour: isha[0], minute: isha[1], tz: "Asia/Tashkent" }, async () => {
+    schedule.scheduleJob({ hour: isha[0], minute: isha[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find({
         'regionId': region.regionId,
         'notification': true,
