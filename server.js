@@ -15,7 +15,6 @@ const bot = new Bot(token)
 // crones
 const scheduleOptions = {
   timezone: 'Asia/Tashkent',
-  runOnInit: true,
 }
 const monthlyCron = cron.schedule(
   '30 0 1 * *',
