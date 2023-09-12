@@ -3,25 +3,34 @@ import 'dotenv/config'
 import { scenes } from './scenes/index.js'
 import HLanguage from '#helper/language'
 import cron from 'node-cron'
-import { daily, monthly, reminder, weekly } from './cron/cron.js'
+import { daily, monthly, reminder } from './cron/cron.js'
 import customKFunction from './keyboard/custom.js'
 import express from 'express'
 import { authMiddleware } from '#middlewares/auth'
+import { keyboardMapper } from '#helper/keyboardMapper'
 
 const token = process.env.TOKEN
 const bot = new Bot(token)
 
 // crones
-const monthlyCron = cron.schedule('30 0 1 * *', async () => {
-  await monthly()
-})
-const dailyCron = cron.schedule('0 1 * * *', async () => {
-  await daily(bot)
-  await reminder(bot)
-})
-const weeklyCron = cron.schedule('0 13 * * 1', async () => {
-  await weekly(bot)
-})
+const scheduleOptions = {
+  timezone: 'Asia/Tashkent',
+}
+const monthlyCron = cron.schedule(
+  '30 0 1 * *',
+  async () => {
+    await monthly()
+  },
+  scheduleOptions,
+)
+const dailyCron = cron.schedule(
+  '0 1 * * *',
+  async () => {
+    await daily(bot)
+    await reminder(bot)
+  },
+  scheduleOptions,
+)
 
 // middleware
 bot.use(
@@ -80,6 +89,13 @@ bot.command('hadith', async (ctx) => {
   await ctx.scenes.enter('Hadith')
 })
 
+bot.on('message:text', async (ctx) => {
+  const mappedScene = keyboardMapper(ctx.user.language, ctx.message.text)
+  if (mappedScene) {
+    return ctx.scenes.enter(mappedScene)
+  }
+})
+
 // error handling
 bot.catch((err) => {
   let { message, inline_query, callback_query } = err.ctx.update
@@ -106,28 +122,24 @@ reminder(bot)
 if (process.env.NODE_ENV === 'dev') {
   bot.start()
 } else {
-  const PORT = process.env?.PORT || 3600
+  const port = Number(process.env?.PORT) || 3600
+  const domain = String(process.env?.DOMAIN)
   const server = express()
   server.use(express.json())
   server.use(`/${token}`, webhookCallback(bot, 'express'))
-  server.listen(PORT, async () => {
-    await bot.api.setWebhook('https://reposu.org/xayrullohbot/' + token)
+  server.listen(port, async () => {
+    await bot.api.setWebhook(`https://${domain}/${token}`)
   })
 }
 
 // commented works
+
+// const weeklyCron = cron.schedule('0 13 * * 1', async () => {
+//   await weekly(bot)
+// }, scheduleOptions)
 
 // bot.command('donate', async (ctx) => {
 //   await ctx.scenes.enter('Donate')
 // })
 
 // weeklyCron.start()
-
-// bot.on('message:text', async (ctx) => {
-//   const mappedScene = keyboardMapper(ctx.user.language, ctx.message.text)
-//   if (mappedScene) {
-//     return ctx.scenes.enter(mappedScene)
-//   }
-
-//   ctx.reply(HLanguage(ctx.user.language, 'wrongSelection'))
-// })
