@@ -1,3 +1,10 @@
 node_modules
 .env
 users.js
+
+# MacOS behavior
+.DS_Store
+
+# IDE, Editor config files
+.vscode
+.idea
