@@ -91,6 +91,7 @@ bot.command('hadith', async (ctx) => {
 
 bot.on('message:text', async (ctx) => {
   const mappedScene = keyboardMapper(ctx.user.language, ctx.message.text)
+
   if (mappedScene) {
     return ctx.scenes.enter(mappedScene)
   }

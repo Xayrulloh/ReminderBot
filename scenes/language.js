@@ -34,6 +34,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
   const message = HLanguage(language, 'changedLanguage')
 
   await Model.User.updateOne({ userId }, { language })
+  ctx.user.language = language
 
   const keyboardText = HLanguage(language, 'mainKeyboard')
   const buttons = customKFunction(2, ...keyboardText)
