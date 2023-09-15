@@ -133,6 +133,8 @@ export async function daily(bot) {
             user.save()
           })
       }
+
+      await new Promise((resolve) => setTimeout(resolve, users.length / process.env.LIMIT))
     }
   }
 }
@@ -288,5 +290,7 @@ export async function weekly(bot) {
       }
       console.log('Error:', error)
     })
+
+    await new Promise((resolve) => setTimeout(resolve, users.length / process.env.LIMIT))
   }
 }
