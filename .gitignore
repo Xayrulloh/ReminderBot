@@ -2,7 +2,7 @@ node_modules
 .env
 
 # storage files
-users.js
+users.json
 translate/localStorage.json
 
 # MacOS behavior
