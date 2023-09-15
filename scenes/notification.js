@@ -63,10 +63,13 @@ scene.wait().on('callback_query:data', async (ctx) => {
     return ctx.editMessageText(ctx.session.message, { reply_markup: settingKeyboard })
   }
 
-  await Model.User.updateOne({ userId: ctx.user.userId }, { 
-    notification: true,
-    notificationSetting: ctx.session.notificationSetting
-  })
+  await Model.User.updateOne(
+    { userId: ctx.user.userId },
+    {
+      notification: true,
+      notificationSetting: ctx.session.notificationSetting,
+    },
+  )
   ctx.editMessageText(ctx.session.successMessage)
   return ctx.scene.exit()
 })
