@@ -45,11 +45,7 @@ bot.use(authMiddleware)
 bot.use(scenes)
 
 // inline query
-bot.inlineQuery(/(.*)/gi, async (ctx) => {
-  console.log('🚀 ~ ctx:', ctx)
-
-  inlineQuery(ctx)
-})
+bot.inlineQuery(/(.*)/gi, async (ctx) => {})
 
 // Commands
 bot.command('language', async (ctx) => {
