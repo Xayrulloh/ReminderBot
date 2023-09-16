@@ -109,8 +109,7 @@ export async function daily(bot) {
           .catch(async (error) => {
             if (error.description == 'Forbidden: bot was blocked by the user') {
               user.status = false
-            }
-            console.log('Error:', error)
+            } else console.log('Error:', error)
           })
           .finally(() => {
             user.save()
@@ -126,15 +125,14 @@ export async function daily(bot) {
           .catch(async (error) => {
             if (error.description == 'Forbidden: bot was blocked by the user') {
               user.status = false
-            }
-            console.log('Error:', error)
+            } else console.log('Error:', error)
           })
           .finally(() => {
             user.save()
           })
       }
 
-      await new Promise((resolve) => setTimeout(resolve, users.length / process.env.LIMIT))
+      await new Promise((resolve) => setTimeout(resolve, 1000 / process.env.LIMIT))
     }
   }
 }
@@ -175,8 +173,7 @@ export async function reminder(bot) {
 
         bot.api.sendMessage(user.userId, message).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
-          }
-          console.log('Error:', error)
+          } else console.log('Error:', error)
         })
       })
     })
@@ -193,8 +190,7 @@ export async function reminder(bot) {
 
         bot.api.sendMessage(user.userId, sunriseTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
-          }
-          console.log('Error:', error)
+          } else console.log('Error:', error)
         })
       })
     })
@@ -210,8 +206,7 @@ export async function reminder(bot) {
 
         bot.api.sendMessage(user.userId, dhuhrTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
-          }
-          console.log('Error:', error)
+          } else console.log('Error:', error)
         })
       })
     })
@@ -228,8 +223,7 @@ export async function reminder(bot) {
 
         bot.api.sendMessage(user.userId, asrTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
-          }
-          console.log('Error:', error)
+          } else console.log('Error:', error)
         })
       })
     })
@@ -253,8 +247,7 @@ export async function reminder(bot) {
 
         bot.api.sendMessage(user.userId, message).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
-          }
-          console.log('Error:', error)
+          } else console.log('Error:', error)
         })
       })
     })
@@ -271,8 +264,7 @@ export async function reminder(bot) {
 
         bot.api.sendMessage(user.userId, ishaTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
-          }
-          console.log('Error:', error)
+          } else console.log('Error:', error)
         })
       })
     })
@@ -287,10 +279,9 @@ export async function weekly(bot) {
 
     bot.api.sendMessage(user.userId, message).catch(async (error) => {
       if (error.description == 'Forbidden: bot was blocked by the user') {
-      }
-      console.log('Error:', error)
+      } else console.log('Error:', error)
     })
 
-    await new Promise((resolve) => setTimeout(resolve, users.length / process.env.LIMIT))
+    await new Promise((resolve) => setTimeout(resolve, 1000 / process.env.LIMIT))
   }
 }
