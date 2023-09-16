@@ -1,0 +1,24 @@
+name: ReminderBot Dev
+on:
+  push:
+    branches:
+      - develop
+jobs:
+  build:
+    name: ReminderBotDev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: pnpm i
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to AWS server
+        run: |
+          ssh -i ${{ secrets.AWS_SSH_KEY }} ec2-user@your-aws-server-ip "cd ReminderBot_dev && git pull origin develop"
