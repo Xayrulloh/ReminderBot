@@ -20,6 +20,8 @@ scene.wait().on('message:text', async (ctx) => {
       if (error.description == 'Forbidden: bot was blocked by the user') {
       }
     })
+
+    await new Promise((resolve) => setTimeout(resolve, users.length / process.env.LIMIT))
   })
 
   ctx.scene.exit()
