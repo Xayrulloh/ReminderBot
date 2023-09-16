@@ -8,6 +8,7 @@ import customKFunction from '../keyboard/custom.js'
 import fs from 'fs'
 import { InputFile } from 'grammy'
 import path from 'path'
+import { authMiddleware } from '#middlewares/auth'
 
 export async function monthly() {
   const now = new Date()
@@ -83,6 +84,7 @@ export async function daily(bot) {
     'utf8',
   )
 
+  // sending
   for (let region of regions) {
     const users = await Model.User.find({ regionId: region.regionId })
 
@@ -135,6 +137,9 @@ export async function daily(bot) {
       await new Promise((resolve) => setTimeout(resolve, 1000 / process.env.LIMIT))
     }
   }
+
+  // deleting users from cache
+  Object.keys(authMiddleware).forEach((key) => delete myFunction[key])
 }
 
 export async function reminder(bot) {
