@@ -14,15 +14,18 @@ scene.do(async (ctx) => {
 scene.wait().on('message:text', async (ctx) => {
   const users = await Model.User.find()
 
-  users.forEach(async (user) => {
-    ctx.api.sendMessage(user.userId, ctx.message.text).catch(async (error) => {
-      console.log('Error:', error)
-      if (error.description == 'Forbidden: bot was blocked by the user') {
+  for (const user of users) {
+    try {
+      await ctx.api.sendMessage(user.userId, ctx.message.text)
+    } catch (error) {
+      if (error.description === 'Forbidden: bot was blocked by the user') {
+      } else {
+        console.error('Error:', error)
       }
-    })
+    }
 
-    await new Promise((resolve) => setTimeout(resolve, users.length / process.env.LIMIT))
-  })
+    await new Promise((resolve) => setTimeout(resolve, 1000 / process.env.LIMIT))
+  }
 
   ctx.scene.exit()
 })

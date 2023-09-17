@@ -9,7 +9,7 @@ import fs from 'fs'
 
 export async function inlineQuery(ctx) {
   const inlineQueryMessage = ctx.inlineQuery?.query
-  const tryAgain = HLanguage(ctx.user.language, 'tryAgain')
+  const tryAgain = HLanguage('uz', 'tryAgain')
   const responseObj = {
     type: 'article',
     id: crypto.randomUUID(),
@@ -21,9 +21,9 @@ export async function inlineQuery(ctx) {
 
   // if not inline query
   if (!inlineQueryMessage) {
-    responseObj.title = HLanguage(ctx.user.language, 'startSearch')
-    responseObj.description = HLanguage(ctx.user.language, 'searchPlace')
-    responseObj.input_message_content.message_text = HLanguage(ctx.user.language, 'hintMessage')
+    responseObj.title = HLanguage('uz', 'startSearch')
+    responseObj.description = HLanguage('uz', 'searchPlace')
+    responseObj.input_message_content.message_text = HLanguage('uz', 'hintMessage')
 
     return await ctx.answerInlineQuery([responseObj])
   }
@@ -34,9 +34,9 @@ export async function inlineQuery(ctx) {
 
   // but not result
   if (!search.length) {
-    responseObj.title = HLanguage(ctx.user.language, 'notFound')
-    let description = HLanguage(ctx.user.language, 'notFoundDescription')
-    let message_text = HLanguage(ctx.user.language, 'notFoundContent')
+    responseObj.title = HLanguage('uz', 'notFound')
+    let description = HLanguage('uz', 'notFoundDescription')
+    let message_text = HLanguage('uz', 'notFoundContent')
 
     responseObj.description = HReplace(description, ['$inlineQueryText'], [inlineQueryMessage])
     responseObj.input_message_content.message_text = HReplace(message_text, ['$inlineQueryText'], [inlineQueryMessage])
@@ -57,9 +57,9 @@ export async function inlineQuery(ctx) {
 
   const now = new Date()
   const currentDay = now.getDate()
-  const regionTranslations = HLanguage(ctx.user.language, 'region')
+  const regionTranslations = HLanguage('uz', 'region')
   const regions = await Model.PrayTime.find({ day: currentDay, regionId: regionIds })
-  const message = HLanguage(ctx.user.language, 'infoPrayTime')
+  const message = HLanguage('uz', 'infoPrayTime')
   const dailyHadith = JSON.parse(
     fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json')),
   )?.dailyHadith

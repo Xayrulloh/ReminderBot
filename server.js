@@ -8,6 +8,7 @@ import customKFunction from './keyboard/custom.js'
 import express from 'express'
 import { authMiddleware } from '#middlewares/auth'
 import { keyboardMapper } from '#helper/keyboardMapper'
+import { inlineQuery } from './query/inline.js'
 
 const token = process.env.TOKEN
 const bot = new Bot(token)
@@ -42,6 +43,9 @@ bot.use(
 bot.use(scenes.manager())
 bot.use(authMiddleware)
 bot.use(scenes)
+
+// inline query
+bot.inlineQuery(/(.*)/gi, async (ctx) => {})
 
 // Commands
 bot.command('language', async (ctx) => {

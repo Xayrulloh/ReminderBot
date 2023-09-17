@@ -1,13 +1,22 @@
 import Model from '#config/database'
+import { inlineQuery } from '../query/inline.js'
 
 export async function authMiddleware(ctx, next) {
   if (ctx.from.is_bot) return
+
+  // if inline query
+  if (ctx.update?.inline_query?.id) {
+    return inlineQuery(ctx)
+  }
+
+  // if user exist in cache
   if (authMiddleware[ctx.from?.id]?.id) {
     ctx.user = authMiddleware[ctx.from?.id]
 
-    return await next()
+    return next()
   }
 
+  // finding user from db
   const userId = ctx.from?.id
   let user = await Model.User.findOne({ userId })
 
@@ -15,15 +24,14 @@ export async function authMiddleware(ctx, next) {
     const isStartSceneActive = ctx.session.scenes?.stack?.some((stack) => stack.scene === 'Start')
 
     if (isStartSceneActive) {
-      await next()
+      return next()
     } else {
-      ctx.scenes.enter('Start')
+      return ctx.scenes.enter('Start')
     }
-    return
   }
 
   authMiddleware[user.userId] = user
   ctx.user = user
 
-  await next()
+  return next()
 }
