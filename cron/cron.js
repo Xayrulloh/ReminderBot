@@ -139,7 +139,7 @@ export async function daily(bot) {
   }
 
   // deleting users from cache
-  Object.keys(authMiddleware).forEach((key) => delete myFunction[key])
+  Object.keys(authMiddleware).forEach((key) => delete authMiddleware[key])
 }
 
 export async function reminder(bot) {
