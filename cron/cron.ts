@@ -2,13 +2,13 @@ import axios from 'axios'
 import pdfParser from 'pdf-parse'
 import Model from '#config/database'
 import HLanguage from '#helper/language'
-import { HReplace } from '#helper/replacer'
+import {HReplace} from '#helper/replacer'
 import schedule from 'node-schedule'
-import customKFunction from '../keyboard/custom.js'
+import customKFunction from '#keyboard/custom'
 import fs from 'fs'
-import { InputFile } from 'grammy'
+import {Bot, GrammyError, InputFile} from 'grammy'
 import path from 'path'
-import { authMiddleware } from '#middlewares/auth'
+import {BotContext} from "#types/context";
 
 export async function monthly() {
   const now = new Date()
@@ -21,10 +21,10 @@ export async function monthly() {
   await Model.PrayTime.deleteMany()
 
   for (let i = 0; i < regions.length; i++) {
-    const pdf = await axios.get(process.env.TIME_API + regionIds[i] + '/' + currentMonth, {
+    const pdf = await axios.get(String(process.env.TIME_API) + regionIds[i] + '/' + currentMonth, {
       responseType: 'arraybuffer',
     })
-    const pdfData = await pdfParser(pdf.data, { normalizeWhitespace: true })
+    const pdfData = await pdfParser(pdf.data)
     const data = pdfData.text.split('\n')
 
     for (let el of data) {
@@ -32,7 +32,7 @@ export async function monthly() {
         for (let day of daysOfWeek) {
           if (el.includes(day)) {
             let dayNumber = el.split(day)[0]
-            let times = el.split(day)[1].match(/.{1,5}/g)
+            let times = el.split(day)[1].match(/.{1,5}/g) as RegExpMatchArray
 
             await Model.PrayTime.create({
               region: regions[i],
@@ -52,13 +52,15 @@ export async function monthly() {
   }
 }
 
-export async function daily(bot) {
+export async function daily(bot: Bot<BotContext>) {
   // daily backup
   const users = await Model.User.find()
   fs.access('users.json', fs.constants.F_OK, (err) => {
     if (err) fs.writeFileSync('users.json', JSON.stringify(users))
     else {
-      const currentUsers = JSON.parse(fs.readFileSync('users.json'))
+      const currentUsers = JSON.parse(fs.readFileSync('users.json', {
+        encoding: "utf-8"
+      }))
       if (currentUsers.length > users.length) fs.writeFileSync('users.json', JSON.stringify(users))
     }
   })
@@ -66,88 +68,83 @@ export async function daily(bot) {
   // sending message
   const now = new Date()
   const currentDay = now.getDate()
-  const regions = await Model.PrayTime.find({ day: currentDay })
+  const regions = await Model.PrayTime.find({day: currentDay})
 
   // taking hadith
+  let hadith = await Model.Hadith.find({category: {$ne: 'juma'}})
   if (now.getDay() == 5) {
-    var hadith = await Model.Hadith.find({ category: 'juma' })
-    hadith = hadith[(Math.random() * hadith.length) | 0]
-    var file = new InputFile('./uploads/JumaMuborak.jpg')
-  } else {
-    var hadith = await Model.Hadith.find({ category: { $ne: 'juma' } })
-    hadith = hadith[(Math.random() * hadith.length) | 0]
+    hadith = await Model.Hadith.find({category: 'juma'})
   }
+  const randomHadith = hadith[(Math.random() * hadith.length) | 0]
 
   fs.writeFileSync(
-    path.join(process.cwd(), 'translate', 'localStorage.json'),
-    JSON.stringify({ dailyHadith: hadith ? `\n\n${hadith.content}` : '' }),
-    'utf8',
+      path.join(process.cwd(), 'translate', 'localStorage.json'),
+      JSON.stringify({dailyHadith: randomHadith ? `\n\n${randomHadith.content}` : ''}),
+      'utf8',
   )
 
   // sending
   for (let region of regions) {
-    const users = await Model.User.find({ regionId: region.regionId })
+    const users = await Model.User.find({regionId: region.regionId})
 
     for (let user of users) {
       const info = HLanguage(user.language, 'infoPrayTime')
       let message = HReplace(
-        info,
-        ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha'],
-        [region.region, region.fajr, region.sunrise, region.dhuhr, region.asr, region.maghrib, region.isha],
+          info,
+          ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha'],
+          [region.region, region.fajr, region.sunrise, region.dhuhr, region.asr, region.maghrib, region.isha],
       )
 
       const keyboardText = HLanguage(user.language, 'mainKeyboard')
       const buttons = customKFunction(2, ...keyboardText)
 
       if (now.getDay() == 5) {
+        const file = new InputFile('./uploads/JumaMuborak.jpg')
         bot.api
-          .sendPhoto(user.userId, file, {
-            caption: message + (hadith ? `\n\n${hadith.content}` : ''),
-            reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
-          })
-          .then(() => {
-            user.status = true
-          })
-          .catch(async (error) => {
-            if (error.description == 'Forbidden: bot was blocked by the user') {
-              user.status = false
-            } else console.log('Error:', error)
-          })
-          .finally(() => {
-            user.save()
-          })
+            .sendPhoto(user.userId, file, {
+              caption: message + (randomHadith ? `\n\n${randomHadith.content}` : ''),
+              reply_markup: {keyboard: buttons.build(), resize_keyboard: true},
+            })
+            .then(() => {
+              user.status = true
+            })
+            .catch(async (error) => {
+              if (error.description == 'Forbidden: bot was blocked by the user') {
+                user.status = false
+              } else console.log('Error:', error)
+            })
+            .finally(() => {
+              user.save()
+            })
       } else {
         bot.api
-          .sendMessage(user.userId, message + (hadith ? `\n\n${hadith.content}` : ''), {
-            reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
-          })
-          .then(() => {
-            user.status = true
-          })
-          .catch(async (error) => {
-            if (error.description == 'Forbidden: bot was blocked by the user') {
-              user.status = false
-            } else console.log('Error:', error)
-          })
-          .finally(() => {
-            user.save()
-          })
+            .sendMessage(user.userId, message + (randomHadith ? `\n\n${randomHadith.content}` : ''), {
+              reply_markup: {keyboard: buttons.build(), resize_keyboard: true},
+            })
+            .then(() => {
+              user.status = true
+            })
+            .catch(async (error) => {
+              if (error.description == 'Forbidden: bot was blocked by the user') {
+                user.status = false
+              } else console.log('Error:', error)
+            })
+            .finally(() => {
+              user.save()
+            })
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 1000 / process.env.LIMIT))
+      await new Promise((resolve) => setTimeout(resolve, 1000 / Number(process.env.LIMIT)))
     }
   }
-
-  // deleting users from cache
-  Object.keys(authMiddleware).forEach((key) => delete authMiddleware[key])
 }
 
-export async function reminder(bot) {
+export async function reminder(bot: Bot<BotContext>) {
   await schedule.gracefulShutdown()
 
   const now = new Date()
   const currentDay = now.getDate()
-  const regions = await Model.PrayTime.find({ day: currentDay })
+  const regions = await Model.PrayTime.find({day: currentDay})
 
   for (let region of regions) {
     // times
@@ -159,11 +156,11 @@ export async function reminder(bot) {
     const isha = region.isha.split(':')
 
     // schedule
-    schedule.scheduleJob({ hour: fajr[0], minute: fajr[1], tz: 'Asia/Tashkent' }, async () => {
+    schedule.scheduleJob({hour: fajr[0], minute: fajr[1], tz: 'Asia/Tashkent'}, async () => {
       const users = await Model.User.find({
         regionId: region.regionId,
         notification: true,
-        $or: [{ 'notificationSetting.maghrib': true }, { fasting: true }],
+        $or: [{'notificationSetting.fajr': true}, {fasting: true}],
       })
 
       users.forEach((user) => {
@@ -183,7 +180,7 @@ export async function reminder(bot) {
       })
     })
 
-    schedule.scheduleJob({ hour: sunrise[0], minute: sunrise[1], tz: 'Asia/Tashkent' }, async () => {
+    schedule.scheduleJob({hour: sunrise[0], minute: sunrise[1], tz: 'Asia/Tashkent'}, async () => {
       const users = await Model.User.find({
         'regionId': region.regionId,
         'notification': true,
@@ -200,7 +197,7 @@ export async function reminder(bot) {
       })
     })
 
-    schedule.scheduleJob({ hour: dhuhr[0], minute: dhuhr[1], tz: 'Asia/Tashkent' }, async () => {
+    schedule.scheduleJob({hour: dhuhr[0], minute: dhuhr[1], tz: 'Asia/Tashkent'}, async () => {
       const users = await Model.User.find({
         'regionId': region.regionId,
         'notification': true,
@@ -216,7 +213,7 @@ export async function reminder(bot) {
       })
     })
 
-    schedule.scheduleJob({ hour: asr[0], minute: asr[1], tz: 'Asia/Tashkent' }, async () => {
+    schedule.scheduleJob({hour: asr[0], minute: asr[1], tz: 'Asia/Tashkent'}, async () => {
       const users = await Model.User.find({
         'regionId': region.regionId,
         'notification': true,
@@ -233,11 +230,11 @@ export async function reminder(bot) {
       })
     })
 
-    schedule.scheduleJob({ hour: maghrib[0], minute: maghrib[1], tz: 'Asia/Tashkent' }, async () => {
+    schedule.scheduleJob({hour: maghrib[0], minute: maghrib[1], tz: 'Asia/Tashkent'}, async () => {
       const users = await Model.User.find({
         regionId: region.regionId,
         notification: true,
-        $or: [{ 'notificationSetting.maghrib': true }, { fasting: true }],
+        $or: [{'notificationSetting.maghrib': true}, {fasting: true}],
       })
 
       users.forEach((user) => {
@@ -257,7 +254,7 @@ export async function reminder(bot) {
       })
     })
 
-    schedule.scheduleJob({ hour: isha[0], minute: isha[1], tz: 'Asia/Tashkent' }, async () => {
+    schedule.scheduleJob({hour: isha[0], minute: isha[1], tz: 'Asia/Tashkent'}, async () => {
       const users = await Model.User.find({
         'regionId': region.regionId,
         'notification': true,
@@ -267,7 +264,7 @@ export async function reminder(bot) {
       users.forEach((user) => {
         const ishaTime = HLanguage(user.language, 'ishaTime')
 
-        bot.api.sendMessage(user.userId, ishaTime).catch(async (error) => {
+        bot.api.sendMessage(user.userId, ishaTime).catch(async (error: GrammyError) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else console.log('Error:', error)
         })
@@ -276,7 +273,7 @@ export async function reminder(bot) {
   }
 }
 
-export async function weekly(bot) {
+export async function weekly(bot: Bot<BotContext>) {
   const users = await Model.User.find()
 
   for (const user of users) {
@@ -287,6 +284,6 @@ export async function weekly(bot) {
       } else console.log('Error:', error)
     })
 
-    await new Promise((resolve) => setTimeout(resolve, 1000 / process.env.LIMIT))
+    await new Promise((resolve) => setTimeout(resolve, 1000 / Number(process.env.LIMIT)))
   }
 }
