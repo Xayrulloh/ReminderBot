@@ -2,7 +2,7 @@ import {Scene} from 'grammy-scenes'
 import Model from '#config/database'
 import inlineKFunction from '#keyboard/inline'
 import HLanguage from '#helper/language'
-import {BotContext} from "#types/context";
+import {BotContext} from '#types/context'
 
 const scene = new Scene<BotContext>('Fasting')
 

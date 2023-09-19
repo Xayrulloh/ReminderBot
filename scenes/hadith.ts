@@ -1,8 +1,8 @@
 import {Scene} from 'grammy-scenes'
 import Model from '#config/database'
 import inlineKFunction from '#keyboard/inline'
-import {BotContext} from "#types/context";
-import {InlineKeyboard} from "grammy";
+import {BotContext} from '#types/context'
+import {InlineKeyboard} from 'grammy'
 
 const scene = new Scene<BotContext>('Hadith')
 
@@ -19,7 +19,7 @@ scene.wait().on('message:text', async (ctx) => {
 
     const categories = await Model.Hadith.distinct('category')
 
-    let buttons: InlineKeyboard | undefined;
+    let buttons: InlineKeyboard | undefined
     if (categories.length) {
         buttons = inlineKFunction(
             5,

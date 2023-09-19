@@ -4,7 +4,7 @@ import inlineKFunction from '#keyboard/inline'
 import HLanguage from '#helper/language'
 import {InlineKeyboard} from 'grammy'
 import {HReplace} from '#helper/replacer'
-import {BotContext} from "#types/context";
+import {BotContext} from '#types/context'
 
 const scene = new Scene<BotContext>('Notification')
 

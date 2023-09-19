@@ -5,7 +5,7 @@ import HLanguage from '#helper/language'
 import {HReplace} from '#helper/replacer'
 import fs from 'fs'
 import path from 'path'
-import {BotContext} from "#types/context";
+import {BotContext} from '#types/context'
 
 let scene = new Scene<BotContext>('Location')
 
@@ -57,7 +57,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
         )
         const dailyHadith = JSON.parse(
             fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json'), {
-                encoding: "utf-8"
+                encoding: 'utf-8',
             }),
         )?.dailyHadith
 

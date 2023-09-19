@@ -3,7 +3,7 @@ import Model from '#config/database'
 import inlineKFunction from '#keyboard/inline'
 import customKFunction from '#keyboard/custom'
 import HLanguage from '#helper/language'
-import {BotContext} from "#types/context";
+import {BotContext} from '#types/context'
 
 const scene = new Scene<BotContext>('Language')
 

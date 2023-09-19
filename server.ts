@@ -8,7 +8,7 @@ import customKFunction from './keyboard/custom'
 import express from 'express'
 import {authMiddleware} from '#middlewares/auth'
 import {keyboardMapper} from '#helper/keyboardMapper'
-import {BotContext} from "#types/context";
+import {BotContext} from '#types/context'
 
 const token = String(process.env.TOKEN)
 const bot = new Bot<BotContext>(token)

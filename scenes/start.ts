@@ -6,7 +6,7 @@ import HLanguage from '#helper/language'
 import {HReplace} from '#helper/replacer'
 import fs from 'fs'
 import path from 'path'
-import {BotContext} from "#types/context";
+import {BotContext} from '#types/context'
 
 const scene = new Scene<BotContext>('Start')
 
@@ -156,7 +156,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
     )
     const dailyHadith = JSON.parse(
         fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json'), {
-            encoding: "utf-8"
+            encoding: 'utf-8',
         }),
     )?.dailyHadith
 
@@ -167,7 +167,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
     ctx.reply(response + dailyHadith, {
         reply_markup: {
             keyboard: buttons.build(),
-            resize_keyboard: true
+            resize_keyboard: true,
         },
     })
     ctx.scene.exit()

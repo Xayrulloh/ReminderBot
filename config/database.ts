@@ -135,12 +135,13 @@ mongoose.model('PrayTime', PrayTime)
 mongoose.model('Hadith', Hadith)
 mongoose.set('strictQuery', false)
 
-mongoose.connect(String(process.env.MONGO_URL))
+mongoose
+    .connect(String(process.env.MONGO_URL))
     .then(() => {
-        console.info("Database successfully connected");
+        console.info('Database successfully connected')
     })
     .catch((reason) => {
-        console.error("Error with database connection", reason)
+        console.error('Error with database connection', reason)
     })
 
 export default mongoose.models

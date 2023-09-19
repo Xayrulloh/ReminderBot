@@ -1,7 +1,7 @@
 import {Scene} from 'grammy-scenes'
 import HLanguage from '#helper/language'
 import axios from 'axios'
-import {BotContext} from "#types/context";
+import {BotContext} from '#types/context'
 
 const scene = new Scene<BotContext>('Donate')
 

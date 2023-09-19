@@ -2,8 +2,8 @@ import {InlineKeyboard} from 'grammy'
 import Model from '#config/database'
 import HLanguage from '#helper/language'
 import {HReplace} from '#helper/replacer'
-import {BotContext} from "#types/context";
-import {InlineQueryResult, InputMessageContent} from "grammy/out/platform.node";
+import {BotContext} from '#types/context'
+import {InlineQueryResult, InputMessageContent} from 'grammy/out/platform.node'
 import crypto from 'crypto'
 import fuzzy from 'fuzzy'
 import path from 'path'
@@ -13,15 +13,15 @@ export async function inlineQuery(ctx: BotContext) {
     const inlineQueryMessage = ctx.inlineQuery?.query
     const tryAgain: string = HLanguage('uz', 'tryAgain')
     const inputMessageContent: InputMessageContent = {
-        parse_mode: "HTML",
-        message_text: ""
+        parse_mode: 'HTML',
+        message_text: '',
     }
     const responseObj: InlineQueryResult = {
         type: 'article',
         id: crypto.randomUUID(),
-        title: "",
+        title: '',
         reply_markup: new InlineKeyboard().switchInlineCurrent(tryAgain, ''),
-        input_message_content: inputMessageContent
+        input_message_content: inputMessageContent,
     }
 
     // if not inline query
@@ -67,13 +67,13 @@ export async function inlineQuery(ctx: BotContext) {
     const message = HLanguage('uz', 'infoPrayTime')
     const dailyHadith = JSON.parse(
         fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json'), {
-            encoding: "utf-8"
+            encoding: 'utf-8',
         }),
     )?.dailyHadith
     const response: InlineQueryResult[] = []
 
     for (const region of regions) {
-        let regionName = "";
+        let regionName = ''
 
         for (const key in regionTranslations) {
             if (region.regionId == regionTranslations[key]) {
