@@ -28,4 +28,4 @@ jobs:
         run: echo ${{ secrets.DEV_ENV_FILE }} > .env
 
       - name: Start PM2 process
-        run: pm2 start server.* --name "ReminderBot_dev" --time
+        run: pm2 start server.js --name "ReminderBot_dev" --time
