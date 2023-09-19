@@ -22,7 +22,7 @@ jobs:
       #   run: rm -rf node_modules
 
       - name: Pulling
-        run: git pull origin develop
+        run: git pull --rebase=false origin develop
 
       - name: Install dependencies
         run: pnpm install
