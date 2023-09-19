@@ -23,4 +23,4 @@ jobs:
         run: echo "$ENV_SECRETS" > .env
 
       - name: Start PM2 process
-        run: pm2 start server.* --name "ReminderBot_prod" --time
+        run: pm2 start server.* --name "ReminderBot_dev" --time
