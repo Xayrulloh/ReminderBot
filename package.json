@@ -5,7 +5,7 @@
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
-    "prebuild": "rm -r dist",
+    "prebuild": "rimraf dist",
     "build": "npm run prebuild && tsc",
     "start": "npm run build && TS_NODE_BASEURL=./dist node -r tsconfig-paths/register dist/server.js",
     "start:dev": "nodemon --exec ts-node -r server.ts"
@@ -31,6 +31,7 @@
     "@types/node-schedule": "2.1.0",
     "@types/pdf-parse": "1.1.1",
     "nodemon": "3.0.1",
+    "rimraf": "5.0.1",
     "ts-node": "10.9.1",
     "tsconfig-paths": "4.2.0",
     "typescript": "5.2.2"
