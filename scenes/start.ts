@@ -7,6 +7,7 @@ import { HReplace } from '#helper/replacer'
 import fs from 'fs'
 import path from 'path'
 import { BotContext } from '#types/context'
+import * as process from 'node:process'
 
 const scene = new Scene<BotContext>('Start')
 
@@ -30,7 +31,7 @@ scene.do(async (ctx) => {
   ctx.session.buttons = buttons
   ctx.session.message = message
 
-  ctx.reply(message, { reply_markup: buttons })
+  await ctx.reply(message, { reply_markup: buttons })
 })
 
 // region
@@ -42,7 +43,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
     return ctx.answerCallbackQuery(HLanguage('uz', 'wrongSelection'))
   }
 
-  ctx.answerCallbackQuery()
+  await ctx.answerCallbackQuery()
 
   const message = HLanguage(language, 'chooseRegion')
   const keyboardMessage = HLanguage(language, 'region')
@@ -59,7 +60,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
   ctx.session.buttons = buttons
   ctx.session.regions = keyboardMessage
 
-  ctx.editMessageText(message, { reply_markup: buttons })
+  await ctx.editMessageText(message, { reply_markup: buttons })
   ctx.scene.resume()
 })
 
@@ -69,7 +70,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
     return ctx.answerCallbackQuery(HLanguage(ctx.session.language, 'wrongSelection'))
   }
 
-  ctx.answerCallbackQuery()
+  await ctx.answerCallbackQuery()
 
   ctx.session.regionId = +ctx.update.callback_query.data
 
@@ -85,7 +86,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
   ctx.session.buttons = buttons
   ctx.session.keyboardMessage = keyboardMessage
 
-  ctx.editMessageText(message, { reply_markup: buttons })
+  await ctx.editMessageText(message, { reply_markup: buttons })
   ctx.scene.resume()
 })
 
@@ -95,7 +96,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
     return ctx.answerCallbackQuery(HLanguage(ctx.session.language, 'wrongSelection'))
   }
 
-  ctx.answerCallbackQuery()
+  await ctx.answerCallbackQuery()
 
   const message = HLanguage(ctx.session.language, 'fastingMessage')
   const keyboardMessage = HLanguage(ctx.session.language, 'agreementFasting')
@@ -110,7 +111,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
   ctx.session.message = message
   ctx.session.buttons = buttons
 
-  ctx.editMessageText(message, { reply_markup: buttons })
+  await ctx.editMessageText(message, { reply_markup: buttons })
   ctx.scene.resume()
 })
 
@@ -120,7 +121,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
     return ctx.answerCallbackQuery(HLanguage(ctx.session.language, 'wrongSelection'))
   }
 
-  ctx.answerCallbackQuery()
+  await ctx.answerCallbackQuery()
 
   const fasting = ctx.session.keyboardMessage[0] === ctx.update.callback_query.data
 
@@ -163,8 +164,8 @@ scene.wait().on('callback_query:data', async (ctx) => {
   const keyboardText = HLanguage(ctx.session.language, 'mainKeyboard')
   const buttons = customKFunction(2, ...keyboardText)
 
-  ctx.deleteMessage()
-  ctx.reply(response + dailyHadith, {
+  await ctx.deleteMessage()
+  await ctx.reply(response + dailyHadith, {
     reply_markup: {
       keyboard: buttons.build(),
       resize_keyboard: true,
