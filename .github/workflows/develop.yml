@@ -1,0 +1,26 @@
+name: Develop
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Remove node_modules
+        run: rm -rf node_modules
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Write .env from secrets
+        run: echo "$ENV_SECRETS" > .env
+
+      - name: Start PM2 process
+        run: pm2 start server.* --name "ReminderBot_prod" --time
