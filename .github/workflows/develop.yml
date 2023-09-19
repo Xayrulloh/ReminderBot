@@ -10,11 +10,16 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Go to file
-        run: cd ../../../../ReminderBot_dev/
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Pulling
-        run: git pull origin develop
+      - name: Set up Node.js v18
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      - name: Remove node_modules
+        run: rm -rf node_modules
 
       - name: Install dependencies
         run: pnpm install
@@ -29,5 +34,5 @@ jobs:
           touch ./translate/localStorage.json
           echo '{"dailyHadith":"\n\nﺈِﻧَّ ﺎﻠﺼَّﻟَﺍﺓَ ﻙَﺎﻨَﺗْ ﻊَﻟَﻯ ﺎﻠْﻣُﺆْﻤِﻨِﻴﻧَ ﻚِﺗَﺎﺑًﺍ ﻡَﻮْﻗُﻮﺗًﺍ\n\nAlbatta, namoz mo`minlarga vaqtida farz qilingandir.\n\nNiso surasi 103-oyat"}' > ./translate/localStorage.json
 
-      - name: Start PM2 process
-        run: pm2 start server.js --name "ReminderBot_dev" --time
+      - name: Reload PM2 process
+        run: pm2 reload "ReminderBot_dev"
