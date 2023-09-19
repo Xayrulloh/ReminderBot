@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Go to file
-        run: cd ../ReminderBot_dev/
+        run: cd ../../../../ReminderBot_dev/
 
       - name: Pulling
         run: git pull origin develop
