@@ -25,7 +25,9 @@ jobs:
         run: pnpm install
 
       - name: Write .env from secrets
-        run: echo ${{ secrets.DEV_ENV_FILE }} > .env
+        run: |
+          touch .env
+          echo ${{ secrets.PROD_ENV_FILE }}
 
       - name: Start PM2 process
         run: pm2 start server.js --name "ReminderBot_dev" --time
