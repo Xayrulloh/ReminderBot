@@ -1,0 +1,31 @@
+name: Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js v18
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      - name: Remove node_modules
+        run: rm -rf node_modules
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Write .env from secrets
+        run: echo ${{ secrets.PROD_ENV_FILE }} > .env
+
+      - name: Start PM2 process
+        run: pm2 start server.* --name "ReminderBot_prod" --time
