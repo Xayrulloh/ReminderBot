@@ -1,10 +1,11 @@
 import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
-import inlineKFunction from '../keyboard/inline.js'
-import customKFunction from '../keyboard/custom.js'
+import inlineKFunction from '#keyboard/inline'
+import customKFunction from '#keyboard/custom'
 import HLanguage from '#helper/language'
+import { BotContext } from '#types/context'
 
-const scene = new Scene('Language')
+const scene = new Scene<BotContext>('Language')
 
 scene.do(async (ctx) => {
   const buttons = inlineKFunction(
@@ -25,7 +26,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
   const language = ctx.update.callback_query.data
 
   if (!['uz', 'ru', 'en'].includes(language)) {
-    return ctx.editMessageText(message, { reply_markup: buttons })
+    return ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons })
   }
 
   ctx.answerCallbackQuery()

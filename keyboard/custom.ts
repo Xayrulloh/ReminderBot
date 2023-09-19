@@ -1,6 +1,6 @@
 import { Keyboard } from 'grammy'
 
-export default function customKFunction(num, ...buttons) {
+export default function customKFunction(num: number, ...buttons: string[]) {
   let keyboard = new Keyboard()
 
   buttons.forEach((el, index) => {

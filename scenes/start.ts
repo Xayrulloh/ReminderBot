@@ -1,13 +1,14 @@
 import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
-import inlineKFunction from '../keyboard/inline.js'
-import customKFunction from '../keyboard/custom.js'
+import inlineKFunction from '#keyboard/inline'
+import customKFunction from '#keyboard/custom'
 import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
 import fs from 'fs'
 import path from 'path'
+import { BotContext } from '#types/context'
 
-const scene = new Scene('Start')
+const scene = new Scene<BotContext>('Start')
 
 // language
 scene.do(async (ctx) => {
@@ -104,7 +105,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
     { view: keyboardMessage[1], text: keyboardMessage[1] },
   )
 
-  ctx.session.notification = ctx.session.keyboardMessage[0] == ctx.update.callback_query.data ? true : false
+  ctx.session.notification = ctx.session.keyboardMessage[0] === ctx.update.callback_query.data
   ctx.session.keyboardMessage = keyboardMessage
   ctx.session.message = message
   ctx.session.buttons = buttons
@@ -121,7 +122,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
 
   ctx.answerCallbackQuery()
 
-  const fasting = ctx.session.keyboardMessage[0] == ctx.update.callback_query.data ? true : false
+  const fasting = ctx.session.keyboardMessage[0] === ctx.update.callback_query.data
 
   const now = new Date()
   const today = now.getDate()
@@ -154,7 +155,9 @@ scene.wait().on('callback_query:data', async (ctx) => {
     [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha],
   )
   const dailyHadith = JSON.parse(
-    fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json')),
+    fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json'), {
+      encoding: 'utf-8',
+    }),
   )?.dailyHadith
 
   const keyboardText = HLanguage(ctx.session.language, 'mainKeyboard')
@@ -162,7 +165,10 @@ scene.wait().on('callback_query:data', async (ctx) => {
 
   ctx.deleteMessage()
   ctx.reply(response + dailyHadith, {
-    reply_markup: { inline_keyboard: null, keyboard: buttons.build(), resize_keyboard: true },
+    reply_markup: {
+      keyboard: buttons.build(),
+      resize_keyboard: true,
+    },
   })
   ctx.scene.exit()
 })

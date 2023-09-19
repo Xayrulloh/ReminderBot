@@ -1,12 +1,13 @@
 import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
-import inlineKFunction from '../keyboard/inline.js'
+import inlineKFunction from '#keyboard/inline'
 import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
 import fs from 'fs'
 import path from 'path'
+import { BotContext } from '#types/context'
 
-let scene = new Scene('Search')
+let scene = new Scene<BotContext>('Search')
 
 scene.do(async (ctx) => {
   const message = HLanguage(ctx.user.language, 'searchRegion')
@@ -29,7 +30,7 @@ scene.do(async (ctx) => {
 
 scene.wait().on('callback_query:data', async (ctx) => {
   if (ctx.session.regionId.includes(+ctx.update.callback_query.data)) {
-    ctx.answerCallbackQuery()
+    await ctx.answerCallbackQuery()
 
     const now = new Date()
     const today = now.getDate()
@@ -52,13 +53,15 @@ scene.wait().on('callback_query:data', async (ctx) => {
     )
 
     const dailyHadith = JSON.parse(
-      fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json')),
+      fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json'), {
+        encoding: 'utf-8',
+      }),
     )?.dailyHadith
 
-    ctx.editMessageText(response + dailyHadith)
+    await ctx.editMessageText(response + dailyHadith)
     ctx.scene.exit()
   } else {
-    ctx.answerCallbackQuery(HLanguage(ctx.user.language, 'wrongSelection'))
+    await ctx.answerCallbackQuery(HLanguage(ctx.user.language, 'wrongSelection'))
   }
 })
 

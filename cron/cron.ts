@@ -4,11 +4,11 @@ import Model from '#config/database'
 import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
 import schedule from 'node-schedule'
-import customKFunction from '../keyboard/custom.js'
+import customKFunction from '#keyboard/custom'
 import fs from 'fs'
-import { InputFile } from 'grammy'
+import { Bot, GrammyError, InputFile } from 'grammy'
 import path from 'path'
-import { authMiddleware } from '#middlewares/auth'
+import { BotContext } from '#types/context'
 
 export async function monthly() {
   const now = new Date()
@@ -21,10 +21,10 @@ export async function monthly() {
   await Model.PrayTime.deleteMany()
 
   for (let i = 0; i < regions.length; i++) {
-    const pdf = await axios.get(process.env.TIME_API + regionIds[i] + '/' + currentMonth, {
+    const pdf = await axios.get(String(process.env.TIME_API) + regionIds[i] + '/' + currentMonth, {
       responseType: 'arraybuffer',
     })
-    const pdfData = await pdfParser(pdf.data, { normalizeWhitespace: true })
+    const pdfData = await pdfParser(pdf.data)
     const data = pdfData.text.split('\n')
 
     for (let el of data) {
@@ -32,7 +32,7 @@ export async function monthly() {
         for (let day of daysOfWeek) {
           if (el.includes(day)) {
             let dayNumber = el.split(day)[0]
-            let times = el.split(day)[1].match(/.{1,5}/g)
+            let times = el.split(day)[1].match(/.{1,5}/g) as RegExpMatchArray
 
             await Model.PrayTime.create({
               region: regions[i],
@@ -52,13 +52,17 @@ export async function monthly() {
   }
 }
 
-export async function daily(bot) {
+export async function daily(bot: Bot<BotContext>) {
   // daily backup
   const users = await Model.User.find()
   fs.access('users.json', fs.constants.F_OK, (err) => {
     if (err) fs.writeFileSync('users.json', JSON.stringify(users))
     else {
-      const currentUsers = JSON.parse(fs.readFileSync('users.json'))
+      const currentUsers = JSON.parse(
+        fs.readFileSync('users.json', {
+          encoding: 'utf-8',
+        }),
+      )
       if (currentUsers.length > users.length) fs.writeFileSync('users.json', JSON.stringify(users))
     }
   })
@@ -69,18 +73,15 @@ export async function daily(bot) {
   const regions = await Model.PrayTime.find({ day: currentDay })
 
   // taking hadith
+  let hadith = await Model.Hadith.find({ category: { $ne: 'juma' } })
   if (now.getDay() == 5) {
-    var hadith = await Model.Hadith.find({ category: 'juma' })
-    hadith = hadith[(Math.random() * hadith.length) | 0]
-    var file = new InputFile('./uploads/JumaMuborak.jpg')
-  } else {
-    var hadith = await Model.Hadith.find({ category: { $ne: 'juma' } })
-    hadith = hadith[(Math.random() * hadith.length) | 0]
+    hadith = await Model.Hadith.find({ category: 'juma' })
   }
+  const randomHadith = hadith[(Math.random() * hadith.length) | 0]
 
   fs.writeFileSync(
     path.join(process.cwd(), 'translate', 'localStorage.json'),
-    JSON.stringify({ dailyHadith: hadith ? `\n\n${hadith.content}` : '' }),
+    JSON.stringify({ dailyHadith: randomHadith ? `\n\n${randomHadith.content}` : '' }),
     'utf8',
   )
 
@@ -100,9 +101,10 @@ export async function daily(bot) {
       const buttons = customKFunction(2, ...keyboardText)
 
       if (now.getDay() == 5) {
+        const file = new InputFile('./uploads/JumaMuborak.jpg')
         bot.api
           .sendPhoto(user.userId, file, {
-            caption: message + (hadith ? `\n\n${hadith.content}` : ''),
+            caption: message + (randomHadith ? `\n\n${randomHadith.content}` : ''),
             reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
           })
           .then(() => {
@@ -118,7 +120,7 @@ export async function daily(bot) {
           })
       } else {
         bot.api
-          .sendMessage(user.userId, message + (hadith ? `\n\n${hadith.content}` : ''), {
+          .sendMessage(user.userId, message + (randomHadith ? `\n\n${randomHadith.content}` : ''), {
             reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
           })
           .then(() => {
@@ -134,15 +136,12 @@ export async function daily(bot) {
           })
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 1000 / process.env.LIMIT))
+      await new Promise((resolve) => setTimeout(resolve, 1000 / Number(process.env.LIMIT)))
     }
   }
-
-  // deleting users from cache
-  Object.keys(authMiddleware).forEach((key) => delete authMiddleware[key])
 }
 
-export async function reminder(bot) {
+export async function reminder(bot: Bot<BotContext>) {
   await schedule.gracefulShutdown()
 
   const now = new Date()
@@ -163,7 +162,7 @@ export async function reminder(bot) {
       const users = await Model.User.find({
         regionId: region.regionId,
         notification: true,
-        $or: [{ 'notificationSetting.maghrib': true }, { fasting: true }],
+        $or: [{ 'notificationSetting.fajr': true }, { fasting: true }],
       })
 
       users.forEach((user) => {
@@ -267,7 +266,7 @@ export async function reminder(bot) {
       users.forEach((user) => {
         const ishaTime = HLanguage(user.language, 'ishaTime')
 
-        bot.api.sendMessage(user.userId, ishaTime).catch(async (error) => {
+        bot.api.sendMessage(user.userId, ishaTime).catch(async (error: GrammyError) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else console.log('Error:', error)
         })
@@ -276,7 +275,7 @@ export async function reminder(bot) {
   }
 }
 
-export async function weekly(bot) {
+export async function weekly(bot: Bot<BotContext>) {
   const users = await Model.User.find()
 
   for (const user of users) {
@@ -287,6 +286,6 @@ export async function weekly(bot) {
       } else console.log('Error:', error)
     })
 
-    await new Promise((resolve) => setTimeout(resolve, 1000 / process.env.LIMIT))
+    await new Promise((resolve) => setTimeout(resolve, 1000 / Number(process.env.LIMIT)))
   }
 }

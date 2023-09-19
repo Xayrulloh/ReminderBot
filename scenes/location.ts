@@ -1,12 +1,13 @@
 import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
-import inlineKFunction from '../keyboard/inline.js'
+import inlineKFunction from '#keyboard/inline'
 import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
 import fs from 'fs'
 import path from 'path'
+import { BotContext } from '#types/context'
 
-let scene = new Scene('Location')
+let scene = new Scene<BotContext>('Location')
 
 scene.do(async (ctx) => {
   const message = HLanguage(ctx.user.language, 'chooseRegion')
@@ -55,7 +56,9 @@ scene.wait().on('callback_query:data', async (ctx) => {
       [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha],
     )
     const dailyHadith = JSON.parse(
-      fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json')),
+      fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json'), {
+        encoding: 'utf-8',
+      }),
     )?.dailyHadith
 
     const locationMessage = HLanguage(ctx.user.language, 'locationChange')

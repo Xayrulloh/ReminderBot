@@ -1,8 +1,9 @@
 import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
 import HLanguage from '#helper/language'
+import { BotContext } from '#types/context'
 
-const scene = new Scene('Statistic')
+const scene = new Scene<BotContext>('Statistic')
 
 scene.do(async (ctx) => {
   const users = await Model.User.find()

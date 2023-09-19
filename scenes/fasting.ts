@@ -1,9 +1,10 @@
 import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
-import inlineKFunction from '../keyboard/inline.js'
+import inlineKFunction from '#keyboard/inline'
 import HLanguage from '#helper/language'
+import { BotContext } from '#types/context'
 
-const scene = new Scene('Fasting')
+const scene = new Scene<BotContext>('Fasting')
 
 scene.do(async (ctx) => {
   const message = HLanguage(ctx.user.language, 'fastingMessage')
@@ -18,23 +19,23 @@ scene.do(async (ctx) => {
   ctx.session.message = message
   ctx.session.buttons = buttons
 
-  ctx.reply(message, { reply_markup: buttons })
+  await ctx.reply(message, { reply_markup: buttons })
 })
 
 scene.wait().on('callback_query:data', async (ctx) => {
   if (ctx.session.keyboardMessage.includes(ctx.update.callback_query.data)) {
-    ctx.answerCallbackQuery()
+    await ctx.answerCallbackQuery()
 
-    const fasting = ctx.session.keyboardMessage[0] == ctx.update.callback_query.data ? true : false
+    const fasting = ctx.session.keyboardMessage[0] === ctx.update.callback_query.data
 
     await Model.User.updateOne({ userId: ctx.user.userId }, { fasting })
 
     const message = HLanguage(ctx.user.language, 'notifChange')
 
-    ctx.editMessageText(message)
+    await ctx.editMessageText(message)
     ctx.scene.exit()
   } else {
-    ctx.answerCallbackQuery(HLanguage(ctx.user.language, 'wrongSelection'))
+    await ctx.answerCallbackQuery(HLanguage(ctx.user.language, 'wrongSelection'))
   }
 })
 
