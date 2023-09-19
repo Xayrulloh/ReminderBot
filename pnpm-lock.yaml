@@ -56,7 +56,7 @@ devDependencies:
     specifier: 3.0.1
     version: 3.0.1
   rimraf:
-    specifier: ^5.0.1
+    specifier: 5.0.1
     version: 5.0.1
   ts-node:
     specifier: 10.9.1
