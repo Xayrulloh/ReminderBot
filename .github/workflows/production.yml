@@ -13,6 +13,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set up Node.js v18
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
       - name: Remove node_modules
         run: rm -rf node_modules
 
@@ -20,7 +25,14 @@ jobs:
         run: pnpm install
 
       - name: Write .env from secrets
-        run: echo "$ENV_SECRETS" > .env
+        run: |
+          touch .env
+          echo "${{ secrets.PROD_ENV_FILE }}" > .env
+
+      - name: Write default hadith
+        run: |
+          touch ./translate/localStorage.json
+          echo '{"dailyHadith":"\n\nﺈِﻧَّ ﺎﻠﺼَّﻟَﺍﺓَ ﻙَﺎﻨَﺗْ ﻊَﻟَﻯ ﺎﻠْﻣُﺆْﻤِﻨِﻴﻧَ ﻚِﺗَﺎﺑًﺍ ﻡَﻮْﻗُﻮﺗًﺍ\n\nAlbatta, namoz mo`minlarga vaqtida farz qilingandir.\n\nNiso surasi 103-oyat"}' > ./translate/localStorage.json
 
       - name: Start PM2 process
-        run: pm2 start server.* --name "ReminderBot_prod" --time
+        run: pm2 start server.js --name "ReminderBot_prod" --time
