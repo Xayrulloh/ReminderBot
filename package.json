@@ -5,8 +5,9 @@
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
-    "build": "tsc",
-    "start": "npm run build && node dist/server.js",
+    "prebuild": "rm -r dist",
+    "build": "npm run prebuild && tsc",
+    "start": "npm run build && TS_NODE_BASEURL=./dist node -r tsconfig-paths/register dist/server.js",
     "start:dev": "nodemon --exec ts-node -r server.ts"
   },
   "author": "",
@@ -22,13 +23,6 @@
     "node-cron": "3.0.2",
     "node-schedule": "2.1.0",
     "pdf-parse": "1.1.1"
-  },
-  "imports": {
-    "#config/*": "./config/*.js",
-    "#region": "./regions/regions.js",
-    "#daily/*": "./daily/*.js",
-    "#middlewares/*": "./middlewares/*.js",
-    "#helper/*": "./helper/*.js"
   },
   "devDependencies": {
     "@types/express": "4.17.17",
