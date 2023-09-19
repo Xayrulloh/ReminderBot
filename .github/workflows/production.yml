@@ -34,5 +34,5 @@ jobs:
           touch ./translate/localStorage.json
           echo '{"dailyHadith":"\n\nﺈِﻧَّ ﺎﻠﺼَّﻟَﺍﺓَ ﻙَﺎﻨَﺗْ ﻊَﻟَﻯ ﺎﻠْﻣُﺆْﻤِﻨِﻴﻧَ ﻚِﺗَﺎﺑًﺍ ﻡَﻮْﻗُﻮﺗًﺍ\n\nAlbatta, namoz mo`minlarga vaqtida farz qilingandir.\n\nNiso surasi 103-oyat"}' > ./translate/localStorage.json
 
-      - name: Start PM2 process
-        run: pm2 start server.js --name "ReminderBot_prod" --time
+      - name: Reload PM2 process
+        run: pm2 reload "ReminderBot_prod"
