@@ -34,7 +34,8 @@
       "#types/*": ["./types/*"],
       "#scenes/*": ["./scenes/*"],
       "#query/*": ["./query/*"],
-      "#keyboard/*": ["./keyboard/*"]
+      "#keyboard/*": ["./keyboard/*"],
+      "#utils/*": ["./utils/*"]
     }
   },
   "ts-node": {

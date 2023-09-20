@@ -7,8 +7,9 @@ import schedule from 'node-schedule'
 import customKFunction from '#keyboard/custom'
 import fs from 'fs'
 import { Bot, GrammyError, InputFile } from 'grammy'
-import path from 'path'
 import { BotContext } from '#types/context'
+import { memoryStorage } from '#config/storage'
+import { DAILY_HADITH_KEY } from '#utils/constants'
 
 export async function monthly() {
   const now = new Date()
@@ -79,11 +80,8 @@ export async function daily(bot: Bot<BotContext>) {
   }
   const randomHadith = hadith[(Math.random() * hadith.length) | 0]
 
-  fs.writeFileSync(
-    path.join(process.cwd(), 'translate', 'localStorage.json'),
-    JSON.stringify({ dailyHadith: randomHadith ? `\n\n${randomHadith.content}` : '' }),
-    'utf8',
-  )
+  // Set daily hadith to storage
+  memoryStorage.write(DAILY_HADITH_KEY, randomHadith.content)
 
   // sending
   for (let region of regions) {

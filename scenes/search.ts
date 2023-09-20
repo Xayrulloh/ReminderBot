@@ -3,9 +3,9 @@ import Model from '#config/database'
 import inlineKFunction from '#keyboard/inline'
 import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
-import fs from 'fs'
-import path from 'path'
 import { BotContext } from '#types/context'
+import { memoryStorage } from '#config/storage'
+import { DAILY_HADITH_KEY } from '#utils/constants'
 
 let scene = new Scene<BotContext>('Search')
 
@@ -52,13 +52,9 @@ scene.wait().on('callback_query:data', async (ctx) => {
       [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha],
     )
 
-    const dailyHadith = JSON.parse(
-      fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json'), {
-        encoding: 'utf-8',
-      }),
-    )?.dailyHadith
+    const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
 
-    await ctx.editMessageText(response + dailyHadith)
+    await ctx.editMessageText(response + '\n\n' + dailyHadith)
     ctx.scene.exit()
   } else {
     await ctx.answerCallbackQuery(HLanguage(ctx.user.language, 'wrongSelection'))
