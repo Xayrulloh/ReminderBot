@@ -4,10 +4,9 @@ import inlineKFunction from '#keyboard/inline'
 import customKFunction from '#keyboard/custom'
 import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
-import fs from 'fs'
-import path from 'path'
 import { BotContext } from '#types/context'
-import * as process from 'node:process'
+import { memoryStorage } from '#config/storage'
+import { DAILY_HADITH_KEY } from '#utils/constants'
 
 const scene = new Scene<BotContext>('Start')
 
@@ -155,17 +154,13 @@ scene.wait().on('callback_query:data', async (ctx) => {
     ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha'],
     [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha],
   )
-  const dailyHadith = JSON.parse(
-    fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json'), {
-      encoding: 'utf-8',
-    }),
-  )?.dailyHadith
+  const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
 
   const keyboardText = HLanguage(ctx.session.language, 'mainKeyboard')
   const buttons = customKFunction(2, ...keyboardText)
 
   await ctx.deleteMessage()
-  await ctx.reply(response + dailyHadith, {
+  await ctx.reply(response + '\n\n' + dailyHadith, {
     reply_markup: {
       keyboard: buttons.build(),
       resize_keyboard: true,

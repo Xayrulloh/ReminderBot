@@ -6,8 +6,8 @@ import { BotContext } from '#types/context'
 import { InlineQueryResult, InputMessageContent } from 'grammy/out/platform.node'
 import crypto from 'crypto'
 import fuzzy from 'fuzzy'
-import path from 'path'
-import fs from 'fs'
+import { memoryStorage } from '#config/storage'
+import { DAILY_HADITH_KEY } from '#utils/constants'
 
 export async function inlineQuery(ctx: BotContext) {
   const inlineQueryMessage = ctx.inlineQuery?.query
@@ -65,11 +65,7 @@ export async function inlineQuery(ctx: BotContext) {
   const regionTranslations: string[] = HLanguage('uz', 'region')
   const regions = await Model.PrayTime.find({ day: currentDay, regionId: regionIds })
   const message = HLanguage('uz', 'infoPrayTime')
-  const dailyHadith = JSON.parse(
-    fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json'), {
-      encoding: 'utf-8',
-    }),
-  )?.dailyHadith
+  const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
   const response: InlineQueryResult[] = []
 
   for (const region of regions) {
@@ -93,7 +89,7 @@ export async function inlineQuery(ctx: BotContext) {
       title: regionName,
       description: content,
       input_message_content: {
-        message_text: content + dailyHadith,
+        message_text: content + '\n\n' + dailyHadith,
         parse_mode: 'HTML',
       },
     })
