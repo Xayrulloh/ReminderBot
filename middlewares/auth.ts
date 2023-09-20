@@ -3,6 +3,7 @@ import { inlineQuery } from '#query/inline'
 import { BotContext } from '#types/context'
 import { NextFunction } from 'grammy'
 import { memoryStorage } from '#config/storage'
+import { IUser } from '#types/database'
 
 export async function authMiddleware(ctx: BotContext, next: NextFunction) {
   if (ctx.from?.is_bot) return
@@ -23,7 +24,7 @@ export async function authMiddleware(ctx: BotContext, next: NextFunction) {
 
   // finding user from db
   const userId = ctx.from?.id
-  user = await Model.User.findOne({ userId })
+  user = await Model.User.findOne<IUser>({ userId })
 
   if (!user) {
     const isStartSceneActive = ctx.session.scenes?.stack?.some((stack) => stack.scene === 'Start')

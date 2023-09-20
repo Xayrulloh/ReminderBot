@@ -6,6 +6,7 @@ import { HReplace } from '#helper/replacer'
 import { BotContext } from '#types/context'
 import { memoryStorage } from '#config/storage'
 import { DAILY_HADITH_KEY } from '#utils/constants'
+import { IPrayTime, IUser } from '#types/database'
 
 let scene = new Scene<BotContext>('Location')
 
@@ -35,8 +36,10 @@ scene.wait().on('callback_query:data', async (ctx) => {
     const now = new Date()
     const today = now.getDate()
     const message = HLanguage(ctx.user.language, 'infoPrayTime')
-    const data = await Model.PrayTime.findOne({ day: today, regionId: +ctx.update.callback_query.data })
+    const data = await Model.PrayTime.findOne<IPrayTime>({ day: today, regionId: +ctx.update.callback_query.data })
     let regionName = ''
+
+    if (!data) return ctx.scene.exit()
 
     for (const key in ctx.session.regions) {
       if (ctx.session.regions[key] === data.regionId) {
@@ -45,7 +48,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
       }
     }
 
-    await Model.User.updateOne(
+    await Model.User.updateOne<IUser>(
       { userId: ctx.user.userId },
       { region: regionName, regionId: +ctx.update.callback_query.data },
     )

@@ -3,6 +3,7 @@ import Model from '#config/database'
 import inlineKFunction from '#keyboard/inline'
 import HLanguage from '#helper/language'
 import { BotContext } from '#types/context'
+import { IUser } from '#types/database'
 
 const scene = new Scene<BotContext>('Fasting')
 
@@ -28,7 +29,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
 
     const fasting = ctx.session.keyboardMessage[0] === ctx.update.callback_query.data
 
-    await Model.User.updateOne({ userId: ctx.user.userId }, { fasting })
+    await Model.User.updateOne<IUser>({ userId: ctx.user.userId }, { fasting })
 
     const message = HLanguage(ctx.user.language, 'notifChange')
 

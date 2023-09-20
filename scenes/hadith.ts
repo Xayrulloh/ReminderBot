@@ -3,6 +3,7 @@ import Model from '#config/database'
 import inlineKFunction from '#keyboard/inline'
 import { BotContext } from '#types/context'
 import { InlineKeyboard } from 'grammy'
+import { IHadith } from '#types/database'
 
 const scene = new Scene<BotContext>('Hadith')
 
@@ -17,7 +18,7 @@ scene.do(async (ctx) => {
 scene.wait().on('message:text', async (ctx) => {
   ctx.session.hadith = ctx.message.text
 
-  const categories = await Model.Hadith.distinct('category')
+  const categories = await Model.Hadith.distinct<string>('category')
 
   let buttons: InlineKeyboard | undefined
   if (categories.length) {
@@ -38,7 +39,7 @@ scene.wait().on(['message:text', 'callback_query:data'], async (ctx) => {
   const category =
     ctx?.message?.text == 'not' ? undefined : ctx?.message?.text ? ctx.message.text : ctx.callbackQuery?.data
 
-  await Model.Hadith.create({
+  await Model.Hadith.create<IHadith>({
     content: ctx.session.hadith,
     category,
   })

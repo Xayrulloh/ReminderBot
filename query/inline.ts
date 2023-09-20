@@ -8,6 +8,7 @@ import crypto from 'crypto'
 import fuzzy from 'fuzzy'
 import { memoryStorage } from '#config/storage'
 import { DAILY_HADITH_KEY } from '#utils/constants'
+import { IPrayTime } from '#types/database'
 
 export async function inlineQuery(ctx: BotContext) {
   const inlineQueryMessage = ctx.inlineQuery?.query
@@ -62,8 +63,8 @@ export async function inlineQuery(ctx: BotContext) {
 
   const now = new Date()
   const currentDay = now.getDate()
-  const regionTranslations: string[] = HLanguage('uz', 'region')
-  const regions = await Model.PrayTime.find({ day: currentDay, regionId: regionIds })
+  const regionTranslations: Record<string, number>[] = HLanguage('uz', 'region')
+  const regions = await Model.PrayTime.find<IPrayTime>({ day: currentDay, regionId: regionIds })
   const message = HLanguage('uz', 'infoPrayTime')
   const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
   const response: InlineQueryResult[] = []
@@ -72,7 +73,7 @@ export async function inlineQuery(ctx: BotContext) {
     let regionName = ''
 
     for (const key in regionTranslations) {
-      if (region.regionId == regionTranslations[key]) {
+      if (region.regionId == regionTranslations[key] as unknown as number) {
         regionName = key
       }
     }

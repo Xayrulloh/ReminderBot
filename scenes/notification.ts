@@ -5,6 +5,7 @@ import HLanguage from '#helper/language'
 import { InlineKeyboard } from 'grammy'
 import { HReplace } from '#helper/replacer'
 import { BotContext } from '#types/context'
+import { IUser } from '#types/database'
 
 const scene = new Scene<BotContext>('Notification')
 
@@ -31,7 +32,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
   const notification = ctx.session.keyboardMessage[0] === ctx.update.callback_query.data
 
   if (!notification) {
-    await Model.User.updateOne({ userId: ctx.user.userId }, { notification })
+    await Model.User.updateOne<IUser>({ userId: ctx.user.userId }, { notification })
     ctx.editMessageText(successMessage)
     return ctx.scene.exit()
   }
@@ -64,7 +65,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
     return ctx.editMessageText(ctx.session.message, { reply_markup: settingKeyboard })
   }
 
-  await Model.User.updateOne(
+  await Model.User.updateOne<IUser>(
     { userId: ctx.user.userId },
     {
       notification: true,
