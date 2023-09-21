@@ -1,0 +1,46 @@
+{
+  "compilerOptions": {
+    /* Projects */
+    "incremental": true,
+    /* Language and Environment */
+    "target": "es2016",
+    /* Modules */
+    "module": "commonjs",
+    "rootDir": "./",
+    "baseUrl": "./",
+    /* Emit */
+    "declaration": true,
+    "outDir": "dist",
+    "removeComments": true,
+    /* Interop Constraints */
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    /* Type Checking */
+    "strict": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "useUnknownInCatchVariables": false,
+    "strictPropertyInitialization": true,
+    "alwaysStrict": true,
+    /* Completeness */
+    "skipLibCheck": true,
+    "paths": {
+      "#config/*": ["./config/*"],
+      "#region": ["./regions/regions"],
+      "#daily/*": ["./daily/*"],
+      "#middlewares/*": ["./middlewares/*"],
+      "#helper/*": ["./helper/*"],
+      "#types/*": ["./types/*"],
+      "#scenes/*": ["./scenes/*"],
+      "#query/*": ["./query/*"],
+      "#keyboard/*": ["./keyboard/*"],
+      "#utils/*": ["./utils/*"]
+    }
+  },
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  },
+  "exclude": ["node_modules", "dist"],
+  "include": ["./**/*.ts"]
+}

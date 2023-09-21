@@ -2,28 +2,34 @@ import { InlineKeyboard } from 'grammy'
 import Model from '#config/database'
 import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
+import { BotContext } from '#types/context'
+import { InlineQueryResult, InputMessageContent } from 'grammy/out/platform.node'
 import crypto from 'crypto'
 import fuzzy from 'fuzzy'
-import path from 'path'
-import fs from 'fs'
+import { memoryStorage } from '#config/storage'
+import { DAILY_HADITH_KEY } from '#utils/constants'
+import { IPrayTime } from '#types/database'
 
-export async function inlineQuery(ctx) {
+export async function inlineQuery(ctx: BotContext) {
   const inlineQueryMessage = ctx.inlineQuery?.query
-  const tryAgain = HLanguage('uz', 'tryAgain')
-  const responseObj = {
+  const tryAgain: string = HLanguage('uz', 'tryAgain')
+  const inputMessageContent: InputMessageContent = {
+    parse_mode: 'HTML',
+    message_text: '',
+  }
+  const responseObj: InlineQueryResult = {
     type: 'article',
     id: crypto.randomUUID(),
+    title: '',
     reply_markup: new InlineKeyboard().switchInlineCurrent(tryAgain, ''),
-    input_message_content: {
-      parse_mode: 'HTML',
-    },
+    input_message_content: inputMessageContent,
   }
 
   // if not inline query
   if (!inlineQueryMessage) {
     responseObj.title = HLanguage('uz', 'startSearch')
     responseObj.description = HLanguage('uz', 'searchPlace')
-    responseObj.input_message_content.message_text = HLanguage('uz', 'hintMessage')
+    inputMessageContent.message_text = HLanguage('uz', 'hintMessage')
 
     return await ctx.answerInlineQuery([responseObj])
   }
@@ -35,11 +41,11 @@ export async function inlineQuery(ctx) {
   // but not result
   if (!search.length) {
     responseObj.title = HLanguage('uz', 'notFound')
-    let description = HLanguage('uz', 'notFoundDescription')
-    let message_text = HLanguage('uz', 'notFoundContent')
+    let description: string = HLanguage('uz', 'notFoundDescription')
+    let message_text: string = HLanguage('uz', 'notFoundContent')
 
     responseObj.description = HReplace(description, ['$inlineQueryText'], [inlineQueryMessage])
-    responseObj.input_message_content.message_text = HReplace(message_text, ['$inlineQueryText'], [inlineQueryMessage])
+    inputMessageContent.message_text = HReplace(message_text, ['$inlineQueryText'], [inlineQueryMessage])
 
     return await ctx.answerInlineQuery([responseObj])
   }
@@ -57,19 +63,17 @@ export async function inlineQuery(ctx) {
 
   const now = new Date()
   const currentDay = now.getDate()
-  const regionTranslations = HLanguage('uz', 'region')
-  const regions = await Model.PrayTime.find({ day: currentDay, regionId: regionIds })
+  const regionTranslations: Record<string, number>[] = HLanguage('uz', 'region')
+  const regions = await Model.PrayTime.find<IPrayTime>({ day: currentDay, regionId: regionIds })
   const message = HLanguage('uz', 'infoPrayTime')
-  const dailyHadith = JSON.parse(
-    fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json')),
-  )?.dailyHadith
-  const response = []
+  const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
+  const response: InlineQueryResult[] = []
 
   for (const region of regions) {
-    let regionName
+    let regionName = ''
 
     for (const key in regionTranslations) {
-      if (region.regionId == regionTranslations[key]) {
+      if (region.regionId == regionTranslations[key] as unknown as number) {
         regionName = key
       }
     }
@@ -86,7 +90,7 @@ export async function inlineQuery(ctx) {
       title: regionName,
       description: content,
       input_message_content: {
-        message_text: content + dailyHadith,
+        message_text: content + '\n\n' + dailyHadith,
         parse_mode: 'HTML',
       },
     })

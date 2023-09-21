@@ -1,15 +1,16 @@
 import { Scene } from 'grammy-scenes'
 import HLanguage from '#helper/language'
 import axios from 'axios'
+import { BotContext } from '#types/context'
 
-const scene = new Scene('Donate')
+const scene = new Scene<BotContext>('Donate')
 
 scene.do(async (ctx) => {
   const message = HLanguage(ctx.user.language, 'donateMessage')
 
   ctx.session.message = message
 
-  ctx.reply(message)
+  await ctx.reply(message)
 })
 
 scene.wait().on('message:text', async (ctx) => {

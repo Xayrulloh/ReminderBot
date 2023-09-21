@@ -1,11 +1,13 @@
 import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
-import inlineKFunction from '../keyboard/inline.js'
+import inlineKFunction from '#keyboard/inline'
 import HLanguage from '#helper/language'
 import { InlineKeyboard } from 'grammy'
 import { HReplace } from '#helper/replacer'
+import { BotContext } from '#types/context'
+import { IUser } from '#types/database'
 
-const scene = new Scene('Notification')
+const scene = new Scene<BotContext>('Notification')
 
 scene.do(async (ctx) => {
   const message = HLanguage(ctx.user.language, 'notificationMessage')
@@ -30,7 +32,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
   const notification = ctx.session.keyboardMessage[0] === ctx.update.callback_query.data
 
   if (!notification) {
-    await Model.User.updateOne({ userId: ctx.user.userId }, { notification })
+    await Model.User.updateOne<IUser>({ userId: ctx.user.userId }, { notification })
     ctx.editMessageText(successMessage)
     return ctx.scene.exit()
   }
@@ -63,7 +65,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
     return ctx.editMessageText(ctx.session.message, { reply_markup: settingKeyboard })
   }
 
-  await Model.User.updateOne(
+  await Model.User.updateOne<IUser>(
     { userId: ctx.user.userId },
     {
       notification: true,
@@ -74,7 +76,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
   return ctx.scene.exit()
 })
 
-function buildSettingKeyboard(ctx) {
+function buildSettingKeyboard(ctx: BotContext) {
   const keyboard = new InlineKeyboard()
 
   for (const index in ctx.session.prayerTimes) {
@@ -91,7 +93,7 @@ function buildSettingKeyboard(ctx) {
 
     keyboard.text(text, key)
 
-    if (index % 2) {
+    if (parseInt(index) % 2) {
       keyboard.row()
     }
   }

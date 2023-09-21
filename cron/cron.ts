@@ -4,11 +4,13 @@ import Model from '#config/database'
 import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
 import schedule from 'node-schedule'
-import customKFunction from '../keyboard/custom.js'
+import customKFunction from '#keyboard/custom'
 import fs from 'fs'
-import { InputFile } from 'grammy'
-import path from 'path'
-import { authMiddleware } from '#middlewares/auth'
+import { Bot, GrammyError, InputFile } from 'grammy'
+import { BotContext } from '#types/context'
+import { memoryStorage } from '#config/storage'
+import { DAILY_HADITH_KEY } from '#utils/constants'
+import { IHadith, IPrayTime, IUser } from '#types/database'
 
 export async function monthly() {
   const now = new Date()
@@ -21,10 +23,10 @@ export async function monthly() {
   await Model.PrayTime.deleteMany()
 
   for (let i = 0; i < regions.length; i++) {
-    const pdf = await axios.get(process.env.TIME_API + regionIds[i] + '/' + currentMonth, {
+    const pdf = await axios.get(String(process.env.TIME_API) + regionIds[i] + '/' + currentMonth, {
       responseType: 'arraybuffer',
     })
-    const pdfData = await pdfParser(pdf.data, { normalizeWhitespace: true })
+    const pdfData = await pdfParser(pdf.data)
     const data = pdfData.text.split('\n')
 
     for (let el of data) {
@@ -32,9 +34,9 @@ export async function monthly() {
         for (let day of daysOfWeek) {
           if (el.includes(day)) {
             let dayNumber = el.split(day)[0]
-            let times = el.split(day)[1].match(/.{1,5}/g)
+            let times = el.split(day)[1].match(/.{1,5}/g) as RegExpMatchArray
 
-            await Model.PrayTime.create({
+            await Model.PrayTime.create<IPrayTime>({
               region: regions[i],
               regionId: regionIds[i],
               day: dayNumber,
@@ -52,13 +54,17 @@ export async function monthly() {
   }
 }
 
-export async function daily(bot) {
+export async function daily(bot: Bot<BotContext>) {
   // daily backup
-  const users = await Model.User.find()
+  const users = await Model.User.find<IUser>({ deletedAt: null })
   fs.access('users.json', fs.constants.F_OK, (err) => {
     if (err) fs.writeFileSync('users.json', JSON.stringify(users))
     else {
-      const currentUsers = JSON.parse(fs.readFileSync('users.json'))
+      const currentUsers = JSON.parse(
+        fs.readFileSync('users.json', {
+          encoding: 'utf-8',
+        }),
+      )
       if (currentUsers.length > users.length) fs.writeFileSync('users.json', JSON.stringify(users))
     }
   })
@@ -66,27 +72,21 @@ export async function daily(bot) {
   // sending message
   const now = new Date()
   const currentDay = now.getDate()
-  const regions = await Model.PrayTime.find({ day: currentDay })
+  const regions = await Model.PrayTime.find<IPrayTime>({ day: currentDay })
 
   // taking hadith
+  let hadith = await Model.Hadith.find<IHadith>({ category: { $ne: 'juma' } })
   if (now.getDay() == 5) {
-    var hadith = await Model.Hadith.find({ category: 'juma' })
-    hadith = hadith[(Math.random() * hadith.length) | 0]
-    var file = new InputFile('./uploads/JumaMuborak.jpg')
-  } else {
-    var hadith = await Model.Hadith.find({ category: { $ne: 'juma' } })
-    hadith = hadith[(Math.random() * hadith.length) | 0]
+    hadith = await Model.Hadith.find<IHadith>({ category: 'juma' })
   }
+  const randomHadith = hadith[(Math.random() * hadith.length) | 0]
 
-  fs.writeFileSync(
-    path.join(process.cwd(), 'translate', 'localStorage.json'),
-    JSON.stringify({ dailyHadith: hadith ? `\n\n${hadith.content}` : '' }),
-    'utf8',
-  )
+  // Set daily hadith to storage
+  memoryStorage.write(DAILY_HADITH_KEY, randomHadith.content)
 
   // sending
   for (let region of regions) {
-    const users = await Model.User.find({ regionId: region.regionId })
+    const users = await Model.User.find<IUser>({ regionId: region.regionId })
 
     for (let user of users) {
       const info = HLanguage(user.language, 'infoPrayTime')
@@ -100,9 +100,10 @@ export async function daily(bot) {
       const buttons = customKFunction(2, ...keyboardText)
 
       if (now.getDay() == 5) {
+        const file = new InputFile('./uploads/JumaMuborak.jpg')
         bot.api
           .sendPhoto(user.userId, file, {
-            caption: message + (hadith ? `\n\n${hadith.content}` : ''),
+            caption: message + (randomHadith ? `\n\n${randomHadith.content}` : ''),
             reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
           })
           .then(() => {
@@ -111,14 +112,16 @@ export async function daily(bot) {
           .catch(async (error) => {
             if (error.description == 'Forbidden: bot was blocked by the user') {
               user.status = false
-            } else console.log('Error:', error)
+            } else if (error.description == 'Forbidden: user is deactivated') {
+              await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+            } else console.error('Error:', error)
           })
           .finally(() => {
             user.save()
           })
       } else {
         bot.api
-          .sendMessage(user.userId, message + (hadith ? `\n\n${hadith.content}` : ''), {
+          .sendMessage(user.userId, message + (randomHadith ? `\n\n${randomHadith.content}` : ''), {
             reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
           })
           .then(() => {
@@ -127,27 +130,26 @@ export async function daily(bot) {
           .catch(async (error) => {
             if (error.description == 'Forbidden: bot was blocked by the user') {
               user.status = false
-            } else console.log('Error:', error)
+            } else if (error.description == 'Forbidden: user is deactivated') {
+              await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+            } else console.error('Error:', error)
           })
           .finally(() => {
             user.save()
           })
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 1000 / process.env.LIMIT))
+      await new Promise((resolve) => setTimeout(resolve, 1000 / Number(process.env.LIMIT)))
     }
   }
-
-  // deleting users from cache
-  Object.keys(authMiddleware).forEach((key) => delete authMiddleware[key])
 }
 
-export async function reminder(bot) {
+export async function reminder(bot: Bot<BotContext>) {
   await schedule.gracefulShutdown()
 
   const now = new Date()
   const currentDay = now.getDate()
-  const regions = await Model.PrayTime.find({ day: currentDay })
+  const regions = await Model.PrayTime.find<IPrayTime>({ day: currentDay })
 
   for (let region of regions) {
     // times
@@ -160,10 +162,10 @@ export async function reminder(bot) {
 
     // schedule
     schedule.scheduleJob({ hour: fajr[0], minute: fajr[1], tz: 'Asia/Tashkent' }, async () => {
-      const users = await Model.User.find({
+      const users = await Model.User.find<IUser>({
         regionId: region.regionId,
         notification: true,
-        $or: [{ 'notificationSetting.maghrib': true }, { fasting: true }],
+        $or: [{ 'notificationSetting.fajr': true }, { fasting: true }],
       })
 
       users.forEach((user) => {
@@ -178,13 +180,15 @@ export async function reminder(bot) {
 
         bot.api.sendMessage(user.userId, message).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
-          } else console.log('Error:', error)
+          } else if (error.description == 'Forbidden: user is deactivated') {
+            await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+          } else console.error('Error:', error)
         })
       })
     })
 
     schedule.scheduleJob({ hour: sunrise[0], minute: sunrise[1], tz: 'Asia/Tashkent' }, async () => {
-      const users = await Model.User.find({
+      const users = await Model.User.find<IUser>({
         'regionId': region.regionId,
         'notification': true,
         'notificationSetting.sunrise': true,
@@ -195,13 +199,15 @@ export async function reminder(bot) {
 
         bot.api.sendMessage(user.userId, sunriseTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
-          } else console.log('Error:', error)
+          } else if (error.description == 'Forbidden: user is deactivated') {
+            await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+          } else console.error('Error:', error)
         })
       })
     })
 
     schedule.scheduleJob({ hour: dhuhr[0], minute: dhuhr[1], tz: 'Asia/Tashkent' }, async () => {
-      const users = await Model.User.find({
+      const users = await Model.User.find<IUser>({
         'regionId': region.regionId,
         'notification': true,
         'notificationSetting.dhuhr': true,
@@ -211,13 +217,15 @@ export async function reminder(bot) {
 
         bot.api.sendMessage(user.userId, dhuhrTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
-          } else console.log('Error:', error)
+          } else if (error.description == 'Forbidden: user is deactivated') {
+            await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+          } else console.error('Error:', error)
         })
       })
     })
 
     schedule.scheduleJob({ hour: asr[0], minute: asr[1], tz: 'Asia/Tashkent' }, async () => {
-      const users = await Model.User.find({
+      const users = await Model.User.find<IUser>({
         'regionId': region.regionId,
         'notification': true,
         'notificationSetting.asr': true,
@@ -228,13 +236,15 @@ export async function reminder(bot) {
 
         bot.api.sendMessage(user.userId, asrTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
-          } else console.log('Error:', error)
+          } else if (error.description == 'Forbidden: user is deactivated') {
+            await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+          } else console.error('Error:', error)
         })
       })
     })
 
     schedule.scheduleJob({ hour: maghrib[0], minute: maghrib[1], tz: 'Asia/Tashkent' }, async () => {
-      const users = await Model.User.find({
+      const users = await Model.User.find<IUser>({
         regionId: region.regionId,
         notification: true,
         $or: [{ 'notificationSetting.maghrib': true }, { fasting: true }],
@@ -252,13 +262,15 @@ export async function reminder(bot) {
 
         bot.api.sendMessage(user.userId, message).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
-          } else console.log('Error:', error)
+          } else if (error.description == 'Forbidden: user is deactivated') {
+            await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+          } else console.error('Error:', error)
         })
       })
     })
 
     schedule.scheduleJob({ hour: isha[0], minute: isha[1], tz: 'Asia/Tashkent' }, async () => {
-      const users = await Model.User.find({
+      const users = await Model.User.find<IUser>({
         'regionId': region.regionId,
         'notification': true,
         'notificationSetting.isha': true,
@@ -267,26 +279,30 @@ export async function reminder(bot) {
       users.forEach((user) => {
         const ishaTime = HLanguage(user.language, 'ishaTime')
 
-        bot.api.sendMessage(user.userId, ishaTime).catch(async (error) => {
+        bot.api.sendMessage(user.userId, ishaTime).catch(async (error: GrammyError) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
-          } else console.log('Error:', error)
+          } else if (error.description == 'Forbidden: user is deactivated') {
+            await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+          } else console.error('Error:', error)
         })
       })
     })
   }
 }
 
-export async function weekly(bot) {
-  const users = await Model.User.find()
+export async function weekly(bot: Bot<BotContext>) {
+  const users = await Model.User.find<IUser>({ deletedAt: null })
 
   for (const user of users) {
     const message = HLanguage(user.language, 'shareBot')
 
     bot.api.sendMessage(user.userId, message).catch(async (error) => {
       if (error.description == 'Forbidden: bot was blocked by the user') {
-      } else console.log('Error:', error)
+      } else if (error.description == 'Forbidden: user is deactivated') {
+        await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+      } else console.error('Error:', error)
     })
 
-    await new Promise((resolve) => setTimeout(resolve, 1000 / process.env.LIMIT))
+    await new Promise((resolve) => setTimeout(resolve, 1000 / Number(process.env.LIMIT)))
   }
 }

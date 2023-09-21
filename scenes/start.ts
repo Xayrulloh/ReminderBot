@@ -1,13 +1,15 @@
 import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
-import inlineKFunction from '../keyboard/inline.js'
-import customKFunction from '../keyboard/custom.js'
+import inlineKFunction from '#keyboard/inline'
+import customKFunction from '#keyboard/custom'
 import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
-import fs from 'fs'
-import path from 'path'
+import { BotContext } from '#types/context'
+import { memoryStorage } from '#config/storage'
+import { DAILY_HADITH_KEY } from '#utils/constants'
+import { IPrayTime, IUser } from '#types/database'
 
-const scene = new Scene('Start')
+const scene = new Scene<BotContext>('Start')
 
 // language
 scene.do(async (ctx) => {
@@ -29,7 +31,7 @@ scene.do(async (ctx) => {
   ctx.session.buttons = buttons
   ctx.session.message = message
 
-  ctx.reply(message, { reply_markup: buttons })
+  await ctx.reply(message, { reply_markup: buttons })
 })
 
 // region
@@ -41,7 +43,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
     return ctx.answerCallbackQuery(HLanguage('uz', 'wrongSelection'))
   }
 
-  ctx.answerCallbackQuery()
+  await ctx.answerCallbackQuery()
 
   const message = HLanguage(language, 'chooseRegion')
   const keyboardMessage = HLanguage(language, 'region')
@@ -58,7 +60,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
   ctx.session.buttons = buttons
   ctx.session.regions = keyboardMessage
 
-  ctx.editMessageText(message, { reply_markup: buttons })
+  await ctx.editMessageText(message, { reply_markup: buttons })
   ctx.scene.resume()
 })
 
@@ -68,7 +70,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
     return ctx.answerCallbackQuery(HLanguage(ctx.session.language, 'wrongSelection'))
   }
 
-  ctx.answerCallbackQuery()
+  await ctx.answerCallbackQuery()
 
   ctx.session.regionId = +ctx.update.callback_query.data
 
@@ -84,7 +86,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
   ctx.session.buttons = buttons
   ctx.session.keyboardMessage = keyboardMessage
 
-  ctx.editMessageText(message, { reply_markup: buttons })
+  await ctx.editMessageText(message, { reply_markup: buttons })
   ctx.scene.resume()
 })
 
@@ -94,7 +96,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
     return ctx.answerCallbackQuery(HLanguage(ctx.session.language, 'wrongSelection'))
   }
 
-  ctx.answerCallbackQuery()
+  await ctx.answerCallbackQuery()
 
   const message = HLanguage(ctx.session.language, 'fastingMessage')
   const keyboardMessage = HLanguage(ctx.session.language, 'agreementFasting')
@@ -104,12 +106,12 @@ scene.wait().on('callback_query:data', async (ctx) => {
     { view: keyboardMessage[1], text: keyboardMessage[1] },
   )
 
-  ctx.session.notification = ctx.session.keyboardMessage[0] == ctx.update.callback_query.data ? true : false
+  ctx.session.notification = ctx.session.keyboardMessage[0] === ctx.update.callback_query.data
   ctx.session.keyboardMessage = keyboardMessage
   ctx.session.message = message
   ctx.session.buttons = buttons
 
-  ctx.editMessageText(message, { reply_markup: buttons })
+  await ctx.editMessageText(message, { reply_markup: buttons })
   ctx.scene.resume()
 })
 
@@ -119,24 +121,26 @@ scene.wait().on('callback_query:data', async (ctx) => {
     return ctx.answerCallbackQuery(HLanguage(ctx.session.language, 'wrongSelection'))
   }
 
-  ctx.answerCallbackQuery()
+  await ctx.answerCallbackQuery()
 
-  const fasting = ctx.session.keyboardMessage[0] == ctx.update.callback_query.data ? true : false
+  const fasting = ctx.session.keyboardMessage[0] === ctx.update.callback_query.data
 
   const now = new Date()
   const today = now.getDate()
   const message = HLanguage(ctx.session.language, 'infoPrayTime')
-  const data = await Model.PrayTime.findOne({ day: today, regionId: ctx.session.regionId })
+  const data = await Model.PrayTime.findOne<IPrayTime>({ day: today, regionId: ctx.session.regionId })
   let regionName = ''
 
+  if (!data) return ctx.scene.exit()
+
   for (const key in ctx.session.regions) {
-    if (ctx.session.regions[key] === data.regionId) {
+    if (ctx.session.regions[key] === data?.regionId) {
       regionName = key
       break
     }
   }
 
-  await Model.User.create({
+  await Model.User.create<IUser>({
     userId: ctx.session.userId,
     userName: ctx.session.userName || 'unknown',
     name: ctx.session.name || 'name',
@@ -153,16 +157,17 @@ scene.wait().on('callback_query:data', async (ctx) => {
     ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha'],
     [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha],
   )
-  const dailyHadith = JSON.parse(
-    fs.readFileSync(path.join(process.cwd(), 'translate', 'localStorage.json')),
-  )?.dailyHadith
+  const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
 
   const keyboardText = HLanguage(ctx.session.language, 'mainKeyboard')
   const buttons = customKFunction(2, ...keyboardText)
 
-  ctx.deleteMessage()
-  ctx.reply(response + dailyHadith, {
-    reply_markup: { inline_keyboard: null, keyboard: buttons.build(), resize_keyboard: true },
+  await ctx.deleteMessage()
+  await ctx.reply(response + '\n\n' + dailyHadith, {
+    reply_markup: {
+      keyboard: buttons.build(),
+      resize_keyboard: true,
+    },
   })
   ctx.scene.exit()
 })

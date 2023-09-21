@@ -1,6 +1,6 @@
 import HLanguage from '#helper/language'
 
-export const keyboardMapper = (language, text) => {
+export const keyboardMapper = (language: string, text: any) => {
   const keyboardText = HLanguage(language, 'mainKeyboard')
 
   const options = {

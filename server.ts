@@ -1,17 +1,17 @@
 import { Bot, MemorySessionStorage, session, webhookCallback } from 'grammy'
 import 'dotenv/config'
-import { scenes } from './scenes/index.js'
+import { scenes } from './scenes'
 import HLanguage from '#helper/language'
 import cron from 'node-cron'
-import { daily, monthly, reminder } from './cron/cron.js'
-import customKFunction from './keyboard/custom.js'
+import { daily, monthly, reminder } from './cron/cron'
+import customKFunction from './keyboard/custom'
 import express from 'express'
 import { authMiddleware } from '#middlewares/auth'
 import { keyboardMapper } from '#helper/keyboardMapper'
-import { inlineQuery } from './query/inline.js'
+import { BotContext } from '#types/context'
 
-const token = process.env.TOKEN
-const bot = new Bot(token)
+const token = String(process.env.TOKEN)
+const bot = new Bot<BotContext>(token)
 
 // crones
 const scheduleOptions = {
@@ -37,15 +37,12 @@ const dailyCron = cron.schedule(
 bot.use(
   session({
     initial: () => ({}),
-    storage: new MemorySessionStorage(process.env.SESSION_TTL),
+    storage: new MemorySessionStorage(Number(process.env.SESSION_TTL)),
   }),
 )
 bot.use(scenes.manager())
 bot.use(authMiddleware)
 bot.use(scenes)
-
-// inline query
-bot.inlineQuery(/(.*)/gi, async (ctx) => {})
 
 // Commands
 bot.command('language', async (ctx) => {

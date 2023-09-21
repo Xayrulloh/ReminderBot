@@ -1,6 +1,11 @@
 import { InlineKeyboard } from 'grammy'
 
-export default function inlineKFunction(num, ...buttons) {
+type InternalButton = {
+  view: string
+  text: string
+}
+
+export default function inlineKFunction(num: number, ...buttons: InternalButton[]) {
   let keyboard = new InlineKeyboard()
 
   buttons.forEach((el, index) => {
