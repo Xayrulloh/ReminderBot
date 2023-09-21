@@ -4,6 +4,7 @@ import inlineKFunction from '#keyboard/inline'
 import customKFunction from '#keyboard/custom'
 import HLanguage from '#helper/language'
 import { BotContext } from '#types/context'
+import { IUser } from '#types/database'
 
 const scene = new Scene<BotContext>('Language')
 
@@ -34,7 +35,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
   const userId = ctx.update.callback_query.from.id
   const message = HLanguage(language, 'changedLanguage')
 
-  await Model.User.updateOne({ userId }, { language })
+  await Model.User.updateOne<IUser>({ userId }, { language })
   ctx.user.language = language
 
   const keyboardText = HLanguage(language, 'mainKeyboard')

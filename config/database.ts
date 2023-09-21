@@ -1,7 +1,8 @@
-import mongoose from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 import 'dotenv/config'
+import { IHadith, IPrayTime, IUser } from '#types/database'
 
-const User = new mongoose.Schema(
+const User = new Schema(
   {
     userId: {
       required: true,
@@ -70,6 +71,10 @@ const User = new mongoose.Schema(
         type: Boolean,
       },
     },
+    deletedAt: {
+      type: Date,
+      default: null, // Initialize to null when a new document is created
+    },
   },
   { versionKey: false },
 )
@@ -130,9 +135,9 @@ const Hadith = new mongoose.Schema(
   { versionKey: false },
 )
 
-mongoose.model('User', User)
-mongoose.model('PrayTime', PrayTime)
-mongoose.model('Hadith', Hadith)
+mongoose.model<IUser>('User', User)
+mongoose.model<IPrayTime>('PrayTime', PrayTime)
+mongoose.model<IHadith>('Hadith', Hadith)
 mongoose.set('strictQuery', false)
 
 mongoose
