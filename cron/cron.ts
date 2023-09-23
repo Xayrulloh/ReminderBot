@@ -57,17 +57,7 @@ export async function monthly() {
 export async function daily(bot: Bot<BotContext>) {
   // daily backup
   const users = await Model.User.find<IUser>({ deletedAt: null })
-  fs.access('users.json', fs.constants.F_OK, (err) => {
-    if (err) fs.writeFileSync('users.json', JSON.stringify(users))
-    else {
-      const currentUsers = JSON.parse(
-        fs.readFileSync('users.json', {
-          encoding: 'utf-8',
-        }),
-      )
-      if (currentUsers.length > users.length) fs.writeFileSync('users.json', JSON.stringify(users))
-    }
-  })
+  fs.writeFileSync('users.json', JSON.stringify(users))
 
   // sending message
   const now = new Date()
@@ -75,9 +65,12 @@ export async function daily(bot: Bot<BotContext>) {
   const regions = await Model.PrayTime.find<IPrayTime>({ day: currentDay })
 
   // taking hadith
-  let hadith = await Model.Hadith.find<IHadith>({ category: { $ne: 'juma' } })
+  let hadith = undefined
+  const file = new InputFile('./public/JumaMuborak.jpg')
   if (now.getDay() == 5) {
     hadith = await Model.Hadith.find<IHadith>({ category: 'juma' })
+  } else {
+    hadith = await Model.Hadith.find<IHadith>({ category: { $ne: 'juma' } })
   }
   const randomHadith = hadith[(Math.random() * hadith.length) | 0]
 
@@ -100,7 +93,6 @@ export async function daily(bot: Bot<BotContext>) {
       const buttons = customKFunction(2, ...keyboardText)
 
       if (now.getDay() == 5) {
-        const file = new InputFile('./uploads/JumaMuborak.jpg')
         bot.api
           .sendPhoto(user.userId, file, {
             caption: message + (randomHadith ? `\n\n${randomHadith.content}` : ''),
@@ -113,7 +105,7 @@ export async function daily(bot: Bot<BotContext>) {
             if (error.description == 'Forbidden: bot was blocked by the user') {
               user.status = false
             } else if (error.description == 'Forbidden: user is deactivated') {
-              await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+              await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
             } else console.error('Error:', error)
           })
           .finally(() => {
@@ -131,7 +123,7 @@ export async function daily(bot: Bot<BotContext>) {
             if (error.description == 'Forbidden: bot was blocked by the user') {
               user.status = false
             } else if (error.description == 'Forbidden: user is deactivated') {
-              await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+              await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
             } else console.error('Error:', error)
           })
           .finally(() => {
@@ -181,7 +173,7 @@ export async function reminder(bot: Bot<BotContext>) {
         bot.api.sendMessage(user.userId, message).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else if (error.description == 'Forbidden: user is deactivated') {
-            await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+            await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
           } else console.error('Error:', error)
         })
       })
@@ -200,7 +192,7 @@ export async function reminder(bot: Bot<BotContext>) {
         bot.api.sendMessage(user.userId, sunriseTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else if (error.description == 'Forbidden: user is deactivated') {
-            await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+            await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
           } else console.error('Error:', error)
         })
       })
@@ -218,7 +210,7 @@ export async function reminder(bot: Bot<BotContext>) {
         bot.api.sendMessage(user.userId, dhuhrTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else if (error.description == 'Forbidden: user is deactivated') {
-            await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+            await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
           } else console.error('Error:', error)
         })
       })
@@ -237,7 +229,7 @@ export async function reminder(bot: Bot<BotContext>) {
         bot.api.sendMessage(user.userId, asrTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else if (error.description == 'Forbidden: user is deactivated') {
-            await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+            await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
           } else console.error('Error:', error)
         })
       })
@@ -263,7 +255,7 @@ export async function reminder(bot: Bot<BotContext>) {
         bot.api.sendMessage(user.userId, message).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else if (error.description == 'Forbidden: user is deactivated') {
-            await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+            await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
           } else console.error('Error:', error)
         })
       })
@@ -282,7 +274,7 @@ export async function reminder(bot: Bot<BotContext>) {
         bot.api.sendMessage(user.userId, ishaTime).catch(async (error: GrammyError) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else if (error.description == 'Forbidden: user is deactivated') {
-            await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+            await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
           } else console.error('Error:', error)
         })
       })
@@ -299,7 +291,7 @@ export async function weekly(bot: Bot<BotContext>) {
     bot.api.sendMessage(user.userId, message).catch(async (error) => {
       if (error.description == 'Forbidden: bot was blocked by the user') {
       } else if (error.description == 'Forbidden: user is deactivated') {
-        await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+        await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
       } else console.error('Error:', error)
     })
 
