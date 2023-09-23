@@ -110,7 +110,7 @@ bot.on('message:text', async (ctx) => {
 bot.catch(async (err) => {
   let { message, inline_query, callback_query } = err.ctx.update
 
-  let response = ''
+  let response = `Stage: ${process.env.APP_MODE}\n`
 
   if (message) {
     response = `Id: ${message.from.id}\nUsername: @${message.from.username}\nName: ${message.from.first_name}\nError: ${err.message}`
