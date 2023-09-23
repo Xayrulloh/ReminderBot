@@ -39,7 +39,6 @@ const weeklyCron = cron.schedule(
   },
   scheduleOptions,
 )
-weekly(bot)
 
 // middleware
 bot.use(
