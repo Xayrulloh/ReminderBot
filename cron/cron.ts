@@ -6,7 +6,7 @@ import { HReplace } from '#helper/replacer'
 import schedule from 'node-schedule'
 import customKFunction from '#keyboard/custom'
 import fs from 'fs'
-import { Bot, GrammyError, InputFile } from 'grammy'
+import { Bot, GrammyError, InlineKeyboard, InputFile } from 'grammy'
 import { BotContext } from '#types/context'
 import { memoryStorage } from '#config/storage'
 import { DAILY_HADITH_KEY } from '#utils/constants'
@@ -65,7 +65,7 @@ export async function daily(bot: Bot<BotContext>) {
   const regions = await Model.PrayTime.find<IPrayTime>({ day: currentDay })
 
   // taking hadith
-  let hadith: IHadith[];
+  let hadith: IHadith[]
   const file = new InputFile('./public/JumaMuborak.jpg')
   if (now.getDay() == 5) {
     hadith = await Model.Hadith.find<IHadith>({ category: 'juma' })
@@ -287,8 +287,11 @@ export async function weekly(bot: Bot<BotContext>) {
 
   for (const user of users) {
     const message = HLanguage(user.language, 'shareBot')
+    const keyboard = new InlineKeyboard()
+    const enterMessage = HLanguage(user.language, 'enter')
+    keyboard.url(enterMessage, 'https://t.me/namoz5vbot')
 
-    bot.api.sendMessage(user.userId, message).catch(async (error) => {
+    bot.api.sendMessage(user.userId, message, { reply_markup: keyboard }).catch(async (error) => {
       if (error.description == 'Forbidden: bot was blocked by the user') {
       } else if (error.description == 'Forbidden: user is deactivated') {
         await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
