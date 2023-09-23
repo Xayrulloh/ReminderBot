@@ -1,6 +1,7 @@
 import mongoose, { Schema } from 'mongoose'
 import 'dotenv/config'
 import { IHadith, IPrayTime, IUser } from '#types/database'
+import { env } from '#utils/env'
 
 const User = new Schema(
   {
@@ -141,7 +142,7 @@ mongoose.model<IHadith>('Hadith', Hadith)
 mongoose.set('strictQuery', false)
 
 mongoose
-  .connect(String(process.env.MONGO_URL))
+  .connect(String(env.mongoUrl))
   .then(() => {
     console.info('Database successfully connected')
   })

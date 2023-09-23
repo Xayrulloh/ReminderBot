@@ -11,6 +11,7 @@ import { BotContext } from '#types/context'
 import { memoryStorage } from '#config/storage'
 import { DAILY_HADITH_KEY } from '#utils/constants'
 import { IHadith, IPrayTime, IUser } from '#types/database'
+import { env } from '#utils/env'
 
 export async function monthly() {
   const now = new Date()
@@ -23,7 +24,7 @@ export async function monthly() {
   await Model.PrayTime.deleteMany()
 
   for (let i = 0; i < regions.length; i++) {
-    const pdf = await axios.get(String(process.env.TIME_API) + regionIds[i] + '/' + currentMonth, {
+    const pdf = await axios.get(String(env.timeApi) + regionIds[i] + '/' + currentMonth, {
       responseType: 'arraybuffer',
     })
     const pdfData = await pdfParser(pdf.data)
@@ -131,7 +132,7 @@ export async function daily(bot: Bot<BotContext>) {
           })
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 1000 / Number(process.env.LIMIT)))
+      await new Promise((resolve) => setTimeout(resolve, 1000 / Number(env.limit)))
     }
   }
 }
@@ -298,6 +299,6 @@ export async function weekly(bot: Bot<BotContext>) {
       } else console.error('Error:', error)
     })
 
-    await new Promise((resolve) => setTimeout(resolve, 1000 / Number(process.env.LIMIT)))
+    await new Promise((resolve) => setTimeout(resolve, 1000 / Number(env.limit)))
   }
 }
