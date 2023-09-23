@@ -65,7 +65,7 @@ export async function daily(bot: Bot<BotContext>) {
   const regions = await Model.PrayTime.find<IPrayTime>({ day: currentDay })
 
   // taking hadith
-  let hadith = undefined
+  let hadith: IHadith[];
   const file = new InputFile('./public/JumaMuborak.jpg')
   if (now.getDay() == 5) {
     hadith = await Model.Hadith.find<IHadith>({ category: 'juma' })
