@@ -14,6 +14,7 @@
   "license": "MIT",
   "dependencies": {
     "axios": "0.27.2",
+    "discord.js": "14.13.0",
     "dotenv": "16.0.1",
     "express": "4.18.2",
     "fuzzy": "0.1.3",

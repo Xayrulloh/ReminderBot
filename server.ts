@@ -9,6 +9,7 @@ import express from 'express'
 import { authMiddleware } from '#middlewares/auth'
 import { keyboardMapper } from '#helper/keyboardMapper'
 import { BotContext } from '#types/context'
+import { WebhookClient } from 'discord.js'
 
 const token = String(process.env.TOKEN)
 const bot = new Bot<BotContext>(token)
@@ -106,10 +107,10 @@ bot.on('message:text', async (ctx) => {
 })
 
 // error handling
-bot.catch((err) => {
+bot.catch(async (err) => {
   let { message, inline_query, callback_query } = err.ctx.update
 
-  let response = ''
+  let response = `Stage: ${process.env.APP_MODE}\n`
 
   if (message) {
     response = `Id: ${message.from.id}\nUsername: @${message.from.username}\nName: ${message.from.first_name}\nError: ${err.message}`
@@ -119,7 +120,14 @@ bot.catch((err) => {
     response = `Id: ${callback_query.from.id}\nUsername: @${callback_query.from.username}\nName: ${callback_query.from.first_name}\nError: ${err.message}`
   }
 
-  bot.api.sendMessage(1151533771, response)
+  const discordClient = new WebhookClient({
+    url: String(process.env.DISCORD_WEBHOOK_URL),
+  })
+
+  await discordClient.send({
+    content: response,
+    threadId: String(process.env.DISCORD_THREAD_ID),
+  })
 })
 
 monthlyCron.start()
