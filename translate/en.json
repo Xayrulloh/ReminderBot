@@ -47,7 +47,7 @@
   "donateError": "Server is not available",
   "donateUrl": "The link for payment ",
   "donateThanks": "Thanks for your donation",
-  "shareBot": "Hello. Dear user, if you find this bot useful, please don't forget to share it with your loved ones",
+  "shareBot": "https://t.me/namoz5vbot\n\nHello. Dear user, if you find this bot useful, please don't forget to share it with your loved ones",
   "startSearch": "Start Search!",
   "searchPlace": "Enter the name of the city or region you want to find!",
   "tryAgain": "Try Again?",
@@ -66,5 +66,6 @@
     "maghrib": "🌉 Maghrib $state",
     "isha": "🌃 Isha $state",
     "save": "✅ Save"
-  }
+  },
+  "enter": "Enter"
 }

@@ -3,7 +3,7 @@ import 'dotenv/config'
 import { scenes } from './scenes'
 import HLanguage from '#helper/language'
 import cron from 'node-cron'
-import { daily, monthly, reminder } from './cron/cron'
+import { daily, monthly, reminder, weekly } from './cron/cron'
 import customKFunction from './keyboard/custom'
 import express from 'express'
 import { authMiddleware } from '#middlewares/auth'
@@ -32,6 +32,14 @@ const dailyCron = cron.schedule(
   },
   scheduleOptions,
 )
+const weeklyCron = cron.schedule(
+  '0 13 * * 1',
+  async () => {
+    await weekly(bot)
+  },
+  scheduleOptions,
+)
+weekly(bot)
 
 // middleware
 bot.use(
@@ -117,6 +125,7 @@ bot.catch((err) => {
 
 monthlyCron.start()
 dailyCron.start()
+weeklyCron.start()
 
 reminder(bot)
 
@@ -137,12 +146,6 @@ if (process.env.NODE_ENV === 'dev') {
 
 // commented works
 
-// const weeklyCron = cron.schedule('0 13 * * 1', async () => {
-//   await weekly(bot)
-// }, scheduleOptions)
-
 // bot.command('donate', async (ctx) => {
 //   await ctx.scenes.enter('Donate')
 // })
-
-// weeklyCron.start()
