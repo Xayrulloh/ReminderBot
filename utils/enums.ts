@@ -1,4 +1,4 @@
-export enum Enums {
+export enum Color {
   Black = '\x1b[30m',
   Red = '\x1b[31m',
   Green = '\x1b[32m',

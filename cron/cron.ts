@@ -24,7 +24,7 @@ export async function monthly() {
   await Model.PrayTime.deleteMany()
 
   for (let i = 0; i < regions.length; i++) {
-    const pdf = await axios.get(String(env.timeApi) + regionIds[i] + '/' + currentMonth, {
+    const pdf = await axios.get(env.TIME_API + regionIds[i] + '/' + currentMonth, {
       responseType: 'arraybuffer',
     })
     const pdfData = await pdfParser(pdf.data)
@@ -132,7 +132,7 @@ export async function daily(bot: Bot<BotContext>) {
           })
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 1000 / Number(env.limit)))
+      await new Promise((resolve) => setTimeout(resolve, 1000 / env.LIMIT))
     }
   }
 }
@@ -299,6 +299,6 @@ export async function weekly(bot: Bot<BotContext>) {
       } else console.error('Error:', error)
     })
 
-    await new Promise((resolve) => setTimeout(resolve, 1000 / Number(env.limit)))
+    await new Promise((resolve) => setTimeout(resolve, 1000 / env.LIMIT))
   }
 }
