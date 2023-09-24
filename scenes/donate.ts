@@ -2,6 +2,7 @@ import { Scene } from 'grammy-scenes'
 import HLanguage from '#helper/language'
 import axios from 'axios'
 import { BotContext } from '#types/context'
+import { env } from '#utils/env'
 
 const scene = new Scene<BotContext>('Donate')
 
@@ -18,10 +19,12 @@ scene.wait().on('message:text', async (ctx) => {
 
   if (!isNaN(amount) && amount <= 10_000_000 && amount >= 1_000) {
     try {
-      const response = await axios.post(process.env.PAYME_URL + 'p2p/create', {
-        number: process.env.CARD,
-        amount,
-      })
+      const [response] = await Promise.all([
+        axios.post(env.paymeUrl + 'p2p/create', {
+          number: env.card,
+          amount,
+        }),
+      ])
 
       if (!response.data?.success) {
         const message = HLanguage(ctx.user.language, 'donateError')
@@ -30,7 +33,7 @@ scene.wait().on('message:text', async (ctx) => {
         return
       }
 
-      const endpoint = process.env.PAYME_ENDPOINT + response.data?.result?.chequeid
+      const endpoint = env.paymeEndpoint + response.data?.result?.chequeid
       const message = HLanguage(ctx.user.language, 'donateUrl')
       const messageThanks = HLanguage(ctx.user.language, 'donateThanks')
 

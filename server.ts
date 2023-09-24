@@ -9,9 +9,10 @@ import express from 'express'
 import { authMiddleware } from '#middlewares/auth'
 import { keyboardMapper } from '#helper/keyboardMapper'
 import { BotContext } from '#types/context'
-import { WebhookClient } from 'discord.js'
+import { WebhookClient, EmbedBuilder, bold, inlineCode } from 'discord.js'
+import { env } from '#utils/env'
 
-const token = String(process.env.TOKEN)
+const token = String(env.token)
 const bot = new Bot<BotContext>(token)
 
 // crones
@@ -45,7 +46,7 @@ const weeklyCron = cron.schedule(
 bot.use(
   session({
     initial: () => ({}),
-    storage: new MemorySessionStorage(Number(process.env.SESSION_TTL)),
+    storage: new MemorySessionStorage(Number(env.token)),
   }),
 )
 bot.use(scenes.manager())
@@ -108,25 +109,28 @@ bot.on('message:text', async (ctx) => {
 
 // error handling
 bot.catch(async (err) => {
-  let { message, inline_query, callback_query } = err.ctx.update
-
-  let response = `Stage: ${process.env.APP_MODE}\n`
-
-  if (message) {
-    response = `Id: ${message.from.id}\nUsername: @${message.from.username}\nName: ${message.from.first_name}\nError: ${err.message}`
-  } else if (inline_query) {
-    response = `Id: ${inline_query.from.id}\nUsername: @${inline_query.from.username}\nName: ${inline_query.from.first_name}\nError: ${err.message}`
-  } else if (callback_query) {
-    response = `Id: ${callback_query.from.id}\nUsername: @${callback_query.from.username}\nName: ${callback_query.from.first_name}\nError: ${err.message}`
-  }
+  let embed = new EmbedBuilder()
+    .setColor('Random')
+    .setTitle(err.name)
+    .setDescription(
+      `
+      ${bold('Stage:')} ${env.nodeEnv}
+      ${bold('Id:')} ${inlineCode(String(err.ctx.from?.id))}
+      ${bold('FirstName:')} ${err.ctx.from?.first_name}
+      ${bold('LastName:')} ${err.ctx.from?.last_name}
+      ${bold('Username:')} @${err.ctx.from?.username}
+      ${bold('Message:')} ${err.message}
+    `,
+    )
+    .setTimestamp(new Date())
 
   const discordClient = new WebhookClient({
-    url: String(process.env.DISCORD_WEBHOOK_URL),
+    url: String(env.discordWebhookUrl),
   })
 
   await discordClient.send({
-    content: response,
-    threadId: String(process.env.DISCORD_THREAD_ID),
+    threadId: String(env.discordThreadId),
+    embeds: [embed],
   })
 })
 
@@ -137,18 +141,24 @@ weeklyCron.start()
 reminder(bot)
 
 // webhook
-if (process.env.NODE_ENV === 'dev') {
-  bot.start()
-} else {
-  const port = Number(process.env?.PORT) || 3600
-  const domain = String(process.env?.DOMAIN)
+if (env.webhookEnabled) {
   const server = express()
 
   server.use(express.json())
   server.use(`/${token}`, webhookCallback(bot, 'express'))
-  server.listen(port, async () => {
-    await bot.api.setWebhook(`https://${domain}/${token}`)
+  server.listen(env.webhookPort, async () => {
+    await bot.api.setWebhook(env.webhookUrl + token)
   })
+} else {
+  bot
+    .start({
+      onStart: () => {
+        console.info('Bot successfully started')
+      },
+    })
+    .catch((e) => {
+      console.error('Something went wrong!', e)
+    })
 }
 
 // commented works
