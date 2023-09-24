@@ -6,7 +6,7 @@ import { env } from '#utils/env'
 
 const scene = new Scene<BotContext>('Advertise')
 
-scene.do(async (ctx) => {
+scene.step(async (ctx) => {
   if (1151533771 == ctx.from?.id) {
     await ctx.reply('Give me a message to send every user')
   } else {
@@ -14,7 +14,7 @@ scene.do(async (ctx) => {
   }
 })
 
-scene.wait().on('message:text', async (ctx) => {
+scene.wait('hadith').on('message:text', async (ctx) => {
   const users = await Model.User.find<IUser>({ deletedAt: null })
 
   for (const user of users) {

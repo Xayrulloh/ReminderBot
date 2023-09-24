@@ -3,7 +3,7 @@ import Model from '#config/database'
 import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
 import { BotContext } from '#types/context'
-import { InlineQueryResult, InputMessageContent } from 'grammy/out/platform.node'
+import { InlineQueryResult, InputMessageContent } from '@grammyjs/types'
 import crypto from 'crypto'
 import fuzzy from 'fuzzy'
 import { memoryStorage } from '#config/storage'
@@ -63,7 +63,7 @@ export async function inlineQuery(ctx: BotContext) {
 
   const now = new Date()
   const currentDay = now.getDate()
-  const regionTranslations: Record<string, number>[] = HLanguage('uz', 'region')
+  const regionTranslations: Record<string, number> = HLanguage('uz', 'region')
   const regions = await Model.PrayTime.find<IPrayTime>({ day: currentDay, regionId: regionIds })
   const message = HLanguage('uz', 'infoPrayTime')
   const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
@@ -73,7 +73,7 @@ export async function inlineQuery(ctx: BotContext) {
     let regionName = ''
 
     for (const key in regionTranslations) {
-      if (region.regionId == regionTranslations[key] as unknown as number) {
+      if (region.regionId === regionTranslations[key]) {
         regionName = key
       }
     }

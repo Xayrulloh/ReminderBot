@@ -6,7 +6,7 @@ import { env } from '#utils/env'
 
 const scene = new Scene<BotContext>('Donate')
 
-scene.do(async (ctx) => {
+scene.step(async (ctx) => {
   const message = HLanguage(ctx.user.language, 'donateMessage')
 
   ctx.session.message = message
@@ -14,7 +14,7 @@ scene.do(async (ctx) => {
   await ctx.reply(message)
 })
 
-scene.wait().on('message:text', async (ctx) => {
+scene.wait('amount').on('message:text', async (ctx) => {
   const amount = +ctx.update.message.text
 
   if (!isNaN(amount) && amount <= 10_000_000 && amount >= 1_000) {

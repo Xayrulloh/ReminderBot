@@ -9,7 +9,7 @@ import { IUser } from '#types/database'
 
 const scene = new Scene<BotContext>('Notification')
 
-scene.do(async (ctx) => {
+scene.step(async (ctx) => {
   const message = HLanguage(ctx.user.language, 'notificationMessage')
   const keyboardMessage = HLanguage(ctx.user.language, 'agreementNotification')
   const buttons = inlineKFunction(
@@ -20,10 +20,10 @@ scene.do(async (ctx) => {
 
   ctx.session.keyboardMessage = keyboardMessage
 
-  ctx.reply(message, { reply_markup: buttons })
+  await ctx.reply(message, { reply_markup: buttons })
 })
 
-scene.wait().on('callback_query:data', async (ctx) => {
+scene.wait('notification').on('callback_query:data', async (ctx) => {
   if (!ctx.session.keyboardMessage.includes(ctx.update.callback_query.data)) {
     return ctx.answerCallbackQuery(HLanguage(ctx.user.language, 'wrongSelection'))
   }
@@ -33,7 +33,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
 
   if (!notification) {
     await Model.User.updateOne<IUser>({ userId: ctx.user.userId }, { notification })
-    ctx.editMessageText(successMessage)
+    await ctx.editMessageText(successMessage)
     return ctx.scene.exit()
   }
 
@@ -48,11 +48,11 @@ scene.wait().on('callback_query:data', async (ctx) => {
 
   const settingKeyboard = buildSettingKeyboard(ctx)
 
-  ctx.editMessageText(message, { reply_markup: settingKeyboard })
+  await ctx.editMessageText(message, { reply_markup: settingKeyboard })
   ctx.scene.resume()
 })
 
-scene.wait().on('callback_query:data', async (ctx) => {
+scene.wait('notification_settings').on('callback_query:data', async (ctx) => {
   if (!ctx.session.setPrayerTimesMessage[ctx.callbackQuery.data]) {
     return ctx.answerCallbackQuery(HLanguage(ctx.user.language, 'wrongSelection'))
   }
