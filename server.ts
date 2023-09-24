@@ -1,5 +1,4 @@
 import { Bot, MemorySessionStorage, session, webhookCallback } from 'grammy'
-import 'dotenv/config'
 import { scenes } from './scenes'
 import HLanguage from '#helper/language'
 import cron from 'node-cron'
@@ -11,9 +10,9 @@ import { keyboardMapper } from '#helper/keyboardMapper'
 import { BotContext } from '#types/context'
 import { WebhookClient, EmbedBuilder, bold, inlineCode } from 'discord.js'
 import { env } from '#utils/env'
+import { Color } from '#utils/enums'
 
-const token = String(env.token)
-const bot = new Bot<BotContext>(token)
+const bot = new Bot<BotContext>(env.TOKEN)
 
 // crones
 const scheduleOptions = {
@@ -46,7 +45,7 @@ const weeklyCron = cron.schedule(
 bot.use(
   session({
     initial: () => ({}),
-    storage: new MemorySessionStorage(Number(env.token)),
+    storage: new MemorySessionStorage(env.SESSION_TTL),
   }),
 )
 bot.use(scenes.manager())
@@ -114,7 +113,7 @@ bot.catch(async (err) => {
     .setTitle(err.name)
     .setDescription(
       `
-      ${bold('Stage:')} ${env.nodeEnv}
+      ${bold('Stage:')} ${env.NODE_ENV}
       ${bold('Id:')} ${inlineCode(String(err.ctx.from?.id))}
       ${bold('FirstName:')} ${err.ctx.from?.first_name}
       ${bold('LastName:')} ${err.ctx.from?.last_name}
@@ -125,11 +124,11 @@ bot.catch(async (err) => {
     .setTimestamp(new Date())
 
   const discordClient = new WebhookClient({
-    url: String(env.discordWebhookUrl),
+    url: env.DISCORD_WEBHOOK_URL,
   })
 
   await discordClient.send({
-    threadId: String(env.discordThreadId),
+    threadId: env.DISCORD_THREAD_ID,
     embeds: [embed],
   })
 })
@@ -141,13 +140,13 @@ weeklyCron.start()
 reminder(bot)
 
 // webhook
-if (env.webhookEnabled) {
+if (env.WEBHOOK_ENABLED) {
   const server = express()
 
   server.use(express.json())
-  server.use(`/${token}`, webhookCallback(bot, 'express'))
-  server.listen(env.webhookPort, async () => {
-    await bot.api.setWebhook(env.webhookUrl + token)
+  server.use(`/${env.TOKEN}`, webhookCallback(bot, 'express'))
+  server.listen(env.WEBHOOK_PORT, async () => {
+    await bot.api.setWebhook(env.DISCORD_WEBHOOK_URL + env.TOKEN)
   })
 } else {
   bot
@@ -157,7 +156,8 @@ if (env.webhookEnabled) {
       },
     })
     .catch((e) => {
-      console.error('Something went wrong!', e)
+      console.error(Color.Red, 'Something went wrong!', e)
+      process.exit()
     })
 }
 

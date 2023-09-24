@@ -27,7 +27,7 @@ scene.wait().on('message:text', async (ctx) => {
       } else console.error('Error:', error)
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 1000 / Number(env.limit)))
+    await new Promise((resolve) => setTimeout(resolve, 1000 / env.LIMIT))
   }
 
   ctx.scene.exit()
