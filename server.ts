@@ -146,7 +146,7 @@ if (env.WEBHOOK_ENABLED) {
   server.use(express.json())
   server.use(`/${env.TOKEN}`, webhookCallback(bot, 'express'))
   server.listen(env.WEBHOOK_PORT, async () => {
-    await bot.api.setWebhook(env.DISCORD_WEBHOOK_URL + env.TOKEN)
+    await bot.api.setWebhook(env.WEBHOOK_URL + env.TOKEN)
   })
 } else {
   bot

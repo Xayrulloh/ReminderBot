@@ -8,7 +8,7 @@ import { IUser } from '#types/database'
 
 const scene = new Scene<BotContext>('Language')
 
-scene.do(async (ctx) => {
+scene.step(async (ctx) => {
   const buttons = inlineKFunction(
     Infinity,
     { view: '🇺🇿', text: 'uz' },
@@ -20,17 +20,17 @@ scene.do(async (ctx) => {
   ctx.session.message = message
   ctx.session.buttons = buttons
 
-  ctx.reply(message, { reply_markup: buttons })
+  await ctx.reply(message, { reply_markup: buttons })
 })
 
-scene.wait().on('callback_query:data', async (ctx) => {
+scene.wait('language').on('callback_query:data', async (ctx) => {
   const language = ctx.update.callback_query.data
 
   if (!['uz', 'ru', 'en'].includes(language)) {
     return ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons })
   }
 
-  ctx.answerCallbackQuery()
+  await ctx.answerCallbackQuery()
 
   const userId = ctx.update.callback_query.from.id
   const message = HLanguage(language, 'changedLanguage')
@@ -41,8 +41,8 @@ scene.wait().on('callback_query:data', async (ctx) => {
   const keyboardText = HLanguage(language, 'mainKeyboard')
   const buttons = customKFunction(2, ...keyboardText)
 
-  ctx.deleteMessage()
-  ctx.reply(message, { reply_markup: { keyboard: buttons.build(), resize_keyboard: true } })
+  await ctx.deleteMessage()
+  await ctx.reply(message, { reply_markup: { keyboard: buttons.build(), resize_keyboard: true } })
   ctx.scene.exit()
 })
 

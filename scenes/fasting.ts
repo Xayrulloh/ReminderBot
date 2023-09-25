@@ -7,7 +7,7 @@ import { IUser } from '#types/database'
 
 const scene = new Scene<BotContext>('Fasting')
 
-scene.do(async (ctx) => {
+scene.step(async (ctx) => {
   const message = HLanguage(ctx.user.language, 'fastingMessage')
   const keyboardMessage = HLanguage(ctx.user.language, 'agreementFasting')
   const buttons = inlineKFunction(
@@ -23,7 +23,7 @@ scene.do(async (ctx) => {
   await ctx.reply(message, { reply_markup: buttons })
 })
 
-scene.wait().on('callback_query:data', async (ctx) => {
+scene.wait('fasting').on('callback_query:data', async (ctx) => {
   if (ctx.session.keyboardMessage.includes(ctx.update.callback_query.data)) {
     await ctx.answerCallbackQuery()
 

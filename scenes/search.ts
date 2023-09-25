@@ -10,7 +10,7 @@ import { IPrayTime } from '#types/database'
 
 let scene = new Scene<BotContext>('Search')
 
-scene.do(async (ctx) => {
+scene.step(async (ctx) => {
   const message = HLanguage(ctx.user.language, 'searchRegion')
   const keyboardMessage = HLanguage(ctx.user.language, 'region')
   const keyboard = []
@@ -26,10 +26,10 @@ scene.do(async (ctx) => {
   ctx.session.regionId = Object.values(keyboardMessage)
   ctx.session.regions = keyboardMessage
 
-  ctx.reply(message, { reply_markup: buttons })
+  await ctx.reply(message, { reply_markup: buttons })
 })
 
-scene.wait().on('callback_query:data', async (ctx) => {
+scene.wait('region').on('callback_query:data', async (ctx) => {
   if (ctx.session.regionId.includes(+ctx.update.callback_query.data)) {
     await ctx.answerCallbackQuery()
 

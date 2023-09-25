@@ -7,7 +7,7 @@ import { InlineKeyboard } from 'grammy'
 
 const scene = new Scene<BotContext>('Statistic')
 
-scene.do(async (ctx) => {
+scene.step(async (ctx) => {
   const users = await Model.User.find<IUser>({ deletedAt: null })
   const countMessage = HLanguage(ctx.user.language, 'usersCount')
   let shareMessage = HLanguage(ctx.user.language, 'shareMessage')
