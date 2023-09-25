@@ -10,7 +10,10 @@ export const schema = z.object({
   TIME_API: z.string().url(),
   PAYME_URL: z.string().url().optional(),
   PAYME_ENDPOINT: z.string().optional(),
-  CARD: z.number().optional(),
+  CARD: z
+    .string()
+    .regex(/^[0-9]+$/)
+    .optional(),
   DISCORD_WEBHOOK_URL: z.string().url(),
   DISCORD_THREAD_ID: z.string().regex(/^[0-9]+$/),
   SESSION_TTL: z.number({ coerce: true }),
