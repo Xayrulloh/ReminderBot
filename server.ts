@@ -11,6 +11,7 @@ import { BotContext } from '#types/context'
 import { env } from '#utils/env'
 import { Color } from '#utils/enums'
 import { errorHandler } from '#helper/errorHandler'
+import { HttpStatusCode } from 'axios'
 
 const bot = new Bot<BotContext>(env.TOKEN)
 
@@ -120,13 +121,18 @@ if (env.WEBHOOK_ENABLED) {
   const server = express()
 
   server.use(express.json())
-  server.use(`/${env.TOKEN}`, webhookCallback(bot, 'express'))
+  server.use(`/${env.TOKEN}`, async (req, res, next) => {
+    try {
+      await webhookCallback(bot, 'express')(req, res, next)
+    } catch (e) {
+      if (e instanceof BotError) {
+        await errorHandler(e)
+      } else {
+        console.error(e)
+      }
 
-  server.use(async (err: Error) => {
-    if (err instanceof BotError) {
-      return errorHandler(err)
+      res.status(HttpStatusCode.Ok).json({ success: false })
     }
-    console.error(Color.Red, err)
   })
   server.listen(env.WEBHOOK_PORT, async () => {
     await bot.api.setWebhook(env.WEBHOOK_URL + env.TOKEN)
