@@ -6,11 +6,12 @@ import { HReplace } from '#helper/replacer'
 import schedule from 'node-schedule'
 import customKFunction from '#keyboard/custom'
 import fs from 'fs'
-import { Bot, GrammyError, InputFile } from 'grammy'
+import { Bot, GrammyError, InlineKeyboard, InputFile } from 'grammy'
 import { BotContext } from '#types/context'
 import { memoryStorage } from '#config/storage'
 import { DAILY_HADITH_KEY } from '#utils/constants'
 import { IHadith, IPrayTime, IUser } from '#types/database'
+import { env } from '#utils/env'
 
 export async function monthly() {
   const now = new Date()
@@ -23,7 +24,7 @@ export async function monthly() {
   await Model.PrayTime.deleteMany()
 
   for (let i = 0; i < regions.length; i++) {
-    const pdf = await axios.get(String(process.env.TIME_API) + regionIds[i] + '/' + currentMonth, {
+    const pdf = await axios.get(env.TIME_API + regionIds[i] + '/' + currentMonth, {
       responseType: 'arraybuffer',
     })
     const pdfData = await pdfParser(pdf.data)
@@ -57,17 +58,7 @@ export async function monthly() {
 export async function daily(bot: Bot<BotContext>) {
   // daily backup
   const users = await Model.User.find<IUser>({ deletedAt: null })
-  fs.access('users.json', fs.constants.F_OK, (err) => {
-    if (err) fs.writeFileSync('users.json', JSON.stringify(users))
-    else {
-      const currentUsers = JSON.parse(
-        fs.readFileSync('users.json', {
-          encoding: 'utf-8',
-        }),
-      )
-      if (currentUsers.length > users.length) fs.writeFileSync('users.json', JSON.stringify(users))
-    }
-  })
+  fs.writeFileSync('users.json', JSON.stringify(users))
 
   // sending message
   const now = new Date()
@@ -75,9 +66,12 @@ export async function daily(bot: Bot<BotContext>) {
   const regions = await Model.PrayTime.find<IPrayTime>({ day: currentDay })
 
   // taking hadith
-  let hadith = await Model.Hadith.find<IHadith>({ category: { $ne: 'juma' } })
+  let hadith: IHadith[]
+  const file = new InputFile('./public/JumaMuborak.jpg')
   if (now.getDay() == 5) {
     hadith = await Model.Hadith.find<IHadith>({ category: 'juma' })
+  } else {
+    hadith = await Model.Hadith.find<IHadith>({ category: { $ne: 'juma' } })
   }
   const randomHadith = hadith[(Math.random() * hadith.length) | 0]
 
@@ -100,7 +94,6 @@ export async function daily(bot: Bot<BotContext>) {
       const buttons = customKFunction(2, ...keyboardText)
 
       if (now.getDay() == 5) {
-        const file = new InputFile('./uploads/JumaMuborak.jpg')
         bot.api
           .sendPhoto(user.userId, file, {
             caption: message + (randomHadith ? `\n\n${randomHadith.content}` : ''),
@@ -113,7 +106,7 @@ export async function daily(bot: Bot<BotContext>) {
             if (error.description == 'Forbidden: bot was blocked by the user') {
               user.status = false
             } else if (error.description == 'Forbidden: user is deactivated') {
-              await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+              await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
             } else console.error('Error:', error)
           })
           .finally(() => {
@@ -131,7 +124,7 @@ export async function daily(bot: Bot<BotContext>) {
             if (error.description == 'Forbidden: bot was blocked by the user') {
               user.status = false
             } else if (error.description == 'Forbidden: user is deactivated') {
-              await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+              await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
             } else console.error('Error:', error)
           })
           .finally(() => {
@@ -139,7 +132,7 @@ export async function daily(bot: Bot<BotContext>) {
           })
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 1000 / Number(process.env.LIMIT)))
+      await new Promise((resolve) => setTimeout(resolve, 1000 / env.LIMIT))
     }
   }
 }
@@ -181,7 +174,7 @@ export async function reminder(bot: Bot<BotContext>) {
         bot.api.sendMessage(user.userId, message).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else if (error.description == 'Forbidden: user is deactivated') {
-            await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+            await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
           } else console.error('Error:', error)
         })
       })
@@ -200,7 +193,7 @@ export async function reminder(bot: Bot<BotContext>) {
         bot.api.sendMessage(user.userId, sunriseTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else if (error.description == 'Forbidden: user is deactivated') {
-            await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+            await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
           } else console.error('Error:', error)
         })
       })
@@ -218,7 +211,7 @@ export async function reminder(bot: Bot<BotContext>) {
         bot.api.sendMessage(user.userId, dhuhrTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else if (error.description == 'Forbidden: user is deactivated') {
-            await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+            await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
           } else console.error('Error:', error)
         })
       })
@@ -237,7 +230,7 @@ export async function reminder(bot: Bot<BotContext>) {
         bot.api.sendMessage(user.userId, asrTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else if (error.description == 'Forbidden: user is deactivated') {
-            await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+            await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
           } else console.error('Error:', error)
         })
       })
@@ -263,7 +256,7 @@ export async function reminder(bot: Bot<BotContext>) {
         bot.api.sendMessage(user.userId, message).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else if (error.description == 'Forbidden: user is deactivated') {
-            await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+            await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
           } else console.error('Error:', error)
         })
       })
@@ -282,7 +275,7 @@ export async function reminder(bot: Bot<BotContext>) {
         bot.api.sendMessage(user.userId, ishaTime).catch(async (error: GrammyError) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else if (error.description == 'Forbidden: user is deactivated') {
-            await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+            await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
           } else console.error('Error:', error)
         })
       })
@@ -295,14 +288,17 @@ export async function weekly(bot: Bot<BotContext>) {
 
   for (const user of users) {
     const message = HLanguage(user.language, 'shareBot')
+    const keyboard = new InlineKeyboard()
+    const enterMessage = HLanguage(user.language, 'enter')
+    keyboard.url(enterMessage, 'https://t.me/namoz5vbot')
 
-    bot.api.sendMessage(user.userId, message).catch(async (error) => {
+    bot.api.sendMessage(user.userId, message, { reply_markup: keyboard }).catch(async (error) => {
       if (error.description == 'Forbidden: bot was blocked by the user') {
       } else if (error.description == 'Forbidden: user is deactivated') {
-        await Model.User.findOneAndUpdate({ userId: user.userId }, {deletedAt: new Date})
+        await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
       } else console.error('Error:', error)
     })
 
-    await new Promise((resolve) => setTimeout(resolve, 1000 / Number(process.env.LIMIT)))
+    await new Promise((resolve) => setTimeout(resolve, 1000 / env.LIMIT))
   }
 }

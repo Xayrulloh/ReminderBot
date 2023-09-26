@@ -1,6 +1,7 @@
 import mongoose, { Schema } from 'mongoose'
-import 'dotenv/config'
 import { IHadith, IPrayTime, IUser } from '#types/database'
+import { env } from '#utils/env'
+import { Color } from '#utils/enums'
 
 const User = new Schema(
   {
@@ -141,12 +142,15 @@ mongoose.model<IHadith>('Hadith', Hadith)
 mongoose.set('strictQuery', false)
 
 mongoose
-  .connect(String(process.env.MONGO_URL))
+  .connect(env.MONGO_URL, {
+    serverSelectionTimeoutMS: 3000,
+  })
   .then(() => {
     console.info('Database successfully connected')
   })
   .catch((reason) => {
-    console.error('Error with database connection', reason)
+    console.error(Color.Red, 'Error with database connection', reason)
+    process.exit()
   })
 
 export default mongoose.models

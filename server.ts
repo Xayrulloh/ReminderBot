@@ -1,17 +1,19 @@
-import { Bot, MemorySessionStorage, session, webhookCallback } from 'grammy'
-import 'dotenv/config'
+import { Bot, BotError, MemorySessionStorage, session, webhookCallback } from 'grammy'
 import { scenes } from './scenes'
 import HLanguage from '#helper/language'
 import cron from 'node-cron'
-import { daily, monthly, reminder } from './cron/cron'
+import { daily, monthly, reminder, weekly } from './cron/cron'
 import customKFunction from './keyboard/custom'
 import express from 'express'
 import { authMiddleware } from '#middlewares/auth'
 import { keyboardMapper } from '#helper/keyboardMapper'
 import { BotContext } from '#types/context'
+import { env } from '#utils/env'
+import { Color } from '#utils/enums'
+import { errorHandler } from '#helper/errorHandler'
+import { HttpStatusCode } from 'axios'
 
-const token = String(process.env.TOKEN)
-const bot = new Bot<BotContext>(token)
+const bot = new Bot<BotContext>(env.TOKEN)
 
 // crones
 const scheduleOptions = {
@@ -32,12 +34,19 @@ const dailyCron = cron.schedule(
   },
   scheduleOptions,
 )
+const weeklyCron = cron.schedule(
+  '0 13 * * 1',
+  async () => {
+    await weekly(bot)
+  },
+  scheduleOptions,
+)
 
 // middleware
 bot.use(
   session({
     initial: () => ({}),
-    storage: new MemorySessionStorage(Number(process.env.SESSION_TTL)),
+    storage: new MemorySessionStorage(env.SESSION_TTL),
   }),
 )
 bot.use(scenes.manager())
@@ -99,50 +108,50 @@ bot.on('message:text', async (ctx) => {
 })
 
 // error handling
-bot.catch((err) => {
-  let { message, inline_query, callback_query } = err.ctx.update
-
-  let response = ''
-
-  if (message) {
-    response = `Id: ${message.from.id}\nUsername: @${message.from.username}\nName: ${message.from.first_name}\nError: ${err.message}`
-  } else if (inline_query) {
-    response = `Id: ${inline_query.from.id}\nUsername: @${inline_query.from.username}\nName: ${inline_query.from.first_name}\nError: ${err.message}`
-  } else if (callback_query) {
-    response = `Id: ${callback_query.from.id}\nUsername: @${callback_query.from.username}\nName: ${callback_query.from.first_name}\nError: ${err.message}`
-  }
-
-  bot.api.sendMessage(1151533771, response)
-})
+bot.catch(errorHandler)
 
 monthlyCron.start()
 dailyCron.start()
+weeklyCron.start()
 
 reminder(bot)
 
 // webhook
-if (process.env.NODE_ENV === 'dev') {
-  bot.start()
-} else {
-  const port = Number(process.env?.PORT) || 3600
-  const domain = String(process.env?.DOMAIN)
+if (env.WEBHOOK_ENABLED) {
   const server = express()
 
   server.use(express.json())
-  server.use(`/${token}`, webhookCallback(bot, 'express'))
-  server.listen(port, async () => {
-    await bot.api.setWebhook(`https://${domain}/${token}`)
+  server.use(`/${env.TOKEN}`, async (req, res, next) => {
+    try {
+      await webhookCallback(bot, 'express')(req, res, next)
+    } catch (e) {
+      if (e instanceof BotError) {
+        await errorHandler(e)
+      } else {
+        console.error(e)
+      }
+
+      res.status(HttpStatusCode.Ok).json({ success: false })
+    }
   })
+  server.listen(env.WEBHOOK_PORT, async () => {
+    await bot.api.setWebhook(env.WEBHOOK_URL + env.TOKEN)
+  })
+} else {
+  bot
+    .start({
+      onStart: () => {
+        console.info('Bot successfully started')
+      },
+    })
+    .catch((e) => {
+      console.error(Color.Red, 'Something went wrong!', e)
+      process.exit()
+    })
 }
 
 // commented works
 
-// const weeklyCron = cron.schedule('0 13 * * 1', async () => {
-//   await weekly(bot)
-// }, scheduleOptions)
-
 // bot.command('donate', async (ctx) => {
 //   await ctx.scenes.enter('Donate')
 // })
-
-// weeklyCron.start()

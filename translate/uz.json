@@ -33,21 +33,21 @@
     "📊 Statistika"
   ],
   "searchRegion": "Shaxarni belgilang",
-  "fajrTime": "Bomdod vaqti bo'ldi",
-  "sunriseTime": "Bomdod vaqti o'tib ketdi",
-  "dhuhrTime": "Peshin vaqti bo'ldi",
-  "asrTime": "Asr vaqti bo'ldi",
-  "maghribTime": "Shom vaqti bo'ldi",
-  "ishaTime": "Xufton vaqti bo'ldi",
-  "breakFast": "Og'iz ochish vaqti bo'ldi",
-  "closeFast": "Og'iz yopish vaqti bo'ldi",
+  "fajrTime": "🏙 Bomdod vaqti bo'ldi",
+  "sunriseTime": "🌅 Bomdod vaqti o'tib ketdi",
+  "dhuhrTime": "🏞 Peshin vaqti bo'ldi",
+  "asrTime": "🌆 Asr vaqti bo'ldi",
+  "maghribTime": "🌉 Shom vaqti bo'ldi",
+  "ishaTime": "🌃 Xufton vaqti bo'ldi",
+  "breakFast": "🌉 Og'iz ochish vaqti bo'ldi",
+  "closeFast": "🏙 Og'iz yopish vaqti bo'ldi",
   "usersCount": "Barcha foydalanuvchilar soni: ",
   "shareMessage": "Ushbu botni yaqinlaringizga ham ulashing va namoz o'z vaqtida o'qilishiga sababchi bo'ling",
   "donateMessage": "Qancha pul to'lamoqchimisiz?",
   "donateError": "Serverda xatolik yuz berdi",
   "donateUrl": "To'lov uchun havola ",
   "donateThanks": "To'lovingiz uchun rahmat",
-  "shareBot": "Assalamu alaykum. Aziz foydalanuvchi, agarda ushbu botni foydali deb hisoblasangiz, iltimos o'z yaqinlaringiz bilan ulashishni unutmang",
+  "shareBot": "https://t.me/namoz5vbot\n\nAssalamu alaykum. Aziz foydalanuvchi, agarda ushbu botni foydali deb hisoblasangiz, iltimos o'z yaqinlaringiz bilan ulashishni unutmang",
   "startSearch": "Qidirishni boshlang!",
   "searchPlace": "Qidirmoqchi bo'lgan shaxar yoki viloyat nomini yozing!",
   "tryAgain": "Qayta urinib ko'ramizmi?",
@@ -66,5 +66,6 @@
     "maghrib": "🌉 Shom $state",
     "isha": "🌃 Xufton $state",
     "save": "✅ Saqlash"
-  }
+  },
+  "enter": "Kirish"
 }

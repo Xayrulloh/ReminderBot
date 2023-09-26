@@ -33,21 +33,21 @@
     "📊 Statistic"
   ],
   "searchRegion": "Choose a city",
-  "fajrTime": "Fajr time has started",
-  "sunriseTime": "Fajr time has passed",
-  "dhuhrTime": "Dhuhr time has started",
-  "asrTime": "Asr time has started",
-  "maghribTime": "Maghrib time has started",
-  "ishaTime": "Isha time has started",
-  "breakFast": "It's time to break the fast",
-  "closeFast": "It's time to close the fast",
+  "fajrTime": "🏙 Fajr time has started",
+  "sunriseTime": "🌅 Fajr time has passed",
+  "dhuhrTime": "🏞 Dhuhr time has started",
+  "asrTime": "🌆 Asr time has started",
+  "maghribTime": "🌉 Maghrib time has started",
+  "ishaTime": "🌃 Isha time has started",
+  "breakFast": "🌉 It's time to break the fast",
+  "closeFast": "🏙 It's time to close the fast",
   "usersCount": "The total number of users: ",
   "shareMessage": "Share this bot with your loved ones and be a reason for them to pray on time",
   "donateMessage": "How much do you wanna pay?",
   "donateError": "Server is not available",
   "donateUrl": "The link for payment ",
   "donateThanks": "Thanks for your donation",
-  "shareBot": "Hello. Dear user, if you find this bot useful, please don't forget to share it with your loved ones",
+  "shareBot": "https://t.me/namoz5vbot\n\nHello. Dear user, if you find this bot useful, please don't forget to share it with your loved ones",
   "startSearch": "Start Search!",
   "searchPlace": "Enter the name of the city or region you want to find!",
   "tryAgain": "Try Again?",
@@ -66,5 +66,6 @@
     "maghrib": "🌉 Maghrib $state",
     "isha": "🌃 Isha $state",
     "save": "✅ Save"
-  }
+  },
+  "enter": "Enter"
 }

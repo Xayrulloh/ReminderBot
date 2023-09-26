@@ -7,15 +7,15 @@ import { IHadith } from '#types/database'
 
 const scene = new Scene<BotContext>('Hadith')
 
-scene.do(async (ctx) => {
-  if (1151533771 == ctx.from?.id) {
+scene.step(async (ctx) => {
+  if (1151533771 === ctx.from?.id) {
     ctx.reply('Give me the hadith')
   } else {
     ctx.scene.exit()
   }
 })
 
-scene.wait().on('message:text', async (ctx) => {
+scene.wait('hadith').on('message:text', async (ctx) => {
   ctx.session.hadith = ctx.message.text
 
   const categories = await Model.Hadith.distinct<string>('category')
@@ -30,12 +30,12 @@ scene.wait().on('message:text', async (ctx) => {
     )
   }
 
-  ctx.reply('Give the category of hadith', { reply_markup: buttons })
+  await ctx.reply('Give the category of hadith', { reply_markup: buttons })
 
   ctx.scene.resume()
 })
 
-scene.wait().on(['message:text', 'callback_query:data'], async (ctx) => {
+scene.wait('category').on(['message:text', 'callback_query:data'], async (ctx) => {
   const category =
     ctx?.message?.text == 'not' ? undefined : ctx?.message?.text ? ctx.message.text : ctx.callbackQuery?.data
 
@@ -44,7 +44,7 @@ scene.wait().on(['message:text', 'callback_query:data'], async (ctx) => {
     category,
   })
 
-  ctx.reply('Hadith wrote thank you. You are doing your best')
+  await ctx.reply('The hadith is written, thank you. You are doing your best :)')
 
   ctx.scene.exit()
 })

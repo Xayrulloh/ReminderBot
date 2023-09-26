@@ -12,7 +12,7 @@ import { IPrayTime, IUser } from '#types/database'
 const scene = new Scene<BotContext>('Start')
 
 // language
-scene.do(async (ctx) => {
+scene.step(async (ctx) => {
   const userId = ctx.update.message?.from?.id || ctx.update.callback_query?.from?.id
   const userName = ctx.update.message?.from?.username || ctx.update.callback_query?.from?.username
   const name = ctx.update.message?.from?.first_name || ctx.update.callback_query?.from?.first_name
@@ -35,7 +35,7 @@ scene.do(async (ctx) => {
 })
 
 // region
-scene.wait().on('callback_query:data', async (ctx) => {
+scene.wait('region').on('callback_query:data', async (ctx) => {
   const language = ctx.update.callback_query.data
   ctx.session.language = language
 
@@ -65,7 +65,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
 })
 
 // notification
-scene.wait().on('callback_query:data', async (ctx) => {
+scene.wait('notification').on('callback_query:data', async (ctx) => {
   if (!ctx.session.regionId.includes(+ctx.update.callback_query.data)) {
     return ctx.answerCallbackQuery(HLanguage(ctx.session.language, 'wrongSelection'))
   }
@@ -91,7 +91,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
 })
 
 // fasting
-scene.wait().on('callback_query:data', async (ctx) => {
+scene.wait('fasting').on('callback_query:data', async (ctx) => {
   if (!ctx.session.keyboardMessage.includes(ctx.update.callback_query.data)) {
     return ctx.answerCallbackQuery(HLanguage(ctx.session.language, 'wrongSelection'))
   }
@@ -116,7 +116,7 @@ scene.wait().on('callback_query:data', async (ctx) => {
 })
 
 // the end
-scene.wait().on('callback_query:data', async (ctx) => {
+scene.wait('the_end').on('callback_query:data', async (ctx) => {
   if (!ctx.session.keyboardMessage.includes(ctx.update.callback_query.data)) {
     return ctx.answerCallbackQuery(HLanguage(ctx.session.language, 'wrongSelection'))
   }
