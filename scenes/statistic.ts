@@ -15,7 +15,7 @@ scene.step(async (ctx) => {
   const enterMessage = HLanguage(ctx.user.language, 'enter')
   keyboard.url(enterMessage, 'https://t.me/namoz5vbot')
 
-  if (1151533771 == ctx.user.userId) {
+  if (1151533771 === ctx.user.userId) {
     const blockedUsers = users.reduce((count, user) => {
       if (user.status === false) count++
       return count

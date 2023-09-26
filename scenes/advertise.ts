@@ -7,7 +7,7 @@ import { env } from '#utils/env'
 const scene = new Scene<BotContext>('Advertise')
 
 scene.step(async (ctx) => {
-  if (1151533771 == ctx.from?.id) {
+  if (1151533771 === ctx.from?.id) {
     await ctx.reply('Give me a message to send every user')
   } else {
     ctx.scene.exit()

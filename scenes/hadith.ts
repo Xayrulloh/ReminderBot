@@ -8,7 +8,7 @@ import { IHadith } from '#types/database'
 const scene = new Scene<BotContext>('Hadith')
 
 scene.step(async (ctx) => {
-  if (1151533771 == ctx.from?.id) {
+  if (1151533771 === ctx.from?.id) {
     ctx.reply('Give me the hadith')
   } else {
     ctx.scene.exit()
