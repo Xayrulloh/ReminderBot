@@ -44,3 +44,4 @@ jobs:
             pnpm run build
             pm2 restart ReminderBotDev
             echo "✨Successfully deployed"
+  deeeeng
