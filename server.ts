@@ -1,4 +1,4 @@
-import { Bot, MemorySessionStorage, session, webhookCallback } from 'grammy'
+import { Bot, BotError, MemorySessionStorage, session, webhookCallback } from 'grammy'
 import { scenes } from './scenes'
 import HLanguage from '#helper/language'
 import cron from 'node-cron'
@@ -8,9 +8,9 @@ import express from 'express'
 import { authMiddleware } from '#middlewares/auth'
 import { keyboardMapper } from '#helper/keyboardMapper'
 import { BotContext } from '#types/context'
-import { WebhookClient, EmbedBuilder, bold, inlineCode } from 'discord.js'
 import { env } from '#utils/env'
 import { Color } from '#utils/enums'
+import { errorHandler } from '#helper/errorHandler'
 
 const bot = new Bot<BotContext>(env.TOKEN)
 
@@ -107,31 +107,7 @@ bot.on('message:text', async (ctx) => {
 })
 
 // error handling
-bot.catch(async (err) => {
-  let embed = new EmbedBuilder()
-    .setColor('Random')
-    .setTitle(err.name)
-    .setDescription(
-      `
-      ${bold('Stage:')} ${env.NODE_ENV}
-      ${bold('Id:')} ${inlineCode(String(err.ctx.from?.id))}
-      ${bold('FirstName:')} ${err.ctx.from?.first_name}
-      ${bold('LastName:')} ${err.ctx.from?.last_name}
-      ${bold('Username:')} @${err.ctx.from?.username}
-      ${bold('Message:')} ${err.message}
-    `,
-    )
-    .setTimestamp(new Date())
-
-  const discordClient = new WebhookClient({
-    url: env.DISCORD_WEBHOOK_URL,
-  })
-
-  await discordClient.send({
-    threadId: env.DISCORD_THREAD_ID,
-    embeds: [embed],
-  })
-})
+bot.catch(errorHandler)
 
 monthlyCron.start()
 dailyCron.start()
@@ -145,6 +121,13 @@ if (env.WEBHOOK_ENABLED) {
 
   server.use(express.json())
   server.use(`/${env.TOKEN}`, webhookCallback(bot, 'express'))
+
+  server.use(async (err: Error) => {
+    if (err instanceof BotError) {
+      return errorHandler(err)
+    }
+    console.error(Color.Red, err)
+  })
   server.listen(env.WEBHOOK_PORT, async () => {
     await bot.api.setWebhook(env.WEBHOOK_URL + env.TOKEN)
   })
