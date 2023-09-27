@@ -5,15 +5,15 @@ import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
 import schedule from 'node-schedule'
 import customKFunction from '#keyboard/custom'
-import fs from 'fs'
 import { Bot, GrammyError, InlineKeyboard, InputFile } from 'grammy'
 import { BotContext } from '#types/context'
 import { memoryStorage } from '#config/storage'
 import { DAILY_HADITH_KEY } from '#utils/constants'
 import { IHadith, IPrayTime, IUser } from '#types/database'
 import { env } from '#utils/env'
+import cron from 'node-cron'
 
-export async function monthly() {
+async function monthly() {
   const now = new Date()
   const currentMonth = now.getMonth() + 1
   const keyboardMessage = HLanguage('en', 'region')
@@ -55,12 +55,8 @@ export async function monthly() {
   }
 }
 
-export async function daily(bot: Bot<BotContext>) {
-  // daily backup
-  const users = await Model.User.find<IUser>({ deletedAt: null })
-  fs.writeFileSync('users.json', JSON.stringify(users))
-
-  // sending message
+async function daily(bot: Bot<BotContext>) {
+  // taking data
   const now = new Date()
   const currentDay = now.getDate()
   const regions = await Model.PrayTime.find<IPrayTime>({ day: currentDay })
@@ -94,7 +90,7 @@ export async function daily(bot: Bot<BotContext>) {
       const buttons = customKFunction(2, ...keyboardText)
 
       if (now.getDay() == 5) {
-        bot.api
+        await bot.api
           .sendPhoto(user.userId, file, {
             caption: message + (randomHadith ? `\n\n${randomHadith.content}` : ''),
             reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
@@ -113,7 +109,7 @@ export async function daily(bot: Bot<BotContext>) {
             user.save()
           })
       } else {
-        bot.api
+        await bot.api
           .sendMessage(user.userId, message + (randomHadith ? `\n\n${randomHadith.content}` : ''), {
             reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
           })
@@ -137,7 +133,7 @@ export async function daily(bot: Bot<BotContext>) {
   }
 }
 
-export async function reminder(bot: Bot<BotContext>) {
+async function reminder(bot: Bot<BotContext>) {
   await schedule.gracefulShutdown()
 
   const now = new Date()
@@ -283,7 +279,7 @@ export async function reminder(bot: Bot<BotContext>) {
   }
 }
 
-export async function weekly(bot: Bot<BotContext>) {
+async function weekly(bot: Bot<BotContext>) {
   const users = await Model.User.find<IUser>({ deletedAt: null })
 
   for (const user of users) {
@@ -301,4 +297,37 @@ export async function weekly(bot: Bot<BotContext>) {
 
     await new Promise((resolve) => setTimeout(resolve, 1000 / env.LIMIT))
   }
+}
+
+export async function cronStarter(bot: Bot<BotContext>) {
+  const scheduleOptions = {
+    timezone: 'Asia/Tashkent',
+  }
+
+  cron.schedule(
+    '30 0 1 * *',
+    async () => {
+      await monthly()
+    },
+    scheduleOptions,
+  )
+
+  cron.schedule(
+    '0 1 * * *',
+    async () => {
+      await daily(bot)
+      await reminder(bot)
+    },
+    scheduleOptions,
+  )
+
+  cron.schedule(
+    '0 13 * * 1',
+    async () => {
+      await weekly(bot)
+    },
+    scheduleOptions,
+  )
+
+  await reminder(bot)
 }
