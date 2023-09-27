@@ -157,7 +157,7 @@ async function reminder(bot: Bot<BotContext>) {
         $or: [{ 'notificationSetting.fajr': true }, { fasting: true }],
       })
 
-      users.forEach((user) => {
+      users.forEach(async (user) => {
         let message
 
         if (user.fasting) {
@@ -167,7 +167,7 @@ async function reminder(bot: Bot<BotContext>) {
           message = HLanguage(user.language, 'fajrTime')
         }
 
-        bot.api.sendMessage(user.userId, message).catch(async (error) => {
+        await bot.api.sendMessage(user.userId, message).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else if (error.description == 'Forbidden: user is deactivated') {
             await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
@@ -183,10 +183,10 @@ async function reminder(bot: Bot<BotContext>) {
         'notificationSetting.sunrise': true,
       })
 
-      users.forEach((user) => {
+      users.forEach(async (user) => {
         const sunriseTime = HLanguage(user.language, 'sunriseTime')
 
-        bot.api.sendMessage(user.userId, sunriseTime).catch(async (error) => {
+        await bot.api.sendMessage(user.userId, sunriseTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else if (error.description == 'Forbidden: user is deactivated') {
             await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
@@ -201,10 +201,10 @@ async function reminder(bot: Bot<BotContext>) {
         'notification': true,
         'notificationSetting.dhuhr': true,
       })
-      users.forEach((user) => {
+      users.forEach(async (user) => {
         const dhuhrTime = HLanguage(user.language, 'dhuhrTime')
 
-        bot.api.sendMessage(user.userId, dhuhrTime).catch(async (error) => {
+        await bot.api.sendMessage(user.userId, dhuhrTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else if (error.description == 'Forbidden: user is deactivated') {
             await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
@@ -220,10 +220,10 @@ async function reminder(bot: Bot<BotContext>) {
         'notificationSetting.asr': true,
       })
 
-      users.forEach((user) => {
+      users.forEach(async (user) => {
         const asrTime = HLanguage(user.language, 'asrTime')
 
-        bot.api.sendMessage(user.userId, asrTime).catch(async (error) => {
+        await bot.api.sendMessage(user.userId, asrTime).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else if (error.description == 'Forbidden: user is deactivated') {
             await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
@@ -239,7 +239,7 @@ async function reminder(bot: Bot<BotContext>) {
         $or: [{ 'notificationSetting.maghrib': true }, { fasting: true }],
       })
 
-      users.forEach((user) => {
+      users.forEach(async (user) => {
         let message
 
         if (user.fasting) {
@@ -249,7 +249,7 @@ async function reminder(bot: Bot<BotContext>) {
           message = HLanguage(user.language, 'maghribTime')
         }
 
-        bot.api.sendMessage(user.userId, message).catch(async (error) => {
+        await bot.api.sendMessage(user.userId, message).catch(async (error) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else if (error.description == 'Forbidden: user is deactivated') {
             await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
@@ -265,10 +265,10 @@ async function reminder(bot: Bot<BotContext>) {
         'notificationSetting.isha': true,
       })
 
-      users.forEach((user) => {
+      users.forEach(async (user) => {
         const ishaTime = HLanguage(user.language, 'ishaTime')
 
-        bot.api.sendMessage(user.userId, ishaTime).catch(async (error: GrammyError) => {
+        await bot.api.sendMessage(user.userId, ishaTime).catch(async (error: GrammyError) => {
           if (error.description == 'Forbidden: bot was blocked by the user') {
           } else if (error.description == 'Forbidden: user is deactivated') {
             await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
@@ -288,7 +288,7 @@ async function weekly(bot: Bot<BotContext>) {
     const enterMessage = HLanguage(user.language, 'enter')
     keyboard.url(enterMessage, 'https://t.me/namoz5vbot')
 
-    bot.api.sendMessage(user.userId, message, { reply_markup: keyboard }).catch(async (error) => {
+    await bot.api.sendMessage(user.userId, message, { reply_markup: keyboard }).catch(async (error) => {
       if (error.description == 'Forbidden: bot was blocked by the user') {
       } else if (error.description == 'Forbidden: user is deactivated') {
         await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
