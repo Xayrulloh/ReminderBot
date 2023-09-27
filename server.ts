@@ -1,8 +1,7 @@
 import { Bot, BotError, MemorySessionStorage, session, webhookCallback } from 'grammy'
 import { scenes } from './scenes'
 import HLanguage from '#helper/language'
-import cron from 'node-cron'
-import { daily, monthly, reminder, weekly } from './cron/cron'
+import { cronStarter } from './cron/cron'
 import customKFunction from './keyboard/custom'
 import express from 'express'
 import { authMiddleware } from '#middlewares/auth'
@@ -14,33 +13,6 @@ import { errorHandler } from '#helper/errorHandler'
 import { HttpStatusCode } from 'axios'
 
 const bot = new Bot<BotContext>(env.TOKEN)
-
-// crones
-const scheduleOptions = {
-  timezone: 'Asia/Tashkent',
-}
-const monthlyCron = cron.schedule(
-  '30 0 1 * *',
-  async () => {
-    await monthly()
-  },
-  scheduleOptions,
-)
-const dailyCron = cron.schedule(
-  '0 1 * * *',
-  async () => {
-    await daily(bot)
-    await reminder(bot)
-  },
-  scheduleOptions,
-)
-const weeklyCron = cron.schedule(
-  '0 13 * * 1',
-  async () => {
-    await weekly(bot)
-  },
-  scheduleOptions,
-)
 
 // middleware
 bot.use(
@@ -110,11 +82,7 @@ bot.on('message:text', async (ctx) => {
 // error handling
 bot.catch(errorHandler)
 
-monthlyCron.start()
-dailyCron.start()
-weeklyCron.start()
-
-reminder(bot)
+cronStarter(bot)
 
 // webhook
 if (env.WEBHOOK_ENABLED) {
