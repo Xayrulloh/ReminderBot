@@ -3,7 +3,7 @@ import { scenes } from './scenes'
 import HLanguage from '#helper/language'
 import { cronStarter } from './cron/cron'
 import customKFunction from './keyboard/custom'
-import express from 'express'
+import Fastify from 'fastify'
 import { authMiddleware } from '#middlewares/auth'
 import { keyboardMapper } from '#helper/keyboardMapper'
 import { BotContext } from '#types/context'
@@ -82,27 +82,23 @@ bot.on('message:text', async (ctx) => {
 // error handling
 bot.catch(errorHandler)
 
-cronStarter(bot)
+void cronStarter(bot)
 
 // webhook
 if (env.WEBHOOK_ENABLED) {
-  const server = express()
+  const server = Fastify()
 
-  server.use(express.json())
-  server.use(`/${env.TOKEN}`, async (req, res, next) => {
-    try {
-      await webhookCallback(bot, 'express')(req, res, next)
-    } catch (e) {
-      if (e instanceof BotError) {
-        await errorHandler(e)
-      } else {
-        console.error(e)
-      }
-
-      res.status(HttpStatusCode.Ok).json({ success: false })
+  server.post(`/${env.TOKEN}`, webhookCallback(bot, 'fastify'))
+  server.setErrorHandler(async (e, _request, reply) => {
+    if (e instanceof BotError) {
+      await errorHandler(e)
+    } else {
+      console.error(e)
     }
+
+    reply.status(HttpStatusCode.Ok).send({ success: false })
   })
-  server.listen(env.WEBHOOK_PORT, async () => {
+  server.listen({ port: env.WEBHOOK_PORT }, async () => {
     await bot.api.setWebhook(env.WEBHOOK_URL + env.TOKEN)
   })
 } else {
