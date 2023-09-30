@@ -81,6 +81,7 @@ async function daily(bot: Bot<BotContext>) {
     const users = await Model.User.find<IUser>({
       regionId: region.regionId,
       deletedAt: null,
+      status: true,
     })
 
     for (let user of users) {
@@ -134,6 +135,7 @@ async function reminder(bot: Bot<BotContext>) {
         regionId: region.regionId,
         notification: true,
         deletedAt: null,
+        status: true,
         $or: [{ 'notificationSetting.fajr': true }, { fasting: true }],
       })
 
@@ -160,6 +162,7 @@ async function reminder(bot: Bot<BotContext>) {
         'regionId': region.regionId,
         'notification': true,
         'deletedAt': null,
+        'status': true,
         'notificationSetting.sunrise': true,
       })
 
@@ -179,6 +182,7 @@ async function reminder(bot: Bot<BotContext>) {
         'regionId': region.regionId,
         'notification': true,
         'deletedAt': null,
+        'status': true,
         'notificationSetting.dhuhr': true,
       })
       for (const user of users) {
@@ -197,6 +201,7 @@ async function reminder(bot: Bot<BotContext>) {
         'regionId': region.regionId,
         'notification': true,
         'deletedAt': null,
+        'status': true,
         'notificationSetting.asr': true,
       })
 
@@ -216,6 +221,7 @@ async function reminder(bot: Bot<BotContext>) {
         regionId: region.regionId,
         notification: true,
         deletedAt: null,
+        status: true,
         $or: [{ 'notificationSetting.maghrib': true }, { fasting: true }],
       })
 
@@ -242,6 +248,7 @@ async function reminder(bot: Bot<BotContext>) {
         'regionId': region.regionId,
         'notification': true,
         'deletedAt': null,
+        'status': true,
         'notificationSetting.isha': true,
       })
 
@@ -259,7 +266,10 @@ async function reminder(bot: Bot<BotContext>) {
 }
 
 async function weekly(bot: Bot<BotContext>) {
-  const users = await Model.User.find<IUser>({ deletedAt: null })
+  const users = await Model.User.find<IUser>({
+    status: true,
+    deletedAt: null,
+  })
 
   for (const user of users) {
     try {

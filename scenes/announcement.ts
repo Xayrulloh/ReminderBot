@@ -3,6 +3,7 @@ import Model from '#config/database'
 import { BotContext } from '#types/context'
 import { IUser } from '#types/database'
 import { handleSendMessageError } from '#helper/errorHandler'
+import { FilterQuery } from 'mongoose'
 
 const scene = new Scene<BotContext>('Announcement')
 
@@ -22,8 +23,9 @@ scene.wait('whom').on('message:text', async (ctx) => {
 })
 
 scene.wait('message').on('message:text', async (ctx) => {
-  const whereQuery: { deletedAt: null; userId?: number } = {
+  const whereQuery: FilterQuery<IUser> = {
     deletedAt: null,
+    status: true,
   }
 
   !isNaN(+ctx.session.whom) ? (whereQuery.userId = ctx.session.whom) : false
