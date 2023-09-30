@@ -36,7 +36,7 @@ scene.wait('message').on('message:text', async (ctx) => {
     } catch (error) {
       if (error.description === 'Forbidden: bot was blocked by the user') {
       } else if (error.description == 'Forbidden: user is deactivated') {
-        await Model.User.findOneAndUpdate({ userId: user.userId, deletedAt: null }, { deletedAt: new Date() })
+        Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
       } else console.error('Error:', error)
     }
   }
