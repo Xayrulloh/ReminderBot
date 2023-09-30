@@ -11,9 +11,18 @@ import { env } from '#utils/env'
 import { Color } from '#utils/enums'
 import { errorHandler } from '#helper/errorHandler'
 import { HttpStatusCode } from 'axios'
+import { autoRetry } from '@grammyjs/auto-retry'
 import Model from '#config/database'
 
 const bot = new Bot<BotContext>(env.TOKEN)
+
+// plugins
+bot.api.config.use(
+  autoRetry({
+    maxDelaySeconds: 1,
+    maxRetryAttempts: 3,
+  }),
+)
 
 // middleware
 bot.use(
