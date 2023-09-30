@@ -12,6 +12,7 @@ import { Color } from '#utils/enums'
 import { errorHandler } from '#helper/errorHandler'
 import { HttpStatusCode } from 'axios'
 import { autoRetry } from '@grammyjs/auto-retry'
+import Model from '#config/database'
 
 const bot = new Bot<BotContext>(env.TOKEN)
 
@@ -47,19 +48,6 @@ bot.command('fasting', async (ctx) => {
   await ctx.scenes.enter('Fasting')
 })
 
-bot.command('start', async (ctx) => {
-  const welcomeText = HLanguage(ctx.user.language, 'welcome')
-  const keyboardText = HLanguage(ctx.user.language, 'mainKeyboard')
-  const buttons = customKFunction(2, ...keyboardText)
-
-  await ctx.reply(welcomeText, {
-    reply_markup: {
-      keyboard: buttons.build(),
-      resize_keyboard: true,
-    },
-  })
-})
-
 bot.command('location', async (ctx) => {
   await ctx.scenes.enter('Location')
 })
@@ -72,12 +60,29 @@ bot.command('statistic', async (ctx) => {
   await ctx.scenes.enter('Statistic')
 })
 
-bot.command('advertise', async (ctx) => {
-  await ctx.scenes.enter('Advertise')
+bot.command('announcement', async (ctx) => {
+  await ctx.scenes.enter('Announcement')
 })
 
 bot.command('hadith', async (ctx) => {
   await ctx.scenes.enter('Hadith')
+})
+
+bot.command('start', async (ctx) => {
+  const welcomeText = HLanguage(ctx.user.language, 'welcome')
+  const keyboardText = HLanguage(ctx.user.language, 'mainKeyboard')
+  const buttons = customKFunction(2, ...keyboardText)
+
+  if (!ctx.user.status) {
+    await Model.User.updateOne({ userId: ctx.user.userId }, { status: true }, {})
+  }
+
+  await ctx.reply(welcomeText, {
+    reply_markup: {
+      keyboard: buttons.build(),
+      resize_keyboard: true,
+    },
+  })
 })
 
 bot.on('message:text', async (ctx) => {

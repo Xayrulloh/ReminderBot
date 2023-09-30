@@ -24,7 +24,7 @@ scene.step(async (ctx) => {
     shareMessage += `.\n\n Blocked users:  ${blockedUsers}\n Pure users:   ${users.length - blockedUsers}`
   }
 
-  ctx.reply(countMessage + users.length + '.\n\n' + shareMessage, { reply_markup: keyboard })
+  await ctx.reply(countMessage + users.length + '.\n\n' + shareMessage, { reply_markup: keyboard })
   ctx.scene.exit()
 })
 

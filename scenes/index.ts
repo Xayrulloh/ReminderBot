@@ -5,7 +5,7 @@ import search from './search'
 import notification from './notification'
 import fasting from './fasting'
 import statistic from './statistic'
-import advertise from './advertise'
+import announcement from './announcement'
 import language from './language'
 import donate from './donate'
 import hadith from './hadith'
@@ -15,7 +15,7 @@ export const scenes = new ScenesComposer<BotContext>(
   language,
   notification,
   search,
-  advertise,
+  announcement,
   statistic,
   location,
   fasting,
