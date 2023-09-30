@@ -4,18 +4,31 @@ import { BotContext } from '#types/context'
 import { IUser } from '#types/database'
 import { env } from '#utils/env'
 
-const scene = new Scene<BotContext>('Advertise')
+const scene = new Scene<BotContext>('Announcement')
 
 scene.step(async (ctx) => {
   if (1151533771 === ctx.from?.id) {
-    await ctx.reply('Give me a message to send every user')
+    await ctx.reply('To whom')
   } else {
     ctx.scene.exit()
   }
 })
 
-scene.wait('hadith').on('message:text', async (ctx) => {
-  const users = await Model.User.find<IUser>({ deletedAt: null })
+scene.wait('whom').on('message:text', async (ctx) => {
+  ctx.session.whom = ctx.update.message?.text
+
+  await ctx.reply('Give me a message to send')
+  ctx.scene.resume()
+})
+
+scene.wait('message').on('message:text', async (ctx) => {
+  const whereQuery: { deletedAt: null; userId?: number } = {
+    deletedAt: null,
+  }
+
+  !isNaN(+ctx.session.whom) ? (whereQuery.userId = ctx.session.whom) : false
+
+  const users = await Model.User.find<IUser>(whereQuery)
 
   for (const user of users) {
     try {
@@ -23,11 +36,9 @@ scene.wait('hadith').on('message:text', async (ctx) => {
     } catch (error) {
       if (error.description === 'Forbidden: bot was blocked by the user') {
       } else if (error.description == 'Forbidden: user is deactivated') {
-        await Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
+        await Model.User.findOneAndUpdate({ userId: user.userId, deletedAt: null }, { deletedAt: new Date() })
       } else console.error('Error:', error)
     }
-
-    await new Promise((resolve) => setTimeout(resolve, 1000 / env.LIMIT))
   }
 
   ctx.scene.exit()
