@@ -1,6 +1,8 @@
-import { BotError } from 'grammy'
+import { BotError, GrammyError } from 'grammy'
 import { bold, EmbedBuilder, inlineCode, WebhookClient } from 'discord.js'
 import { env } from '#utils/env'
+import Model from '#config/database'
+import { IUser } from '#types/database'
 
 export async function errorHandler(err: BotError) {
   let embed = new EmbedBuilder()
@@ -26,4 +28,20 @@ export async function errorHandler(err: BotError) {
     threadId: env.DISCORD_THREAD_ID,
     embeds: [embed],
   })
+}
+
+export async function handleSendMessageError(error: GrammyError, user: IUser) {
+  switch (error.description) {
+    case 'Forbidden: bot was blocked by the user': {
+      await Model.User.updateOne({ userId: user.userId }, { status: false })
+      break
+    }
+    case 'Forbidden: user is deactivated': {
+      await Model.User.updateOne({ userId: user.userId }, { deletedAt: new Date() })
+      break
+    }
+    default: {
+      console.error(error)
+    }
+  }
 }

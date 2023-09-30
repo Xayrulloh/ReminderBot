@@ -72,7 +72,7 @@ scene.wait('notification_settings').on('callback_query:data', async (ctx) => {
       notificationSetting: ctx.session.notificationSetting,
     },
   )
-  ctx.editMessageText(ctx.session.successMessage)
+  await ctx.editMessageText(ctx.session.successMessage)
   return ctx.scene.exit()
 })
 

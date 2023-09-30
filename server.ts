@@ -1,10 +1,9 @@
 import { Bot, BotError, MemorySessionStorage, session, webhookCallback } from 'grammy'
 import { scenes } from './scenes'
 import HLanguage from '#helper/language'
-import cron from 'node-cron'
-import { daily, monthly, reminder, weekly } from './cron/cron'
+import { cronStarter } from './cron/cron'
 import customKFunction from './keyboard/custom'
-import express from 'express'
+import Fastify from 'fastify'
 import { authMiddleware } from '#middlewares/auth'
 import { keyboardMapper } from '#helper/keyboardMapper'
 import { BotContext } from '#types/context'
@@ -12,34 +11,17 @@ import { env } from '#utils/env'
 import { Color } from '#utils/enums'
 import { errorHandler } from '#helper/errorHandler'
 import { HttpStatusCode } from 'axios'
+import { autoRetry } from '@grammyjs/auto-retry'
+import Model from '#config/database'
 
 const bot = new Bot<BotContext>(env.TOKEN)
 
-// crones
-const scheduleOptions = {
-  timezone: 'Asia/Tashkent',
-}
-const monthlyCron = cron.schedule(
-  '30 0 1 * *',
-  async () => {
-    await monthly()
-  },
-  scheduleOptions,
-)
-const dailyCron = cron.schedule(
-  '0 1 * * *',
-  async () => {
-    await daily(bot)
-    await reminder(bot)
-  },
-  scheduleOptions,
-)
-const weeklyCron = cron.schedule(
-  '0 13 * * 1',
-  async () => {
-    await weekly(bot)
-  },
-  scheduleOptions,
+// plugins
+bot.api.config.use(
+  autoRetry({
+    maxDelaySeconds: 1,
+    maxRetryAttempts: 3,
+  }),
 )
 
 // middleware
@@ -66,19 +48,6 @@ bot.command('fasting', async (ctx) => {
   await ctx.scenes.enter('Fasting')
 })
 
-bot.command('start', async (ctx) => {
-  const welcomeText = HLanguage(ctx.user.language, 'welcome')
-  const keyboardText = HLanguage(ctx.user.language, 'mainKeyboard')
-  const buttons = customKFunction(2, ...keyboardText)
-
-  await ctx.reply(welcomeText, {
-    reply_markup: {
-      keyboard: buttons.build(),
-      resize_keyboard: true,
-    },
-  })
-})
-
 bot.command('location', async (ctx) => {
   await ctx.scenes.enter('Location')
 })
@@ -91,12 +60,29 @@ bot.command('statistic', async (ctx) => {
   await ctx.scenes.enter('Statistic')
 })
 
-bot.command('advertise', async (ctx) => {
-  await ctx.scenes.enter('Advertise')
+bot.command('announcement', async (ctx) => {
+  await ctx.scenes.enter('Announcement')
 })
 
 bot.command('hadith', async (ctx) => {
   await ctx.scenes.enter('Hadith')
+})
+
+bot.command('start', async (ctx) => {
+  const welcomeText = HLanguage(ctx.user.language, 'welcome')
+  const keyboardText = HLanguage(ctx.user.language, 'mainKeyboard')
+  const buttons = customKFunction(2, ...keyboardText)
+
+  if (!ctx.user.status) {
+    await Model.User.updateOne({ userId: ctx.user.userId }, { status: true }, {})
+  }
+
+  await ctx.reply(welcomeText, {
+    reply_markup: {
+      keyboard: buttons.build(),
+      resize_keyboard: true,
+    },
+  })
 })
 
 bot.on('message:text', async (ctx) => {
@@ -110,31 +96,23 @@ bot.on('message:text', async (ctx) => {
 // error handling
 bot.catch(errorHandler)
 
-monthlyCron.start()
-dailyCron.start()
-weeklyCron.start()
-
-reminder(bot)
+void cronStarter(bot)
 
 // webhook
 if (env.WEBHOOK_ENABLED) {
-  const server = express()
+  const server = Fastify()
 
-  server.use(express.json())
-  server.use(`/${env.TOKEN}`, async (req, res, next) => {
-    try {
-      await webhookCallback(bot, 'express')(req, res, next)
-    } catch (e) {
-      if (e instanceof BotError) {
-        await errorHandler(e)
-      } else {
-        console.error(e)
-      }
-
-      res.status(HttpStatusCode.Ok).json({ success: false })
+  server.post(`/${env.TOKEN}`, webhookCallback(bot, 'fastify'))
+  server.setErrorHandler(async (e, _request, reply) => {
+    if (e instanceof BotError) {
+      await errorHandler(e)
+    } else {
+      console.error(e)
     }
+
+    reply.status(HttpStatusCode.Ok).send({ success: false })
   })
-  server.listen(env.WEBHOOK_PORT, async () => {
+  server.listen({ port: env.WEBHOOK_PORT }, async () => {
     await bot.api.setWebhook(env.WEBHOOK_URL + env.TOKEN)
   })
 } else {

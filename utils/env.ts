@@ -20,7 +20,6 @@ export const schema = z.object({
   WEBHOOK_URL: z.string().url().optional(),
   WEBHOOK_ENABLED: z.enum(['true', 'false']).transform((v) => JSON.parse(v)),
   WEBHOOK_PORT: z.number({ coerce: true }),
-  LIMIT: z.number({ coerce: true }),
 })
 
 type Env = z.infer<typeof schema>

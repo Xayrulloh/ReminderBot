@@ -9,7 +9,7 @@ const scene = new Scene<BotContext>('Hadith')
 
 scene.step(async (ctx) => {
   if (1151533771 === ctx.from?.id) {
-    ctx.reply('Give me the hadith')
+    await ctx.reply('Give me the hadith')
   } else {
     ctx.scene.exit()
   }
