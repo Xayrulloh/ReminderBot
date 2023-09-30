@@ -2,7 +2,7 @@ import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
 import { BotContext } from '#types/context'
 import { IUser } from '#types/database'
-import { env } from '#utils/env'
+import { handleSendMessageError } from '#helper/errorHandler'
 
 const scene = new Scene<BotContext>('Announcement')
 
@@ -34,10 +34,7 @@ scene.wait('message').on('message:text', async (ctx) => {
     try {
       await ctx.api.sendMessage(user.userId, ctx.message.text)
     } catch (error) {
-      if (error.description === 'Forbidden: bot was blocked by the user') {
-      } else if (error.description == 'Forbidden: user is deactivated') {
-        Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
-      } else console.error('Error:', error)
+      await handleSendMessageError(error, user)
     }
   }
 

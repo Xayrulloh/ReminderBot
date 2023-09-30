@@ -5,13 +5,14 @@ import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
 import schedule from 'node-schedule'
 import customKFunction from '#keyboard/custom'
-import { Bot, GrammyError, InlineKeyboard, InputFile } from 'grammy'
+import { Bot, InlineKeyboard } from 'grammy'
 import { BotContext } from '#types/context'
 import { memoryStorage } from '#config/storage'
 import { DAILY_HADITH_KEY } from '#utils/constants'
 import { IHadith, IPrayTime, IUser } from '#types/database'
 import { env } from '#utils/env'
 import cron from 'node-cron'
+import { handleSendMessageError } from '#helper/errorHandler'
 
 async function monthly() {
   const now = new Date()
@@ -58,13 +59,14 @@ async function monthly() {
 async function daily(bot: Bot<BotContext>) {
   // taking data
   const now = new Date()
-  const currentDay = now.getDate()
-  const regions = await Model.PrayTime.find<IPrayTime>({ day: currentDay })
+  const monthDay = now.getDate()
+  const weekDay = now.getDay()
+  const regions = await Model.PrayTime.find<IPrayTime>({ day: monthDay })
 
   // taking hadith
   let hadith: IHadith[]
-  const file = new InputFile('./public/JumaMuborak.jpg')
-  if (now.getDay() == 5) {
+  // const file = new InputFile('./public/JumaMuborak.jpg')
+  if (weekDay == 5) {
     hadith = await Model.Hadith.find<IHadith>({ category: 'juma' })
   } else {
     hadith = await Model.Hadith.find<IHadith>({ category: { $ne: 'juma' } })
@@ -76,7 +78,10 @@ async function daily(bot: Bot<BotContext>) {
 
   // sending
   for (let region of regions) {
-    const users = await Model.User.find<IUser>({ regionId: region.regionId, deletedAt: null })
+    const users = await Model.User.find<IUser>({
+      regionId: region.regionId,
+      deletedAt: null,
+    })
 
     for (let user of users) {
       const info = HLanguage(user.language, 'infoPrayTime')
@@ -89,47 +94,21 @@ async function daily(bot: Bot<BotContext>) {
       const keyboardText = HLanguage(user.language, 'mainKeyboard')
       const buttons = customKFunction(2, ...keyboardText)
 
-      // if (now.getDay() == 5) {
+      // if (weekDay == 5) {
       //   await bot.api
       //     .sendPhoto(user.userId, file, {
       //       caption: message + (randomHadith ? `\n\n${randomHadith.content}` : ''),
       //       reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
       //     })
-      //     .then(() => {
-      //       user.status = true
-      //     })
-      //     .catch(async (error) => {
-      //       if (error.description == 'Forbidden: bot was blocked by the user') {
-      //         user.status = false
-      //       } else if (error.description == 'Forbidden: user is deactivated') {
-      //         Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
-      //       } else console.error('Error:', error)
-      //     })
-      //     .finally(() => {
-      //       user.save()
-      //     })
       // } else {
-      await bot.api
-        .sendMessage(user.userId, message + (randomHadith ? `\n\n${randomHadith.content}` : ''), {
+      try {
+        await bot.api.sendMessage(user.userId, message + (randomHadith ? `\n\n${randomHadith.content}` : ''), {
           reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
         })
-        .then(() => {
-          user.status = true
-        })
-        .catch(async (error) => {
-          if (error.description == 'Forbidden: bot was blocked by the user') {
-            user.status = false
-          } else if (error.description == 'Forbidden: user is deactivated') {
-            Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
-          } else console.error('Error:', error)
-        })
-        .finally(() => {
-          user.save()
-        })
+      } catch (error) {
+        await handleSendMessageError(error, user)
+      }
     }
-
-    // await new Promise((resolve) => setTimeout(resolve, 1000 / env.LIMIT))
-    // }
   }
 }
 
@@ -158,23 +137,22 @@ async function reminder(bot: Bot<BotContext>) {
         $or: [{ 'notificationSetting.fajr': true }, { fasting: true }],
       })
 
-      users.forEach(async (user) => {
-        let message
+      for (const user of users) {
+        try {
+          let message: string
 
-        if (user.fasting) {
-          message = HLanguage(user.language, 'closeFast')
-          message += `\n\nنَوَيْتُ أَنْ أَصُومَ صَوْمَ شَهْرَ رَمَضَانَ مِنَ الْفَجْرِ إِلَى الْمَغْرِبِ، خَالِصًا لِلهِ تَعَالَى أَللهُ أَكْبَرُ\n\nНавайту ан асувма совма шаҳри рамазона минал фажри илал мағриби, холисан лиллаҳи таъаалаа Аллоҳу акбар`
-        } else {
-          message = HLanguage(user.language, 'fajrTime')
+          if (user.fasting) {
+            message = HLanguage(user.language, 'closeFast')
+            message += `\n\nنَوَيْتُ أَنْ أَصُومَ صَوْمَ شَهْرَ رَمَضَانَ مِنَ الْفَجْرِ إِلَى الْمَغْرِبِ، خَالِصًا لِلهِ تَعَالَى أَللهُ أَكْبَرُ\n\nНавайту ан асувма совма шаҳри рамазона минал фажри илал мағриби, холисан лиллаҳи таъаалаа Аллоҳу акбар`
+          } else {
+            message = HLanguage(user.language, 'fajrTime')
+          }
+
+          await bot.api.sendMessage(user.userId, message)
+        } catch (error: any) {
+          await handleSendMessageError(error, user)
         }
-
-        await bot.api.sendMessage(user.userId, message).catch(async (error) => {
-          if (error.description == 'Forbidden: bot was blocked by the user') {
-          } else if (error.description == 'Forbidden: user is deactivated') {
-            Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
-          } else console.error('Error:', error)
-        })
-      })
+      }
     })
 
     schedule.scheduleJob({ hour: sunrise[0], minute: sunrise[1], tz: 'Asia/Tashkent' }, async () => {
@@ -185,16 +163,15 @@ async function reminder(bot: Bot<BotContext>) {
         'notificationSetting.sunrise': true,
       })
 
-      users.forEach(async (user) => {
-        const sunriseTime = HLanguage(user.language, 'sunriseTime')
+      for (const user of users) {
+        try {
+          const sunriseTime = HLanguage(user.language, 'sunriseTime')
 
-        await bot.api.sendMessage(user.userId, sunriseTime).catch(async (error) => {
-          if (error.description == 'Forbidden: bot was blocked by the user') {
-          } else if (error.description == 'Forbidden: user is deactivated') {
-            Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
-          } else console.error('Error:', error)
-        })
-      })
+          await bot.api.sendMessage(user.userId, sunriseTime)
+        } catch (error: any) {
+          await handleSendMessageError(error, user)
+        }
+      }
     })
 
     schedule.scheduleJob({ hour: dhuhr[0], minute: dhuhr[1], tz: 'Asia/Tashkent' }, async () => {
@@ -204,16 +181,15 @@ async function reminder(bot: Bot<BotContext>) {
         'deletedAt': null,
         'notificationSetting.dhuhr': true,
       })
-      users.forEach(async (user) => {
-        const dhuhrTime = HLanguage(user.language, 'dhuhrTime')
+      for (const user of users) {
+        try {
+          const dhuhrTime = HLanguage(user.language, 'dhuhrTime')
 
-        await bot.api.sendMessage(user.userId, dhuhrTime).catch(async (error) => {
-          if (error.description == 'Forbidden: bot was blocked by the user') {
-          } else if (error.description == 'Forbidden: user is deactivated') {
-            Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
-          } else console.error('Error:', error)
-        })
-      })
+          await bot.api.sendMessage(user.userId, dhuhrTime)
+        } catch (error) {
+          await handleSendMessageError(error, user)
+        }
+      }
     })
 
     schedule.scheduleJob({ hour: asr[0], minute: asr[1], tz: 'Asia/Tashkent' }, async () => {
@@ -224,16 +200,15 @@ async function reminder(bot: Bot<BotContext>) {
         'notificationSetting.asr': true,
       })
 
-      users.forEach(async (user) => {
-        const asrTime = HLanguage(user.language, 'asrTime')
+      for (const user of users) {
+        try {
+          const asrTime = HLanguage(user.language, 'asrTime')
 
-        await bot.api.sendMessage(user.userId, asrTime).catch(async (error) => {
-          if (error.description == 'Forbidden: bot was blocked by the user') {
-          } else if (error.description == 'Forbidden: user is deactivated') {
-            Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
-          } else console.error('Error:', error)
-        })
-      })
+          await bot.api.sendMessage(user.userId, asrTime)
+        } catch (error) {
+          await handleSendMessageError(error, user)
+        }
+      }
     })
 
     schedule.scheduleJob({ hour: maghrib[0], minute: maghrib[1], tz: 'Asia/Tashkent' }, async () => {
@@ -244,23 +219,22 @@ async function reminder(bot: Bot<BotContext>) {
         $or: [{ 'notificationSetting.maghrib': true }, { fasting: true }],
       })
 
-      users.forEach(async (user) => {
-        let message
+      for (const user of users) {
+        try {
+          let message
 
-        if (user.fasting) {
-          message = HLanguage(user.language, 'breakFast')
-          message += `\n\nاَللَّهُمَّ لَكَ صُمْتُ وَ بِكَ آمَنْتُ وَ عَلَيْكَ تَوَكَّلْتُ وَ عَلَى رِزْقِكَ أَفْتَرْتُ، فَغْفِرْلِى مَا قَدَّمْتُ وَ مَا أَخَّرْتُ بِرَحْمَتِكَ يَا أَرْحَمَ الرَّاحِمِينَ\n\nАллоҳумма лака сумту ва бика ааманту ва аълайка таваккалту ва аълаа ризқика афтарту, фағфирлий ма қоддамту ва маа аххорту бироҳматика йаа арҳамар рооҳимийн`
-        } else {
-          message = HLanguage(user.language, 'maghribTime')
+          if (user.fasting) {
+            message = HLanguage(user.language, 'breakFast')
+            message += `\n\nاَللَّهُمَّ لَكَ صُمْتُ وَ بِكَ آمَنْتُ وَ عَلَيْكَ تَوَكَّلْتُ وَ عَلَى رِزْقِكَ أَفْتَرْتُ، فَغْفِرْلِى مَا قَدَّمْتُ وَ مَا أَخَّرْتُ بِرَحْمَتِكَ يَا أَرْحَمَ الرَّاحِمِينَ\n\nАллоҳумма лака сумту ва бика ааманту ва аълайка таваккалту ва аълаа ризқика афтарту, фағфирлий ма қоддамту ва маа аххорту бироҳматика йаа арҳамар рооҳимийн`
+          } else {
+            message = HLanguage(user.language, 'maghribTime')
+          }
+
+          await bot.api.sendMessage(user.userId, message)
+        } catch (error) {
+          await handleSendMessageError(error, user)
         }
-
-        await bot.api.sendMessage(user.userId, message).catch(async (error) => {
-          if (error.description == 'Forbidden: bot was blocked by the user') {
-          } else if (error.description == 'Forbidden: user is deactivated') {
-            Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
-          } else console.error('Error:', error)
-        })
-      })
+      }
     })
 
     schedule.scheduleJob({ hour: isha[0], minute: isha[1], tz: 'Asia/Tashkent' }, async () => {
@@ -271,16 +245,15 @@ async function reminder(bot: Bot<BotContext>) {
         'notificationSetting.isha': true,
       })
 
-      users.forEach(async (user) => {
-        const ishaTime = HLanguage(user.language, 'ishaTime')
+      for (const user of users) {
+        try {
+          const ishaTime = HLanguage(user.language, 'ishaTime')
 
-        await bot.api.sendMessage(user.userId, ishaTime).catch(async (error: GrammyError) => {
-          if (error.description == 'Forbidden: bot was blocked by the user') {
-          } else if (error.description == 'Forbidden: user is deactivated') {
-            Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
-          } else console.error('Error:', error)
-        })
-      })
+          await bot.api.sendMessage(user.userId, ishaTime)
+        } catch (error) {
+          await handleSendMessageError(error, user)
+        }
+      }
     })
   }
 }
@@ -289,17 +262,16 @@ async function weekly(bot: Bot<BotContext>) {
   const users = await Model.User.find<IUser>({ deletedAt: null })
 
   for (const user of users) {
-    const message = HLanguage(user.language, 'shareBot')
-    const keyboard = new InlineKeyboard()
-    const enterMessage = HLanguage(user.language, 'enter')
-    keyboard.url(enterMessage, 'https://t.me/namoz5vbot')
+    try {
+      const message = HLanguage(user.language, 'shareBot')
+      const keyboard = new InlineKeyboard()
+      const enterMessage = HLanguage(user.language, 'enter')
+      keyboard.url(enterMessage, 'https://t.me/namoz5vbot')
 
-    await bot.api.sendMessage(user.userId, message, { reply_markup: keyboard }).catch(async (error) => {
-      if (error.description == 'Forbidden: bot was blocked by the user') {
-      } else if (error.description == 'Forbidden: user is deactivated') {
-        Model.User.findOneAndUpdate({ userId: user.userId }, { deletedAt: new Date() })
-      } else console.error('Error:', error)
-    })
+      await bot.api.sendMessage(user.userId, message, { reply_markup: keyboard })
+    } catch (error) {
+      await handleSendMessageError(error, user)
+    }
   }
 }
 

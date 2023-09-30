@@ -11,6 +11,7 @@ import { env } from '#utils/env'
 import { Color } from '#utils/enums'
 import { errorHandler } from '#helper/errorHandler'
 import { HttpStatusCode } from 'axios'
+import Model from '#config/database'
 
 const bot = new Bot<BotContext>(env.TOKEN)
 
@@ -62,6 +63,10 @@ bot.command('start', async (ctx) => {
   const welcomeText = HLanguage(ctx.user.language, 'welcome')
   const keyboardText = HLanguage(ctx.user.language, 'mainKeyboard')
   const buttons = customKFunction(2, ...keyboardText)
+
+  if (!ctx.user.status) {
+    await Model.User.updateOne({ userId: ctx.user.userId }, { status: true }, {})
+  }
 
   await ctx.reply(welcomeText, {
     reply_markup: {
