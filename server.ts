@@ -1,4 +1,4 @@
-import { Bot, BotError, MemorySessionStorage, session, webhookCallback } from 'grammy'
+import { Bot, MemorySessionStorage, session, webhookCallback } from 'grammy'
 import { scenes } from './scenes'
 import HLanguage from '#helper/language'
 import { cronStarter } from './cron/cron'
@@ -10,7 +10,6 @@ import { BotContext } from '#types/context'
 import { env } from '#utils/env'
 import { Color } from '#utils/enums'
 import { errorHandler } from '#helper/errorHandler'
-import { HttpStatusCode } from 'axios'
 import { autoRetry } from '@grammyjs/auto-retry'
 import Model from '#config/database'
 
@@ -103,15 +102,7 @@ if (env.WEBHOOK_ENABLED) {
   const server = Fastify()
 
   server.post(`/${env.TOKEN}`, webhookCallback(bot, 'fastify'))
-  server.setErrorHandler(async (e, _request, reply) => {
-    if (e instanceof BotError) {
-      await errorHandler(e)
-    } else {
-      console.error(e)
-    }
-
-    reply.status(HttpStatusCode.Ok).send({ success: false })
-  })
+  server.setErrorHandler(errorHandler)
   server.listen({ port: env.WEBHOOK_PORT }, async () => {
     await bot.api.setWebhook(env.WEBHOOK_URL + env.TOKEN)
   })
