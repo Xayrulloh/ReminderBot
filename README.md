@@ -80,8 +80,3 @@ This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.t
 **Note:** Always keep your API token and sensitive information secure. Do not share them in your public repositories or expose them to unauthorized users.
 
 Feel free to contribute, report issues, or suggest improvements by creating pull requests or opening issues.
-```
-
-Replace `Xayrulloh` in the `git clone` URL with your actual GitHub username or the repository URL where you plan to host the project.
-
-Make sure to create a `LICENSE.md` file with the MIT License text or include a link to the official MIT License page in your repository.
