@@ -1,24 +1,32 @@
 import { BotError, GrammyError } from 'grammy'
-import { bold, EmbedBuilder, inlineCode, WebhookClient } from 'discord.js'
+import { EmbedBuilder, WebhookClient } from 'discord.js'
 import { env } from '#utils/env'
 import Model from '#config/database'
 import { IUser } from '#types/database'
+import { format } from 'node:util'
+import { ErrorType } from '#types/error'
+import { ERROR_MESSAGE } from '#utils/constants'
 
 export async function errorHandler(err: BotError) {
-  let embed = new EmbedBuilder()
-    .setColor('Random')
-    .setTitle(err.name)
-    .setDescription(
-      `
-      ${bold('Stage:')} ${env.NODE_ENV}
-      ${bold('Id:')} ${inlineCode(String(err.ctx.from?.id))}
-      ${bold('FirstName:')} ${err.ctx.from?.first_name}
-      ${bold('LastName:')} ${err.ctx.from?.last_name}
-      ${bold('Username:')} @${err.ctx.from?.username}
-      ${bold('Message:')} ${err.message}
-    `,
-    )
-    .setTimestamp(new Date())
+  const error: ErrorType = {
+    name: err.name,
+    stage: env.NODE_ENV,
+    message: err.message,
+    id: err.ctx?.from?.id,
+    firstName: err.ctx?.from?.first_name,
+    lastName: err.ctx?.from?.last_name,
+    username: err.ctx?.from?.username,
+  }
+
+  let description = Object.entries(error).reduce((desc, [key, value]) => {
+    if (value) {
+      desc += format(ERROR_MESSAGE[key as keyof ErrorType], value)
+    }
+
+    return desc
+  }, '')
+
+  let embed = new EmbedBuilder().setColor('Red').setTitle(err.name).setDescription(description).setTimestamp(new Date())
 
   const discordClient = new WebhookClient({
     url: env.DISCORD_WEBHOOK_URL,
@@ -28,6 +36,9 @@ export async function errorHandler(err: BotError) {
     threadId: env.DISCORD_THREAD_ID,
     embeds: [embed],
   })
+
+  // Check it out for more information
+  console.error(err)
 }
 
 export async function handleSendMessageError(error: GrammyError, user: IUser) {
