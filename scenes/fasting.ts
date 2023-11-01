@@ -30,7 +30,7 @@ scene.wait('fasting').on('callback_query:data', async (ctx) => {
     const fasting = ctx.session.keyboardMessage[0] === ctx.update.callback_query.data
 
     await Model.User.updateOne<IUser>({ userId: ctx.user.userId }, { fasting })
-    
+
     const message = HLanguage('notifChange')
 
     await ctx.editMessageText(message)

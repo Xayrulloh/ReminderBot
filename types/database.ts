@@ -1,4 +1,4 @@
-import {Document} from 'mongoose'
+import { Document } from 'mongoose'
 
 export interface IUser extends Document {
   userId: number
@@ -9,7 +9,6 @@ export interface IUser extends Document {
   region: string
   regionId: number
   donate: number
-  language: string
   status: boolean
   notificationSetting: {
     fajr: boolean

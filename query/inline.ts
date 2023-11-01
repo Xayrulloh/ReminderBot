@@ -12,7 +12,7 @@ import { IPrayTime } from '#types/database'
 
 export async function inlineQuery(ctx: BotContext) {
   const inlineQueryMessage = ctx.inlineQuery?.query
-    const tryAgain: string = HLanguage('tryAgain')
+  const tryAgain: string = HLanguage('tryAgain')
   const inputMessageContent: InputMessageContent = {
     parse_mode: 'HTML',
     message_text: '',
@@ -27,22 +27,22 @@ export async function inlineQuery(ctx: BotContext) {
 
   // if not inline query
   if (!inlineQueryMessage) {
-      responseObj.title = HLanguage('startSearch')
-      responseObj.description = HLanguage('searchPlace')
-      inputMessageContent.message_text = HLanguage('hintMessage')
+    responseObj.title = HLanguage('startSearch')
+    responseObj.description = HLanguage('searchPlace')
+    inputMessageContent.message_text = HLanguage('hintMessage')
 
     return await ctx.answerInlineQuery([responseObj])
   }
 
   // if exist inline query
-    const allRegions = {...HLanguage('region'), ...HLanguage('region'), ...HLanguage('region')}
+  const allRegions = HLanguage('region')
   const search = fuzzy.filter(inlineQueryMessage, Object.keys(allRegions))
 
   // but not result
   if (!search.length) {
-      responseObj.title = HLanguage('notFound')
-      let description: string = HLanguage('notFoundDescription')
-      let message_text: string = HLanguage('notFoundContent')
+    responseObj.title = HLanguage('notFound')
+    let description: string = HLanguage('notFoundDescription')
+    let message_text: string = HLanguage('notFoundContent')
 
     responseObj.description = HReplace(description, ['$inlineQueryText'], [inlineQueryMessage])
     inputMessageContent.message_text = HReplace(message_text, ['$inlineQueryText'], [inlineQueryMessage])
@@ -63,9 +63,9 @@ export async function inlineQuery(ctx: BotContext) {
 
   const now = new Date()
   const currentDay = now.getDate()
-    const regionTranslations: Record<string, number> = HLanguage('region')
+  const regionTranslations: Record<string, number> = HLanguage('region')
   const regions = await Model.PrayTime.find<IPrayTime>({ day: currentDay, regionId: regionIds })
-    const message = HLanguage('infoPrayTime')
+  const message = HLanguage('infoPrayTime')
   const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
   const response: InlineQueryResult[] = []
 

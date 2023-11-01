@@ -91,14 +91,18 @@ async function daily(bot: Bot<BotContext>) {
         ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha'],
         [region.region, region.fajr, region.sunrise, region.dhuhr, region.asr, region.maghrib, region.isha],
       )
-      
+
       const keyboardText = HLanguage('mainKeyboard')
       const buttons = customKFunction(2, ...keyboardText)
 
       try {
-        await bot.api.sendMessage(user.userId, message + (randomHadith ? `\n\nHar kunlik hadis:\n${randomHadith.content}` : ''), {
-          reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
-        })
+        await bot.api.sendMessage(
+          user.userId,
+          message + (randomHadith ? `\n\nKunlik hadis:\n${randomHadith.content}` : ''),
+          {
+            reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
+          },
+        )
       } catch (error) {
         await handleSendMessageError(error, user)
       }

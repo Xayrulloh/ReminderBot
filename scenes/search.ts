@@ -36,7 +36,7 @@ scene.wait('region').on('callback_query:data', async (ctx) => {
 
     const now = new Date()
     const today = now.getDate()
-    
+
     const message = HLanguage('infoPrayTime')
     const data = await Model.PrayTime.findOne<IPrayTime>({ day: today, regionId: ctx.update.callback_query.data })
 

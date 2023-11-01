@@ -13,8 +13,8 @@ const scene = new Scene<BotContext>('Start')
 
 // region
 scene.step(async (ctx) => {
-    const message = HLanguage('chooseRegion')
-    const keyboardMessage = HLanguage('region')
+  const message = HLanguage('chooseRegion')
+  const keyboardMessage = HLanguage('region')
   const keyboard = []
 
   for (let region in keyboardMessage) {
@@ -35,15 +35,15 @@ scene.step(async (ctx) => {
 // notification
 scene.wait('notification').on('callback_query:data', async (ctx) => {
   if (!ctx.session.regionId.includes(+ctx.update.callback_query.data)) {
-      return ctx.answerCallbackQuery(HLanguage('wrongSelection'))
+    return ctx.answerCallbackQuery(HLanguage('wrongSelection'))
   }
 
   await ctx.answerCallbackQuery()
 
   ctx.session.regionId = +ctx.update.callback_query.data
-    
-    const message = HLanguage('notificationMessage')
-    const keyboardMessage = HLanguage('agreementNotification')
+
+  const message = HLanguage('notificationMessage')
+  const keyboardMessage = HLanguage('agreementNotification')
   const buttons = inlineKFunction(
     Infinity,
     { view: keyboardMessage[0], text: keyboardMessage[0] },
@@ -61,13 +61,13 @@ scene.wait('notification').on('callback_query:data', async (ctx) => {
 // fasting
 scene.wait('fasting').on('callback_query:data', async (ctx) => {
   if (!ctx.session.keyboardMessage.includes(ctx.update.callback_query.data)) {
-      return ctx.answerCallbackQuery(HLanguage('wrongSelection'))
+    return ctx.answerCallbackQuery(HLanguage('wrongSelection'))
   }
 
   await ctx.answerCallbackQuery()
-    
-    const message = HLanguage('fastingMessage')
-    const keyboardMessage = HLanguage('agreementFasting')
+
+  const message = HLanguage('fastingMessage')
+  const keyboardMessage = HLanguage('agreementFasting')
   const buttons = inlineKFunction(
     Infinity,
     { view: keyboardMessage[0], text: keyboardMessage[0] },
@@ -86,7 +86,7 @@ scene.wait('fasting').on('callback_query:data', async (ctx) => {
 // the end
 scene.wait('the_end').on('callback_query:data', async (ctx) => {
   if (!ctx.session.keyboardMessage.includes(ctx.update.callback_query.data)) {
-      return ctx.answerCallbackQuery(HLanguage('wrongSelection'))
+    return ctx.answerCallbackQuery(HLanguage('wrongSelection'))
   }
 
   await ctx.answerCallbackQuery()
@@ -95,7 +95,7 @@ scene.wait('the_end').on('callback_query:data', async (ctx) => {
 
   const now = new Date()
   const today = now.getDate()
-    const message = HLanguage('infoPrayTime')
+  const message = HLanguage('infoPrayTime')
   const data = await Model.PrayTime.findOne<IPrayTime>({ day: today, regionId: ctx.session.regionId })
   let regionName = ''
 
@@ -109,9 +109,9 @@ scene.wait('the_end').on('callback_query:data', async (ctx) => {
   }
 
   await Model.User.create<IUser>({
-      userId: ctx.from.id,
-      userName: ctx.from.username || 'unknown',
-      name: ctx.from.first_name || 'name',
+    userId: ctx.from.id,
+    userName: ctx.from.username || 'unknown',
+    name: ctx.from.first_name || 'name',
     notification: ctx.session.notification,
     fasting,
     region: regionName,
@@ -125,13 +125,13 @@ scene.wait('the_end').on('callback_query:data', async (ctx) => {
     [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha],
   )
   const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
-    
-    const keyboardText = HLanguage('mainKeyboard')
+
+  const keyboardText = HLanguage('mainKeyboard')
   const buttons = customKFunction(2, ...keyboardText)
 
   await ctx.deleteMessage()
-    
-    // FIXME: Need refactor
+
+  // FIXME: Need refactor
   await ctx.reply(response + '\n\n' + dailyHadith, {
     reply_markup: {
       keyboard: buttons.build(),

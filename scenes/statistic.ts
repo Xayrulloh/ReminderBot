@@ -9,10 +9,10 @@ const scene = new Scene<BotContext>('Statistic')
 
 scene.step(async (ctx) => {
   const users = await Model.User.find<IUser>({ deletedAt: null })
-    const countMessage = HLanguage('usersCount')
-    let shareMessage = HLanguage('shareMessage')
+  const countMessage = HLanguage('usersCount')
+  let shareMessage = HLanguage('shareMessage')
   const keyboard = new InlineKeyboard()
-    const enterMessage = HLanguage('enter')
+  const enterMessage = HLanguage('enter')
   keyboard.url(enterMessage, 'https://t.me/namoz5vbot')
 
   if (1151533771 === ctx.user.userId) {
