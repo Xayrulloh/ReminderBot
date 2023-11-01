@@ -96,7 +96,7 @@ async function daily(bot: Bot<BotContext>) {
       const buttons = customKFunction(2, ...keyboardText)
 
       try {
-        await bot.api.sendMessage(user.userId, message + (randomHadith ? `\n\n${randomHadith.content}` : ''), {
+        await bot.api.sendMessage(user.userId, message + (randomHadith ? `\n\nHar kunlik hadis:\n${randomHadith.content}` : ''), {
           reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
         })
       } catch (error) {
