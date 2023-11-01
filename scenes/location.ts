@@ -11,8 +11,8 @@ import { IPrayTime, IUser } from '#types/database'
 let scene = new Scene<BotContext>('Location')
 
 scene.step(async (ctx) => {
-  const message = HLanguage(ctx.user.language, 'chooseRegion')
-  const keyboardMessage = HLanguage(ctx.user.language, 'region')
+    const message = HLanguage('chooseRegion')
+    const keyboardMessage = HLanguage('region')
   const keyboard = []
 
   for (let region in keyboardMessage) {
@@ -35,7 +35,7 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
 
     const now = new Date()
     const today = now.getDate()
-    const message = HLanguage(ctx.user.language, 'infoPrayTime')
+      const message = HLanguage('infoPrayTime')
     const data = await Model.PrayTime.findOne<IPrayTime>({ day: today, regionId: +ctx.update.callback_query.data })
     let regionName = ''
 
@@ -59,13 +59,13 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
       [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha],
     )
     const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
-
-    const locationMessage = HLanguage(ctx.user.language, 'locationChange')
+      
+      const locationMessage = HLanguage('locationChange')
 
     await ctx.editMessageText(locationMessage + '\n\n' + response + '\n\n' + dailyHadith)
     ctx.scene.exit()
   } else {
-    await ctx.answerCallbackQuery(HLanguage(ctx.user.language, 'wrongSelection'))
+      await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
   }
 })
 

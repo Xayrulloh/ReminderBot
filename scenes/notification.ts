@@ -10,8 +10,8 @@ import { IUser } from '#types/database'
 const scene = new Scene<BotContext>('Notification')
 
 scene.step(async (ctx) => {
-  const message = HLanguage(ctx.user.language, 'notificationMessage')
-  const keyboardMessage = HLanguage(ctx.user.language, 'agreementNotification')
+    const message = HLanguage('notificationMessage')
+    const keyboardMessage = HLanguage('agreementNotification')
   const buttons = inlineKFunction(
     Infinity,
     { view: keyboardMessage[0], text: keyboardMessage[0] },
@@ -25,10 +25,10 @@ scene.step(async (ctx) => {
 
 scene.wait('notification').on('callback_query:data', async (ctx) => {
   if (!ctx.session.keyboardMessage.includes(ctx.update.callback_query.data)) {
-    return ctx.answerCallbackQuery(HLanguage(ctx.user.language, 'wrongSelection'))
+      return ctx.answerCallbackQuery(HLanguage('wrongSelection'))
   }
   await ctx.answerCallbackQuery()
-  const successMessage = HLanguage(ctx.user.language, 'notifChange')
+    const successMessage = HLanguage('notifChange')
   const notification = ctx.session.keyboardMessage[0] === ctx.update.callback_query.data
 
   if (!notification) {
@@ -36,9 +36,9 @@ scene.wait('notification').on('callback_query:data', async (ctx) => {
     await ctx.editMessageText(successMessage)
     return ctx.scene.exit()
   }
-
-  const message = HLanguage(ctx.user.language, 'setPrayerTimes')
-  const setPrayerTimesMessage = HLanguage(ctx.user.language, 'setPrayerTimesKeyboard')
+    
+    const message = HLanguage('setPrayerTimes')
+    const setPrayerTimesMessage = HLanguage('setPrayerTimesKeyboard')
 
   ctx.session.notificationSetting = ctx.user.notificationSetting
   ctx.session.setPrayerTimesMessage = setPrayerTimesMessage
@@ -54,7 +54,7 @@ scene.wait('notification').on('callback_query:data', async (ctx) => {
 
 scene.wait('notification_settings').on('callback_query:data', async (ctx) => {
   if (!ctx.session.setPrayerTimesMessage[ctx.callbackQuery.data]) {
-    return ctx.answerCallbackQuery(HLanguage(ctx.user.language, 'wrongSelection'))
+      return ctx.answerCallbackQuery(HLanguage('wrongSelection'))
   }
 
   await ctx.answerCallbackQuery()

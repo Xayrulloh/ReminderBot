@@ -11,8 +11,9 @@ import { IPrayTime } from '#types/database'
 let scene = new Scene<BotContext>('Search')
 
 scene.step(async (ctx) => {
-  const message = HLanguage(ctx.user.language, 'searchRegion')
-  const keyboardMessage = HLanguage(ctx.user.language, 'region')
+  const message = HLanguage('searchRegion')
+  // FIXME: Refactor duplication on location.ts (15-29 lines)
+  const keyboardMessage = HLanguage('region')
   const keyboard = []
 
   for (let region in keyboardMessage) {
@@ -35,19 +36,11 @@ scene.wait('region').on('callback_query:data', async (ctx) => {
 
     const now = new Date()
     const today = now.getDate()
-
-    const message = HLanguage(ctx.user.language, 'infoPrayTime')
+    
+    const message = HLanguage('infoPrayTime')
     const data = await Model.PrayTime.findOne<IPrayTime>({ day: today, regionId: ctx.update.callback_query.data })
-    let regionName = ''
 
     if (!data) return ctx.scene.exit()
-
-    for (const key in ctx.session.regions) {
-      if (ctx.session.regions[key] === data.regionId) {
-        regionName = key
-        break
-      }
-    }
 
     let response = HReplace(
       message,
@@ -60,7 +53,7 @@ scene.wait('region').on('callback_query:data', async (ctx) => {
     await ctx.editMessageText(response + '\n\n' + dailyHadith)
     ctx.scene.exit()
   } else {
-    await ctx.answerCallbackQuery(HLanguage(ctx.user.language, 'wrongSelection'))
+    await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
   }
 })
 
