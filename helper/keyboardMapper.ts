@@ -1,16 +1,15 @@
 import HLanguage from '#helper/language'
 
-export const keyboardMapper = (language: string, text: any) => {
-  const keyboardText = HLanguage(language, 'mainKeyboard')
+export const keyboardMapper = (text: any) => {
+  const keyboardText = HLanguage('mainKeyboard')
 
   const options = {
     [keyboardText[0]]: 'Search',
-    [keyboardText[1]]: 'Language',
-    [keyboardText[2]]: 'Location',
-    [keyboardText[3]]: 'Fasting',
-    [keyboardText[4]]: 'Notification',
-    [keyboardText[5]]: 'Statistic',
-    // [keyboardText[6]]: "Donate"
+    [keyboardText[1]]: 'Location',
+    [keyboardText[2]]: 'Fasting',
+    [keyboardText[3]]: 'Notification',
+    [keyboardText[4]]: 'Statistic',
+    // [keyboardText[5]]: "Donate"
   }
 
   return options[text]

@@ -7,7 +7,7 @@ import { env } from '#utils/env'
 const scene = new Scene<BotContext>('Donate')
 
 scene.step(async (ctx) => {
-  const message = HLanguage(ctx.user.language, 'donateMessage')
+  const message = HLanguage('donateMessage')
 
   ctx.session.message = message
 
@@ -27,22 +27,22 @@ scene.wait('amount').on('message:text', async (ctx) => {
       ])
 
       if (!response.data?.success) {
-        const message = HLanguage(ctx.user.language, 'donateError')
+        const message = HLanguage('donateError')
         await ctx.reply(message)
         ctx.scene.exit()
         return
       }
 
       const endpoint = env.PAYME_ENDPOINT + response.data?.result?.chequeid
-      const message = HLanguage(ctx.user.language, 'donateUrl')
-      const messageThanks = HLanguage(ctx.user.language, 'donateThanks')
+      const message = HLanguage('donateUrl')
+      const messageThanks = HLanguage('donateThanks')
 
       ctx.user.donate += amount
       ctx.user.save()
 
       await ctx.reply(message + endpoint + '\n\n' + messageThanks)
     } catch (error) {
-      const message = HLanguage(ctx.user.language, 'donateError')
+      const message = HLanguage('donateError')
       await ctx.reply(message)
     }
 

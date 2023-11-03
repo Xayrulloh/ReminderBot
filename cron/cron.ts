@@ -17,7 +17,7 @@ import { handleSendMessageError } from '#helper/errorHandler'
 async function monthly() {
   const now = new Date()
   const currentMonth = now.getMonth() + 1
-  const keyboardMessage = HLanguage('en', 'region')
+  const keyboardMessage = HLanguage('region')
   const regions = Object.keys(keyboardMessage)
   const regionIds = Object.values(keyboardMessage)
   const daysOfWeek = ['Якшанба', 'Душанба', 'Сешанба', 'Чоршанба', 'Пайшанба', 'Жума', 'Шанба']
@@ -85,27 +85,24 @@ async function daily(bot: Bot<BotContext>) {
     })
 
     for (let user of users) {
-      const info = HLanguage(user.language, 'infoPrayTime')
+      const info = HLanguage('infoPrayTime')
       let message = HReplace(
         info,
         ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha'],
         [region.region, region.fajr, region.sunrise, region.dhuhr, region.asr, region.maghrib, region.isha],
       )
 
-      const keyboardText = HLanguage(user.language, 'mainKeyboard')
+      const keyboardText = HLanguage('mainKeyboard')
       const buttons = customKFunction(2, ...keyboardText)
 
-      // if (weekDay == 5) {
-      //   await bot.api
-      //     .sendPhoto(user.userId, file, {
-      //       caption: message + (randomHadith ? `\n\n${randomHadith.content}` : ''),
-      //       reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
-      //     })
-      // } else {
       try {
-        await bot.api.sendMessage(user.userId, message + (randomHadith ? `\n\n${randomHadith.content}` : ''), {
-          reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
-        })
+        await bot.api.sendMessage(
+          user.userId,
+          message + (randomHadith ? `\n\nKunlik hadis:\n${randomHadith.content}` : ''),
+          {
+            reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
+          },
+        )
       } catch (error) {
         await handleSendMessageError(error, user)
       }
@@ -144,10 +141,10 @@ async function reminder(bot: Bot<BotContext>) {
           let message: string
 
           if (user.fasting) {
-            message = HLanguage(user.language, 'closeFast')
+            message = HLanguage('closeFast')
             message += `\n\nنَوَيْتُ أَنْ أَصُومَ صَوْمَ شَهْرَ رَمَضَانَ مِنَ الْفَجْرِ إِلَى الْمَغْرِبِ، خَالِصًا لِلهِ تَعَالَى أَللهُ أَكْبَرُ\n\nНавайту ан асувма совма шаҳри рамазона минал фажри илал мағриби, холисан лиллаҳи таъаалаа Аллоҳу акбар`
           } else {
-            message = HLanguage(user.language, 'fajrTime')
+            message = HLanguage('fajrTime')
           }
 
           await bot.api.sendMessage(user.userId, message)
@@ -168,7 +165,7 @@ async function reminder(bot: Bot<BotContext>) {
 
       for (const user of users) {
         try {
-          const sunriseTime = HLanguage(user.language, 'sunriseTime')
+          const sunriseTime = HLanguage('sunriseTime')
 
           await bot.api.sendMessage(user.userId, sunriseTime)
         } catch (error: any) {
@@ -187,7 +184,7 @@ async function reminder(bot: Bot<BotContext>) {
       })
       for (const user of users) {
         try {
-          const dhuhrTime = HLanguage(user.language, 'dhuhrTime')
+          const dhuhrTime = HLanguage('dhuhrTime')
 
           await bot.api.sendMessage(user.userId, dhuhrTime)
         } catch (error) {
@@ -207,7 +204,7 @@ async function reminder(bot: Bot<BotContext>) {
 
       for (const user of users) {
         try {
-          const asrTime = HLanguage(user.language, 'asrTime')
+          const asrTime = HLanguage('asrTime')
 
           await bot.api.sendMessage(user.userId, asrTime)
         } catch (error) {
@@ -230,10 +227,10 @@ async function reminder(bot: Bot<BotContext>) {
           let message
 
           if (user.fasting) {
-            message = HLanguage(user.language, 'breakFast')
+            message = HLanguage('breakFast')
             message += `\n\nاَللَّهُمَّ لَكَ صُمْتُ وَ بِكَ آمَنْتُ وَ عَلَيْكَ تَوَكَّلْتُ وَ عَلَى رِزْقِكَ أَفْتَرْتُ، فَغْفِرْلِى مَا قَدَّمْتُ وَ مَا أَخَّرْتُ بِرَحْمَتِكَ يَا أَرْحَمَ الرَّاحِمِينَ\n\nАллоҳумма лака сумту ва бика ааманту ва аълайка таваккалту ва аълаа ризқика афтарту, фағфирлий ма қоддамту ва маа аххорту бироҳматика йаа арҳамар рооҳимийн`
           } else {
-            message = HLanguage(user.language, 'maghribTime')
+            message = HLanguage('maghribTime')
           }
 
           await bot.api.sendMessage(user.userId, message)
@@ -254,7 +251,7 @@ async function reminder(bot: Bot<BotContext>) {
 
       for (const user of users) {
         try {
-          const ishaTime = HLanguage(user.language, 'ishaTime')
+          const ishaTime = HLanguage('ishaTime')
 
           await bot.api.sendMessage(user.userId, ishaTime)
         } catch (error) {
@@ -273,9 +270,9 @@ async function weekly(bot: Bot<BotContext>) {
 
   for (const user of users) {
     try {
-      const message = HLanguage(user.language, 'shareBot')
+      const message = HLanguage('shareBot')
       const keyboard = new InlineKeyboard()
-      const enterMessage = HLanguage(user.language, 'enter')
+      const enterMessage = HLanguage('enter')
       keyboard.url(enterMessage, 'https://t.me/namoz5vbot')
 
       await bot.api.sendMessage(user.userId, message, { reply_markup: keyboard })

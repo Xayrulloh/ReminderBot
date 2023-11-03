@@ -38,10 +38,6 @@ const User = new Schema(
       required: true,
       type: Number,
     },
-    language: {
-      required: true,
-      type: String,
-    },
     status: {
       required: false,
       type: Boolean,

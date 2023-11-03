@@ -8,8 +8,8 @@ import { IUser } from '#types/database'
 const scene = new Scene<BotContext>('Fasting')
 
 scene.step(async (ctx) => {
-  const message = HLanguage(ctx.user.language, 'fastingMessage')
-  const keyboardMessage = HLanguage(ctx.user.language, 'agreementFasting')
+  const message = HLanguage('fastingMessage')
+  const keyboardMessage = HLanguage('agreementFasting')
   const buttons = inlineKFunction(
     Infinity,
     { view: keyboardMessage[0], text: keyboardMessage[0] },
@@ -31,12 +31,12 @@ scene.wait('fasting').on('callback_query:data', async (ctx) => {
 
     await Model.User.updateOne<IUser>({ userId: ctx.user.userId }, { fasting })
 
-    const message = HLanguage(ctx.user.language, 'notifChange')
+    const message = HLanguage('notifChange')
 
     await ctx.editMessageText(message)
     ctx.scene.exit()
   } else {
-    await ctx.answerCallbackQuery(HLanguage(ctx.user.language, 'wrongSelection'))
+    await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
   }
 })
 
