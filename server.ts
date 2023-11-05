@@ -119,7 +119,6 @@ if (env.WEBHOOK_ENABLED) {
     })
 }
 
-export default bot
 
 // commented works
 
