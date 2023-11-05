@@ -29,7 +29,8 @@
     "🌍 Joylashuvni o'zgartirish",
     "🍽 Ro'za",
     "🔔 Xabarnomani o'zgartirish",
-    "📊 Statistika"
+    "📊 Statistika",
+    "\uD83D\uDCDA Manba"
   ],
   "searchRegion": "Shaxarni belgilang",
   "fajrTime": "🏙 Bomdod vaqti bo'ldi",
@@ -66,5 +67,7 @@
     "isha": "🌃 Xufton $state",
     "save": "✅ Saqlash"
   },
-  "enter": "Kirish"
+  "enter": "Kirish",
+  "source": "Manba",
+  "sourceMessage": "_Namoz vaqtlari:_ [islom.uz]($siteLink)\n_Hadislar to'plami:_ [hadislar]($sourceLink)"
 }
