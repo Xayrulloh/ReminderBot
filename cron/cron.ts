@@ -98,9 +98,10 @@ async function daily(bot: Bot<BotContext>) {
       try {
         await bot.api.sendMessage(
           user.userId,
-          message + (randomHadith ? `\n\nKunlik hadis:\n${randomHadith.content}` : ''),
+          message + (randomHadith ? `\n\n<b>Kunlik hadis:</b><pre>\n${randomHadith.content}</pre>` : ''),
           {
             reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
+            parse_mode: 'HTML',
           },
         )
       } catch (error) {

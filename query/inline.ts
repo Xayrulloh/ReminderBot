@@ -68,6 +68,10 @@ export async function inlineQuery(ctx: BotContext) {
   const message = HLanguage('infoPrayTime')
   const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
   const response: InlineQueryResult[] = []
+  const keyboard = new InlineKeyboard()
+  const enterMessage = HLanguage('enter')
+
+  keyboard.url(enterMessage, 'https://t.me/namoz5vbot')
 
   for (const region of regions) {
     let regionName = ''
@@ -90,9 +94,10 @@ export async function inlineQuery(ctx: BotContext) {
       title: regionName,
       description: content,
       input_message_content: {
-        message_text: content + '\n\n' + dailyHadith,
+        message_text: content + '\n\n<pre>' + dailyHadith + '</pre>',
         parse_mode: 'HTML',
       },
+      reply_markup: keyboard,
     })
   }
 
