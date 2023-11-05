@@ -98,9 +98,10 @@ async function daily(bot: Bot<BotContext>) {
       try {
         await bot.api.sendMessage(
           user.userId,
-          message + (randomHadith ? `\n\nKunlik hadis:\n${randomHadith.content}` : ''),
+          message + (randomHadith ? `\n\n<b>Kunlik hadis:</b><pre>\n${randomHadith.content}</pre>` : ''),
           {
             reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
+            parse_mode: 'HTML',
           },
         )
       } catch (error) {
@@ -273,7 +274,7 @@ async function weekly(bot: Bot<BotContext>) {
       const message = HLanguage('shareBot')
       const keyboard = new InlineKeyboard()
       const enterMessage = HLanguage('enter')
-      keyboard.url(enterMessage, 'https://t.me/namoz5vbot')
+      keyboard.url(enterMessage, 'https://t.me/' + bot.botInfo.username)
 
       await bot.api.sendMessage(user.userId, message, { reply_markup: keyboard })
     } catch (error) {

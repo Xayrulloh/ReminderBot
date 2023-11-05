@@ -129,13 +129,12 @@ scene.wait('the_end').on('callback_query:data', async (ctx) => {
   const buttons = customKFunction(2, ...keyboardText)
 
   await ctx.deleteMessage()
-
-  // FIXME: Need refactor
-  await ctx.reply(response + '\n\n' + dailyHadith, {
+  await ctx.reply(response + '\n\n<pre>' + dailyHadith + '</pre>', {
     reply_markup: {
       keyboard: buttons.build(),
       resize_keyboard: true,
     },
+    parse_mode: 'HTML',
   })
   ctx.scene.exit()
 })

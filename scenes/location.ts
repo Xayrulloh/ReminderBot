@@ -61,7 +61,9 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
     const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
     const locationMessage = HLanguage('locationChange')
 
-    await ctx.editMessageText(locationMessage + '\n\n' + response + '\n\n' + dailyHadith)
+    await ctx.editMessageText(locationMessage + '\n\n' + response + '\n\n<pre>' + dailyHadith + '</pre>', {
+      parse_mode: 'HTML',
+    })
     ctx.scene.exit()
   } else {
     await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
