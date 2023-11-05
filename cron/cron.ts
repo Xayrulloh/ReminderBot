@@ -274,7 +274,7 @@ async function weekly(bot: Bot<BotContext>) {
       const message = HLanguage('shareBot')
       const keyboard = new InlineKeyboard()
       const enterMessage = HLanguage('enter')
-      keyboard.url(enterMessage, 'https://t.me/namoz5vbot')
+      keyboard.url(enterMessage, 'https://t.me/' + bot.botInfo.username)
 
       await bot.api.sendMessage(user.userId, message, { reply_markup: keyboard })
     } catch (error) {

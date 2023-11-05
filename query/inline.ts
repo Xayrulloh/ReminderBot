@@ -9,6 +9,7 @@ import fuzzy from 'fuzzy'
 import { memoryStorage } from '#config/storage'
 import { DAILY_HADITH_KEY } from '#utils/constants'
 import { IPrayTime } from '#types/database'
+import bot from 'server'
 
 export async function inlineQuery(ctx: BotContext) {
   const inlineQueryMessage = ctx.inlineQuery?.query
@@ -71,7 +72,7 @@ export async function inlineQuery(ctx: BotContext) {
   const keyboard = new InlineKeyboard()
   const enterMessage = HLanguage('enter')
 
-  keyboard.url(enterMessage, 'https://t.me/namoz5vbot')
+  keyboard.url(enterMessage, 'https://t.me/' + bot.botInfo.username)
 
   for (const region of regions) {
     let regionName = ''

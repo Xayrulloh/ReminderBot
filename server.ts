@@ -81,7 +81,7 @@ bot.command('start', async (ctx) => {
 })
 
 bot.command('source', async (ctx) => {
-  await ctx.scenes.enter('Source');
+  await ctx.scenes.enter('Source')
 })
 
 bot.on('message:text', async (ctx) => {
@@ -118,6 +118,8 @@ if (env.WEBHOOK_ENABLED) {
       process.exit()
     })
 }
+
+export default bot
 
 // commented works
 

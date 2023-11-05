@@ -12,6 +12,7 @@ let scene = new Scene<BotContext>('Search')
 
 scene.step(async (ctx) => {
   const message = HLanguage('searchRegion')
+  // FIXME: Refactor duplication on location.ts (15/29 lines)
   const keyboardMessage = HLanguage('region')
   const keyboard = []
 
