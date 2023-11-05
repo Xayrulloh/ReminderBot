@@ -28,8 +28,7 @@ scene.step(async (ctx) => {
   ctx.session.buttons = buttons
   ctx.session.regions = keyboardMessage
 
-  await ctx.editMessageText(message, { reply_markup: buttons })
-  ctx.scene.resume()
+  await ctx.reply(message, { reply_markup: buttons })
 })
 
 // notification

@@ -80,6 +80,10 @@ bot.command('start', async (ctx) => {
   })
 })
 
+bot.command('source', async (ctx) => {
+  await ctx.scenes.enter('Source');
+})
+
 bot.on('message:text', async (ctx) => {
   const mappedScene = keyboardMapper(ctx.message.text)
 
