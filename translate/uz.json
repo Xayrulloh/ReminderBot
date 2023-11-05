@@ -69,5 +69,5 @@
   },
   "enter": "Kirish",
   "source": "Manba",
-  "sourceMessage": "_Namoz vaqtlari:_ [islom.uz]($siteLink)\n_Hadislar to'plami:_ [hadislar]($sourceLink)"
+  "sourceMessage": "_Namoz vaqtlari:_ [islom.uz]($siteLink)\n_Hadislar to'plami:_ [Riyozus solihiyn]($sourceLink)"
 }
