@@ -4,7 +4,6 @@ import HLanguage from '#helper/language'
 import { BotContext } from '#types/context'
 import { IUser } from '#types/database'
 import { InlineKeyboard } from 'grammy'
-import bot from 'server'
 
 const scene = new Scene<BotContext>('Statistic')
 
@@ -14,7 +13,7 @@ scene.step(async (ctx) => {
   let shareMessage = HLanguage('shareMessage')
   const keyboard = new InlineKeyboard()
   const enterMessage = HLanguage('enter')
-  keyboard.url(enterMessage, 'https://t.me/' + bot.botInfo.username)
+  keyboard.url(enterMessage, 'https://t.me/' + ctx.me.username)
 
   if (1151533771 === ctx.user.userId) {
     const blockedUsers = users.reduce((count, user) => {
