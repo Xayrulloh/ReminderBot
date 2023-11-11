@@ -46,7 +46,7 @@ scene.wait('category').on(['message:text', 'callback_query:data'], async (ctx) =
 
     await ctx.editMessageText('The hadith is written, thank you. You are doing your best :)')
   } else {
-    await ctx.reply('The hadith is written, thank you. You are doing your best :)')
+    await ctx.reply(message)
   }
 
   ctx.scene.exit()
