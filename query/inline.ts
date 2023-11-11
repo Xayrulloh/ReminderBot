@@ -12,7 +12,7 @@ import { IPrayTime } from '#types/database'
 
 export async function inlineQuery(ctx: BotContext) {
   const inlineQueryMessage = ctx.inlineQuery?.query
-  const tryAgain: string = HLanguage('uz', 'tryAgain')
+  const tryAgain: string = HLanguage('tryAgain')
   const inputMessageContent: InputMessageContent = {
     parse_mode: 'HTML',
     message_text: '',
@@ -27,22 +27,22 @@ export async function inlineQuery(ctx: BotContext) {
 
   // if not inline query
   if (!inlineQueryMessage) {
-    responseObj.title = HLanguage('uz', 'startSearch')
-    responseObj.description = HLanguage('uz', 'searchPlace')
-    inputMessageContent.message_text = HLanguage('uz', 'hintMessage')
+    responseObj.title = HLanguage('startSearch')
+    responseObj.description = HLanguage('searchPlace')
+    inputMessageContent.message_text = HLanguage('hintMessage')
 
     return await ctx.answerInlineQuery([responseObj])
   }
 
   // if exist inline query
-  const allRegions = { ...HLanguage('ru', 'region'), ...HLanguage('uz', 'region'), ...HLanguage('en', 'region') }
+  const allRegions = HLanguage('region')
   const search = fuzzy.filter(inlineQueryMessage, Object.keys(allRegions))
 
   // but not result
   if (!search.length) {
-    responseObj.title = HLanguage('uz', 'notFound')
-    let description: string = HLanguage('uz', 'notFoundDescription')
-    let message_text: string = HLanguage('uz', 'notFoundContent')
+    responseObj.title = HLanguage('notFound')
+    let description: string = HLanguage('notFoundDescription')
+    let message_text: string = HLanguage('notFoundContent')
 
     responseObj.description = HReplace(description, ['$inlineQueryText'], [inlineQueryMessage])
     inputMessageContent.message_text = HReplace(message_text, ['$inlineQueryText'], [inlineQueryMessage])
@@ -63,11 +63,15 @@ export async function inlineQuery(ctx: BotContext) {
 
   const now = new Date()
   const currentDay = now.getDate()
-  const regionTranslations: Record<string, number> = HLanguage('uz', 'region')
+  const regionTranslations: Record<string, number> = HLanguage('region')
   const regions = await Model.PrayTime.find<IPrayTime>({ day: currentDay, regionId: regionIds })
-  const message = HLanguage('uz', 'infoPrayTime')
+  const message = HLanguage('infoPrayTime')
   const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
   const response: InlineQueryResult[] = []
+  const keyboard = new InlineKeyboard()
+  const enterMessage = HLanguage('enter')
+
+  keyboard.url(enterMessage, 'https://t.me/' + ctx.me.username)
 
   for (const region of regions) {
     let regionName = ''
@@ -90,9 +94,10 @@ export async function inlineQuery(ctx: BotContext) {
       title: regionName,
       description: content,
       input_message_content: {
-        message_text: content + '\n\n' + dailyHadith,
+        message_text: content + dailyHadith,
         parse_mode: 'HTML',
       },
+      reply_markup: keyboard,
     })
   }
 

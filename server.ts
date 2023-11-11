@@ -35,10 +35,6 @@ bot.use(authMiddleware)
 bot.use(scenes)
 
 // Commands
-bot.command('language', async (ctx) => {
-  return ctx.scenes.enter('Language')
-})
-
 bot.command('notification', async (ctx) => {
   await ctx.scenes.enter('Notification')
 })
@@ -68,8 +64,8 @@ bot.command('hadith', async (ctx) => {
 })
 
 bot.command('start', async (ctx) => {
-  const welcomeText = HLanguage(ctx.user.language, 'welcome')
-  const keyboardText = HLanguage(ctx.user.language, 'mainKeyboard')
+  const welcomeText = HLanguage('welcome')
+  const keyboardText = HLanguage('mainKeyboard')
   const buttons = customKFunction(2, ...keyboardText)
 
   if (!ctx.user.status) {
@@ -84,8 +80,12 @@ bot.command('start', async (ctx) => {
   })
 })
 
+bot.command('source', async (ctx) => {
+  await ctx.scenes.enter('Source')
+})
+
 bot.on('message:text', async (ctx) => {
-  const mappedScene = keyboardMapper(ctx.user.language, ctx.message.text)
+  const mappedScene = keyboardMapper(ctx.message.text)
 
   if (mappedScene) {
     return ctx.scenes.enter(mappedScene)
@@ -118,6 +118,7 @@ if (env.WEBHOOK_ENABLED) {
       process.exit()
     })
 }
+
 
 // commented works
 

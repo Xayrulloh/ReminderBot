@@ -38,10 +38,6 @@ const User = new Schema(
       required: true,
       type: Number,
     },
-    language: {
-      required: true,
-      type: String,
-    },
     status: {
       required: false,
       type: Boolean,
@@ -143,7 +139,7 @@ mongoose.set('strictQuery', false)
 
 mongoose
   .connect(env.MONGO_URL, {
-    serverSelectionTimeoutMS: 3000,
+    serverSelectionTimeoutMS: 10000,
   })
   .then(() => {
     console.info('Database successfully connected')
