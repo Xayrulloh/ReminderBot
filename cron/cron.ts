@@ -64,17 +64,21 @@ async function daily(bot: Bot<BotContext>) {
   const regions = await Model.PrayTime.find<IPrayTime>({ day: monthDay })
 
   // taking hadith
-  let hadith: IHadith[]
+  let hadith: IHadith[] | string
   // const file = new InputFile('./public/JumaMuborak.jpg')
   if (weekDay == 5) {
-    hadith = await Model.Hadith.find<IHadith>({ category: 'juma' })
+    hadith = await Model.Hadith.aggregate<IHadith>([{ $match: { category: 'juma' } }, { $sample: { size: 1 } }])
   } else {
-    hadith = await Model.Hadith.find<IHadith>({ category: { $ne: 'juma' } })
+    hadith = await Model.Hadith.aggregate<IHadith>([
+      { $match: { category: { $ne: 'juma' } } },
+      { $sample: { size: 1 } },
+    ])
   }
-  const randomHadith = hadith[(Math.random() * hadith.length) | 0]
+
+  hadith = '\n\n<pre>' + hadith[0]?.content + '</pre>'
 
   // Set daily hadith to storage
-  memoryStorage.write(DAILY_HADITH_KEY, randomHadith.content)
+  memoryStorage.write(DAILY_HADITH_KEY, hadith)
 
   // sending
   for (let region of regions) {
@@ -96,14 +100,10 @@ async function daily(bot: Bot<BotContext>) {
       const buttons = customKFunction(2, ...keyboardText)
 
       try {
-        await bot.api.sendMessage(
-          user.userId,
-          message + (randomHadith ? `\n\n<b>Kunlik hadis:</b><pre>\n${randomHadith.content}</pre>` : ''),
-          {
-            reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
-            parse_mode: 'HTML',
-          },
-        )
+        await bot.api.sendMessage(user.userId, message + (hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''), {
+          reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
+          parse_mode: 'HTML',
+        })
       } catch (error) {
         await handleSendMessageError(error, user)
       }

@@ -51,7 +51,7 @@ scene.wait('region').on('callback_query:data', async (ctx) => {
     const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
 
     await ctx.deleteMessage()
-    await ctx.reply(response + '\n\n<pre>' + dailyHadith + '</pre>', { parse_mode: 'HTML' })
+    await ctx.reply(response + dailyHadith, { parse_mode: 'HTML' })
     ctx.scene.exit()
   } else {
     await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
