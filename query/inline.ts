@@ -94,7 +94,7 @@ export async function inlineQuery(ctx: BotContext) {
       title: regionName,
       description: content,
       input_message_content: {
-        message_text: content + '\n\n<pre>' + dailyHadith + '</pre>',
+        message_text: content + dailyHadith,
         parse_mode: 'HTML',
       },
       reply_markup: keyboard,

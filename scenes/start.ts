@@ -129,7 +129,7 @@ scene.wait('the_end').on('callback_query:data', async (ctx) => {
   const buttons = customKFunction(2, ...keyboardText)
 
   await ctx.deleteMessage()
-  await ctx.reply(response + '\n\n<pre>' + dailyHadith + '</pre>', {
+  await ctx.reply(response + dailyHadith, {
     reply_markup: {
       keyboard: buttons.build(),
       resize_keyboard: true,

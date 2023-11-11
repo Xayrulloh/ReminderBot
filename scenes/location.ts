@@ -61,7 +61,7 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
     const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
     const locationMessage = HLanguage('locationChange')
 
-    await ctx.editMessageText(locationMessage + '\n\n' + response + '\n\n<pre>' + dailyHadith + '</pre>', {
+    await ctx.editMessageText(locationMessage + '\n\n' + response + dailyHadith, {
       parse_mode: 'HTML',
     })
     ctx.scene.exit()

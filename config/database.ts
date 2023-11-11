@@ -139,7 +139,7 @@ mongoose.set('strictQuery', false)
 
 mongoose
   .connect(env.MONGO_URL, {
-    serverSelectionTimeoutMS: 3000,
+    serverSelectionTimeoutMS: 10000,
   })
   .then(() => {
     console.info('Database successfully connected')
