@@ -44,7 +44,8 @@ scene.wait('category').on(['message:text', 'callback_query:data'], async (ctx) =
   if (ctx.callbackQuery?.data) {
     await ctx.answerCallbackQuery()
 
-    await ctx.editMessageText('The hadith is written, thank you. You are doing your best :)')
+    const message = 'The hadith is written, thank you. You are doing your best :)';
+    await ctx.editMessageText(message)
   } else {
     await ctx.reply(message)
   }
