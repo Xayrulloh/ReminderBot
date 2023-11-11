@@ -75,7 +75,7 @@ async function daily(bot: Bot<BotContext>) {
     ])
   }
 
-  hadith = '\n\n<pre>' + hadith[0].content + '</pre>'
+  hadith = '\n\n<pre>' + hadith[0]?.content + '</pre>'
 
   // Set daily hadith to storage
   memoryStorage.write(DAILY_HADITH_KEY, hadith)
@@ -314,5 +314,4 @@ export async function cronStarter(bot: Bot<BotContext>) {
   )
 
   await reminder(bot)
-  await daily(bot)
 }
