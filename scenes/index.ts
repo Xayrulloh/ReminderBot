@@ -9,6 +9,7 @@ import announcement from './announcement'
 import donate from './donate'
 import hadith from './hadith'
 import source from './source'
+import addHadith from './add-hadith'
 import { BotContext } from '#types/context'
 
 export const scenes = new ScenesComposer<BotContext>(
@@ -21,5 +22,6 @@ export const scenes = new ScenesComposer<BotContext>(
   start,
   donate,
   hadith,
-  source
+  source,
+  addHadith,
 )
