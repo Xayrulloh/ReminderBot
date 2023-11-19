@@ -1,3 +1,4 @@
+import { resolve } from "path"
 import axios from 'axios'
 import pdfParser from 'pdf-parse'
 import Model from '#config/database'
@@ -5,7 +6,7 @@ import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
 import schedule from 'node-schedule'
 import customKFunction from '#keyboard/custom'
-import { Bot, InlineKeyboard } from 'grammy'
+import { Bot, InlineKeyboard, InputFile } from 'grammy'
 import { BotContext } from '#types/context'
 import { memoryStorage } from '#config/storage'
 import { DAILY_HADITH_KEY } from '#utils/constants'
@@ -65,7 +66,7 @@ async function daily(bot: Bot<BotContext>) {
 
   // taking hadith
   let hadith: IHadith[] | string
-  // const file = new InputFile('./public/JumaMuborak.jpg')
+  const file = new InputFile(resolve('public', 'JumaMuborak.jpg'))
   if (weekDay == 5) {
     hadith = await Model.Hadith.aggregate<IHadith>([{ $match: { category: 'juma' } }, { $sample: { size: 1 } }])
   } else {
@@ -104,6 +105,12 @@ async function daily(bot: Bot<BotContext>) {
           reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
           parse_mode: 'HTML',
         })
+        if(weekDay == 5) {
+          await bot.api.sendPhoto(user.userId, file, {
+            caption: `\n\n${message}\n\n<b>Kunlik hadis:</b>\n\n<pre>${hadith}</pre>`,
+            parse_mode: 'HTML',
+          })
+        }
       } catch (error) {
         await handleSendMessageError(error, user)
       }
