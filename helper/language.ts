@@ -4,8 +4,10 @@ import { memoryStorage } from '#config/storage'
 import process from 'node:process'
 
 export default function HLanguage(key: any): any {
-  if (memoryStorage.has('translate')) {
-    return memoryStorage.read('translate')[key]
+  const translate = memoryStorage.read('translate')
+
+  if (translate && key in translate) {
+    return translate[key]
   }
 
   let data = fs.readFileSync(path.join(process.cwd(), 'translate', 'uz.json'), {
