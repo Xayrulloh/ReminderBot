@@ -39,7 +39,7 @@ const User = new Schema(
       type: Number,
     },
     status: {
-      required: false,
+      default: true,
       type: Boolean,
     },
     notificationSetting: {
