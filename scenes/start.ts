@@ -116,6 +116,7 @@ scene.wait('the_end').on('callback_query:data', async (ctx) => {
     region: regionName,
     regionId: data.regionId,
     donate: 0,
+    status: true,
   })
 
   let response = HReplace(

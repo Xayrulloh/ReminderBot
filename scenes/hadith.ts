@@ -1,55 +1,22 @@
 import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
-import inlineKFunction from '#keyboard/inline'
 import { BotContext } from '#types/context'
-import { InlineKeyboard } from 'grammy'
 import { IHadith } from '#types/database'
+import HLanguage from '#helper/language'
+import { InlineKeyboard } from 'grammy'
 
 const scene = new Scene<BotContext>('Hadith')
 
 scene.step(async (ctx) => {
-  if (1151533771 === ctx.from?.id) {
-    await ctx.reply('Give me the hadith')
-  } else {
-    ctx.scene.exit()
-  }
-})
+  const keyboard = new InlineKeyboard()
+  const enterMessage = HLanguage('enter')
+  let hadith: IHadith[] | string = await Model.Hadith.aggregate<IHadith>([{ $sample: { size: 1 } }])
 
-scene.wait('hadith').on('message:text', async (ctx) => {
-  ctx.session.hadith = ctx.message.text
+  hadith = '\n\n<pre>' + (hadith[0]?.content || 'Hozircha hadis mavjud emas') + '</pre>'
 
-  const categories = await Model.Hadith.distinct<string>('category')
+  keyboard.url(enterMessage, 'https://t.me/' + ctx.me.username)
 
-  let buttons: InlineKeyboard | undefined
-  if (categories.length) {
-    buttons = inlineKFunction(
-      5,
-      ...categories.map((c) => {
-        return { view: c, text: c }
-      }),
-    )
-  }
-
-  await ctx.reply('Give the category of hadith', { reply_markup: buttons })
-
-  ctx.scene.resume()
-})
-
-scene.wait('category').on(['message:text', 'callback_query:data'], async (ctx) => {
-  const message = 'The hadith is written, thank you. You are doing your best :)'
-
-  await Model.Hadith.create<IHadith>({
-    content: ctx.session.hadith,
-    category: ctx.callbackQuery?.data || ctx.update.message?.text,
-  })
-
-  if (ctx.callbackQuery?.data) {
-    await ctx.answerCallbackQuery()
-
-    await ctx.editMessageText(message)
-  } else {
-    await ctx.reply(message)
-  }
+  await ctx.reply(hadith, { parse_mode: 'HTML', reply_markup: keyboard })
 
   ctx.scene.exit()
 })

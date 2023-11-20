@@ -63,6 +63,10 @@ bot.command('hadith', async (ctx) => {
   await ctx.scenes.enter('Hadith')
 })
 
+bot.command('addHadith', async (ctx) => {
+  await ctx.scenes.enter('AddHadith')
+})
+
 bot.command('start', async (ctx) => {
   const welcomeText = HLanguage('welcome')
   const keyboardText = HLanguage('mainKeyboard')
@@ -118,7 +122,6 @@ if (env.WEBHOOK_ENABLED) {
       process.exit()
     })
 }
-
 
 // commented works
 
