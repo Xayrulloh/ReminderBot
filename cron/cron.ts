@@ -101,14 +101,14 @@ async function daily(bot: Bot<BotContext>) {
       const buttons = customKFunction(2, ...keyboardText)
 
       try {
-        if(weekDay != 5) {
-          await bot.api.sendMessage(user.userId, message + (hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''), {
-            reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
+        if(weekDay == 5) {
+          await bot.api.sendPhoto(user.userId, file, {
+            caption: `\n\n${message}\n\n<b>Kunlik hadis:</b>\n\n<pre>${hadith}</pre>`,
             parse_mode: 'HTML',
           })
         } else {
-          await bot.api.sendPhoto(user.userId, file, {
-            caption: `\n\n${message}\n\n<b>Kunlik hadis:</b>\n\n<pre>${hadith}</pre>`,
+          await bot.api.sendMessage(user.userId, message + (hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''), {
+            reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
             parse_mode: 'HTML',
           })
         }
