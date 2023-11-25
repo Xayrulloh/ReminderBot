@@ -1,6 +1,4 @@
 {
-  "chooseLanguage": "Tilni tanlang",
-  "changedLanguage": "Sizning tilingiz O'zbek tiliga o'zgartirildi",
   "agreementNotification": ["Roziman", "Rozimasman"],
   "notificationMessage": "Har namoz vaqti bo'lganda ogohlantirilishga rozimisiz?",
   "region": {
@@ -58,7 +56,7 @@
   "notFoundContent": "<b>$inlineQueryText ga oid natija mavjud emas!</b>\nIltimos, qaytadan urinib ko'ring.",
   "wrongSelection": "Quyidagilardan birini tanlang",
   "welcome": "Xush kelibsiz",
-  "setPrayerTimes": "Xabarnoma kelishini hohlagan namoz vaqtlarini belgilang va saqlang",
+  "setPrayerTimes": "Xabarnoma kelishini hohlagan vaqtlaringizni belgilang va saqlang",
   "setPrayerTimesKeyboard": {
     "fajr": "🏙 Bomdod $state",
     "sunrise": "🌅 Quyosh $state",
