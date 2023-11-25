@@ -33,7 +33,7 @@ export async function errorHandler(err: BotError) {
   })
 
   await discordClient.send({
-    threadId: env.DISCORD_THREAD_ID,
+    threadId: env.DISCORD_LOGS_THREAD_ID,
     embeds: [embed],
   })
 
