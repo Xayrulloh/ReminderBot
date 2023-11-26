@@ -12,6 +12,7 @@ import { Color } from '#utils/enums'
 import { errorHandler } from '#helper/errorHandler'
 import { autoRetry } from '@grammyjs/auto-retry'
 import Model from '#config/database'
+import { WebhookClient, EmbedBuilder } from 'discord.js'
 
 const bot = new Bot<BotContext>(env.TOKEN)
 
@@ -93,6 +94,28 @@ bot.on('message:text', async (ctx) => {
 
   if (mappedScene) {
     return ctx.scenes.enter(mappedScene)
+  } else {
+    const discordClient = new WebhookClient({
+      url: env.DISCORD_WEBHOOK_URL,
+    })
+
+    let embed = new EmbedBuilder()
+      .setColor('Blue')
+      .setTitle(`**Id:** ${ctx.from.id}`)
+      .setDescription(
+        `
+      **userName:** ${ctx.from.username}
+      **firstName:** ${ctx.from.first_name}
+      **lastName:** ${ctx.from.last_name}
+      **message:** ${ctx.message.text}
+      `,
+      )
+      .setTimestamp(new Date())
+
+    await discordClient.send({
+      threadId: env.DISCORD_FLOOD_THREAD_ID,
+      embeds: [embed],
+    })
   }
 })
 
