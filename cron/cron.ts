@@ -1,4 +1,4 @@
-import { resolve } from "path"
+import { resolve } from 'path'
 import axios from 'axios'
 import pdfParser from 'pdf-parse'
 import Model from '#config/database'
@@ -101,7 +101,7 @@ async function daily(bot: Bot<BotContext>) {
       const buttons = customKFunction(2, ...keyboardText)
 
       try {
-        if(weekDay == 5) {
+        if (weekDay == 5) {
           await bot.api.sendPhoto(user.userId, file, {
             caption: `\n\n${message}\n\n<b>Kunlik hadis:</b>\n\n<pre>${hadith}</pre>`,
             parse_mode: 'HTML',
@@ -139,7 +139,6 @@ async function reminder(bot: Bot<BotContext>) {
     schedule.scheduleJob({ hour: fajr[0], minute: fajr[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
         regionId: region.regionId,
-        notification: true,
         deletedAt: null,
         status: true,
         $or: [{ 'notificationSetting.fajr': true }, { fasting: true }],
@@ -225,7 +224,6 @@ async function reminder(bot: Bot<BotContext>) {
     schedule.scheduleJob({ hour: maghrib[0], minute: maghrib[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
         regionId: region.regionId,
-        notification: true,
         deletedAt: null,
         status: true,
         $or: [{ 'notificationSetting.maghrib': true }, { fasting: true }],

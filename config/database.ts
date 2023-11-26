@@ -17,10 +17,6 @@ const User = new Schema(
       required: true,
       type: String,
     },
-    notification: {
-      required: true,
-      type: Boolean,
-    },
     fasting: {
       required: true,
       type: Boolean,

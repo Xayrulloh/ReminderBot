@@ -31,8 +31,8 @@ scene.step(async (ctx) => {
   await ctx.reply(message, { reply_markup: buttons })
 })
 
-// notification
-scene.wait('notification').on('callback_query:data', async (ctx) => {
+// fasting
+scene.wait('fasting').on('callback_query:data', async (ctx) => {
   if (!ctx.session.regionId.includes(+ctx.update.callback_query.data)) {
     return ctx.answerCallbackQuery(HLanguage('wrongSelection'))
   }
@@ -40,30 +40,6 @@ scene.wait('notification').on('callback_query:data', async (ctx) => {
   await ctx.answerCallbackQuery()
 
   ctx.session.regionId = +ctx.update.callback_query.data
-
-  const message = HLanguage('notificationMessage')
-  const keyboardMessage = HLanguage('agreementNotification')
-  const buttons = inlineKFunction(
-    Infinity,
-    { view: keyboardMessage[0], text: keyboardMessage[0] },
-    { view: keyboardMessage[1], text: keyboardMessage[1] },
-  )
-
-  ctx.session.message = message
-  ctx.session.buttons = buttons
-  ctx.session.keyboardMessage = keyboardMessage
-
-  await ctx.editMessageText(message, { reply_markup: buttons })
-  ctx.scene.resume()
-})
-
-// fasting
-scene.wait('fasting').on('callback_query:data', async (ctx) => {
-  if (!ctx.session.keyboardMessage.includes(ctx.update.callback_query.data)) {
-    return ctx.answerCallbackQuery(HLanguage('wrongSelection'))
-  }
-
-  await ctx.answerCallbackQuery()
 
   const message = HLanguage('fastingMessage')
   const keyboardMessage = HLanguage('agreementFasting')
@@ -73,7 +49,6 @@ scene.wait('fasting').on('callback_query:data', async (ctx) => {
     { view: keyboardMessage[1], text: keyboardMessage[1] },
   )
 
-  ctx.session.notification = ctx.session.keyboardMessage[0] === ctx.update.callback_query.data
   ctx.session.keyboardMessage = keyboardMessage
   ctx.session.message = message
   ctx.session.buttons = buttons
@@ -111,7 +86,6 @@ scene.wait('the_end').on('callback_query:data', async (ctx) => {
     userId: ctx.from.id,
     userName: ctx.from.username || 'unknown',
     name: ctx.from.first_name || 'name',
-    notification: ctx.session.notification,
     fasting,
     region: regionName,
     regionId: data.regionId,
