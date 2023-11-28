@@ -15,7 +15,8 @@ export const schema = z.object({
     .regex(/^[0-9]+$/)
     .optional(),
   DISCORD_WEBHOOK_URL: z.string().url(),
-  DISCORD_THREAD_ID: z.string().regex(/^[0-9]+$/),
+  DISCORD_LOGS_THREAD_ID: z.string().regex(/^[0-9]+$/),
+  DISCORD_FLOOD_THREAD_ID: z.string().regex(/^[0-9]+$/),
   SESSION_TTL: z.number({ coerce: true }),
   WEBHOOK_URL: z.string().url().optional(),
   WEBHOOK_ENABLED: z.enum(['true', 'false']).transform((v) => JSON.parse(v)),

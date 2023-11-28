@@ -4,7 +4,6 @@ export interface IUser extends Document {
   userId: number
   userName: string
   name: string
-  notification: boolean
   fasting: boolean
   region: string
   regionId: number
