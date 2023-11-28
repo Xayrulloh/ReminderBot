@@ -11,3 +11,11 @@ export const ERROR_MESSAGE: Record<keyof ErrorType, string> = {
   username: `**Username:** @%s\n`,
   message: `**Message:** %s\n`,
 }
+
+export const FLOOD_MESSAGE: string = `
+**Stage**: %s
+**Username:** %s
+**FirstName:** %s
+**LastName:** %s
+**Message:** %s
+`

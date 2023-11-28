@@ -13,6 +13,8 @@ import { errorHandler } from '#helper/errorHandler'
 import { autoRetry } from '@grammyjs/auto-retry'
 import Model from '#config/database'
 import { WebhookClient, EmbedBuilder } from 'discord.js'
+import { format } from 'node:util'
+import { FLOOD_MESSAGE } from '#utils/constants'
 
 const bot = new Bot<BotContext>(env.TOKEN)
 
@@ -101,14 +103,16 @@ bot.on('message:text', async (ctx) => {
 
     let embed = new EmbedBuilder()
       .setColor('Blue')
-      .setTitle(`**Id:** ${ctx.from.id}`)
+      .setTitle(`**ID:** ${ctx.from.id}`)
       .setDescription(
-        `
-      **userName:** ${ctx.from.username}
-      **firstName:** ${ctx.from.first_name}
-      **lastName:** ${ctx.from.last_name}
-      **message:** ${ctx.message.text}
-      `,
+        format(
+          FLOOD_MESSAGE,
+          env.NODE_ENV,
+          ctx.from.username,
+          ctx.from.first_name,
+          ctx.from.last_name,
+          ctx.message.text,
+        ),
       )
       .setTimestamp(new Date())
 
