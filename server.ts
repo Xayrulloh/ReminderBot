@@ -1,4 +1,4 @@
-import { Bot, MemorySessionStorage, session, webhookCallback } from 'grammy'
+import { Bot, InlineKeyboard, MemorySessionStorage, session, webhookCallback } from 'grammy'
 import { scenes } from './scenes'
 import HLanguage from '#helper/language'
 import { cronStarter } from './cron/cron'
@@ -68,6 +68,10 @@ bot.command('hadith', async (ctx) => {
 
 bot.command('addHadith', async (ctx) => {
   await ctx.scenes.enter('AddHadith')
+})
+
+bot.command('quran', async (ctx) => {
+  await ctx.scenes.enter('Quran')
 })
 
 bot.command('start', async (ctx) => {
