@@ -70,6 +70,10 @@ bot.command('addHadith', async (ctx) => {
   await ctx.scenes.enter('AddHadith')
 })
 
+bot.command('quran', async (ctx) => {
+  await ctx.scenes.enter('Quran')
+})
+
 bot.command('start', async (ctx) => {
   const welcomeText = HLanguage('welcome')
   const keyboardText = HLanguage('mainKeyboard')
@@ -94,15 +98,7 @@ bot.command('source', async (ctx) => {
 bot.on('message:text', async (ctx) => {
   const mappedScene = keyboardMapper(ctx.message.text)
 
-  if (mappedScene == "Qur'on") {
-    const message = HLanguage("share_qu'ron_va_tafsiri")
-    const keyboard = new InlineKeyboard()
-    const enterMessage = HLanguage('enter')
-
-    keyboard.url(enterMessage, env.QURON_VA_TAFSIRI_URL)
-
-    await ctx.reply(message, { reply_markup: keyboard })
-  } else if (mappedScene) {
+  if (mappedScene) {
     return ctx.scenes.enter(mappedScene)
   } else {
     const discordClient = new WebhookClient({
