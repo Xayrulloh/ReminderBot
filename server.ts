@@ -1,4 +1,4 @@
-import { Bot, MemorySessionStorage, session, webhookCallback } from 'grammy'
+import { Bot, InlineKeyboard, MemorySessionStorage, session, webhookCallback } from 'grammy'
 import { scenes } from './scenes'
 import HLanguage from '#helper/language'
 import { cronStarter } from './cron/cron'
@@ -94,7 +94,15 @@ bot.command('source', async (ctx) => {
 bot.on('message:text', async (ctx) => {
   const mappedScene = keyboardMapper(ctx.message.text)
 
-  if (mappedScene) {
+  if (mappedScene == "Qur'on") {
+    const message = HLanguage("share_qu'ron_va_tafsiri")
+    const keyboard = new InlineKeyboard()
+    const enterMessage = HLanguage('enter')
+
+    keyboard.url(enterMessage, env.QURON_VA_TAFSIRI_URL)
+
+    await ctx.reply(message, { reply_markup: keyboard })
+  } else if (mappedScene) {
     return ctx.scenes.enter(mappedScene)
   } else {
     const discordClient = new WebhookClient({

@@ -11,6 +11,7 @@ export const keyboardMapper = (text: any) => {
     [keyboardText[4]]: 'Statistic',
     [keyboardText[5]]: 'Source',
     [keyboardText[6]]: 'Hadith',
+    [keyboardText[7]]: "Qur'on",
     // [keyboardText[5]]: "Donate"
   }
 
