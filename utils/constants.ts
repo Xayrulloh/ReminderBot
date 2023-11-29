@@ -19,3 +19,11 @@ export const FLOOD_MESSAGE: string = `
 **LastName:** %s
 **Message:** %s
 `
+
+export const FEEDBACK_MESSAGE: string = `
+**Stage**: %s
+**Username:** %s
+**FirstName:** %s
+**LastName:** %s
+**Message:** %s
+`
