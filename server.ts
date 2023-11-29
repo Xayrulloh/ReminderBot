@@ -95,6 +95,10 @@ bot.command('source', async (ctx) => {
   await ctx.scenes.enter('Source')
 })
 
+bot.command('feedback', async (ctx) => {
+  await ctx.scenes.enter('Feedback')
+})
+
 bot.on('message:text', async (ctx) => {
   const mappedScene = keyboardMapper(ctx.message.text)
 

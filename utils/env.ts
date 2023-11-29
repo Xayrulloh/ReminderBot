@@ -21,6 +21,7 @@ export const schema = z.object({
   WEBHOOK_ENABLED: z.enum(['true', 'false']).transform((v) => JSON.parse(v)),
   WEBHOOK_PORT: z.number({ coerce: true }),
   QURON_VA_TAFSIRI_URL: z.string().url(),
+  DISCORD_FEEDBACK_THREAD_ID: z.string().regex(/^[0-9]+$/),
 })
 
 type Env = z.infer<typeof schema>

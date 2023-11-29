@@ -28,7 +28,8 @@
     "📊 Statistika",
     "📚 Manba",
     "📜 Hadis",
-    "📖 Qur'on va Tafsiri"
+    "📖 Qur'on va Tafsiri",
+    "📢 Taklif yoki Shikoyat"
   ],
   "searchRegion": "Shaxarni belgilang",
   "fajrTime": "🏙 Bomdod vaqti bo'ldi",
@@ -68,5 +69,7 @@
   "enter": "Kirish",
   "source": "Manba",
   "sourceMessage": "_Namoz vaqtlari:_ [islom.uz]($siteLink)\n_Hadislar to'plami:_ [Riyozus solihiyn]($sourceLink)",
-  "share_qu'ron_va_tafsiri": "https://t.me/Quron_va_Tafsiri\n\nAssalomu alaykum. Ushbu kanalda siz qur'on va uning tafsirini audio tarzda eshitib o'rganishingiz mumkin. Audio format avval o'zbek tilida keyin esa arab tilida keltirilgan. O'ylaymizki bu siz uchun manfatli bo'ladi"
+  "share_qu'ron_va_tafsiri": "https://t.me/Quron_va_Tafsiri\n\nAssalomu alaykum. Ushbu kanalda siz qur'on va uning tafsirini audio tarzda eshitib o'rganishingiz mumkin. Audio format avval o'zbek tilida keyin esa arab tilida keltirilgan. O'ylaymizki bu siz uchun manfatli bo'ladi",
+  "feedbackStartMessage": "Taklif yoki shikoyatingizni yozing",
+  "feedbackEndMessage": "Taklif yoki shikoyatingizni yozganingiz uchun rahmat"
 }
