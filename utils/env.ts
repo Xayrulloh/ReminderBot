@@ -1,4 +1,3 @@
-import 'dotenv/config'
 import * as process from 'process'
 import * as z from 'zod'
 import { Color } from '#utils/enums'
