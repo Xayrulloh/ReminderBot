@@ -1,4 +1,4 @@
-import { Bot, MemorySessionStorage, session, webhookCallback } from 'grammy'
+import { Bot, InlineKeyboard, MemorySessionStorage, session, webhookCallback } from 'grammy'
 import { scenes } from './scenes'
 import HLanguage from '#helper/language'
 import { cronStarter } from './cron/cron'
@@ -70,6 +70,10 @@ bot.command('addHadith', async (ctx) => {
   await ctx.scenes.enter('AddHadith')
 })
 
+bot.command('quran', async (ctx) => {
+  await ctx.scenes.enter('Quran')
+})
+
 bot.command('start', async (ctx) => {
   const welcomeText = HLanguage('welcome')
   const keyboardText = HLanguage('mainKeyboard')
@@ -89,6 +93,10 @@ bot.command('start', async (ctx) => {
 
 bot.command('source', async (ctx) => {
   await ctx.scenes.enter('Source')
+})
+
+bot.command('feedback', async (ctx) => {
+  await ctx.scenes.enter('Feedback')
 })
 
 bot.on('message:text', async (ctx) => {
