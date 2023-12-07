@@ -5,15 +5,32 @@ type InternalButton = {
   text: string
 }
 
-export default function inlineKFunction(num: number, ...buttons: InternalButton[]) {
+export default function inlineKFunction(num: number, page: number, ...buttons: InternalButton[]) {
   let keyboard = new InlineKeyboard()
 
-  buttons.forEach((el, index) => {
-    if (index % num == 0) {
-      keyboard.row()
-    }
-    keyboard.text(el.view, el.text)
-  })
+  if (buttons.length >= 15) {
+    const displayButtons = buttons.splice(page * 12 - 12, 12)
+
+    displayButtons.forEach((el, index) => {
+      if (index % num == 0) {
+        keyboard.row()
+      }
+      keyboard.text(el.view, el.text)
+    })
+
+    keyboard.row()
+
+    keyboard.text('<', '<')
+    keyboard.text(page.toString(), 'pageNumber')
+    keyboard.text('>', '>')
+  } else {
+    buttons.forEach((el, index) => {
+      if (index % num == 0) {
+        keyboard.row()
+      }
+      keyboard.text(el.view, el.text)
+    })
+  }
 
   return keyboard
 }

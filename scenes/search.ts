@@ -20,39 +20,61 @@ scene.step(async (ctx) => {
     keyboard.push({ view: region, text: keyboardMessage[region] })
   }
 
-  const buttons = inlineKFunction(3, ...keyboard)
+  const buttons = inlineKFunction(3, 1, ...keyboard)
 
   ctx.session.message = message
   ctx.session.buttons = buttons
   ctx.session.regionId = Object.values(keyboardMessage)
   ctx.session.regions = keyboardMessage
+  ctx.session.currPage = 1
+  ctx.session.keyboard = keyboard
 
   await ctx.reply(message, { reply_markup: buttons })
 })
 
 scene.wait('region').on('callback_query:data', async (ctx) => {
-  if (ctx.session.regionId.includes(+ctx.update.callback_query.data)) {
-    await ctx.answerCallbackQuery()
+  const inputData = ctx.update.callback_query.data
 
-    const now = new Date()
-    const today = now.getDate()
+  if (ctx.session.regionId.includes(+inputData) || ['<', '>'].includes(inputData)) {
+    if (['<', '>', 'pageNumber'].includes(inputData)) {
+      if (inputData == '<' && ctx.session.currPage != 1) {
+        await ctx.answerCallbackQuery()
 
-    const message = HLanguage('infoPrayTime')
-    const data = await Model.PrayTime.findOne<IPrayTime>({ day: today, regionId: ctx.update.callback_query.data })
+        ctx.session.buttons = inlineKFunction(3, --ctx.session.currPage, ...ctx.session.keyboard)
 
-    if (!data) return ctx.scene.exit()
+        await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons })
+      } else if (inputData == '>' && ctx.session.currPage * 12 <= ctx.session.regionId.length) {
+        await ctx.answerCallbackQuery()
 
-    let response = HReplace(
-      message,
-      ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha'],
-      [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha],
-    )
+        ctx.session.buttons = inlineKFunction(3, ++ctx.session.currPage, ...ctx.session.keyboard)
 
-    const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
+        await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons })
+      } else {
+        await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
+      }
+    } else {
+      await ctx.answerCallbackQuery()
 
-    await ctx.deleteMessage()
-    await ctx.reply(response + dailyHadith, { parse_mode: 'HTML' })
-    ctx.scene.exit()
+      const now = new Date()
+      const today = now.getDate()
+
+      const message = HLanguage('infoPrayTime')
+      const data = await Model.PrayTime.findOne<IPrayTime>({ day: today, regionId: inputData })
+
+      if (!data) return ctx.scene.exit()
+
+      let response = HReplace(
+        message,
+        ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha'],
+        [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha],
+      )
+
+      const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
+
+      await ctx.deleteMessage()
+      await ctx.reply(response + dailyHadith, { parse_mode: 'HTML' })
+      ctx.scene.exit()
+    }
   } else {
     await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
   }

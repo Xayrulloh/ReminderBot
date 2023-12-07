@@ -12,6 +12,7 @@ scene.step(async (ctx) => {
   const keyboardMessage = HLanguage('agreementFasting')
   const buttons = inlineKFunction(
     Infinity,
+    1,
     { view: keyboardMessage[0], text: keyboardMessage[0] },
     { view: keyboardMessage[1], text: keyboardMessage[1] },
   )
