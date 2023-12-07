@@ -19,7 +19,7 @@ scene.step(async (ctx) => {
     keyboard.push({ view: region, text: keyboardMessage[region] })
   }
 
-  const buttons = inlineKFunction(3, 1, ...keyboard)
+  const buttons = inlineKFunction(3, keyboard)
 
   ctx.session.message = message
   ctx.session.buttons = buttons
@@ -39,13 +39,13 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
       if (inputData == '<' && ctx.session.currPage != 1) {
         await ctx.answerCallbackQuery()
 
-        ctx.session.buttons = inlineKFunction(3, --ctx.session.currPage, ...ctx.session.keyboard)
+        ctx.session.buttons = inlineKFunction(3, ctx.session.keyboard, --ctx.session.currPage)
 
         await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons })
       } else if (inputData == '>' && ctx.session.currPage * 12 <= ctx.session.regionId.length) {
         await ctx.answerCallbackQuery()
 
-        ctx.session.buttons = inlineKFunction(3, ++ctx.session.currPage, ...ctx.session.keyboard)
+        ctx.session.buttons = inlineKFunction(3, ctx.session.keyboard, ++ctx.session.currPage)
 
         await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons })
       } else {

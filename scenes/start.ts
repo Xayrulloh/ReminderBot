@@ -21,7 +21,7 @@ scene.step(async (ctx) => {
     keyboard.push({ view: region, text: keyboardMessage[region] })
   }
 
-  const buttons = inlineKFunction(3, 1, ...keyboard)
+  const buttons = inlineKFunction(3, keyboard)
 
   ctx.session.regionId = Object.values(keyboardMessage)
   ctx.session.message = message
@@ -43,12 +43,10 @@ scene.wait('fasting').on('callback_query:data', async (ctx) => {
 
   const message = HLanguage('fastingMessage')
   const keyboardMessage = HLanguage('agreementFasting')
-  const buttons = inlineKFunction(
-    Infinity,
-    1,
+  const buttons = inlineKFunction(Infinity, [
     { view: keyboardMessage[0], text: keyboardMessage[0] },
     { view: keyboardMessage[1], text: keyboardMessage[1] },
-  )
+  ])
 
   ctx.session.keyboardMessage = keyboardMessage
   ctx.session.message = message

@@ -5,7 +5,7 @@ type InternalButton = {
   text: string
 }
 
-export default function inlineKFunction(num: number, page: number, ...buttons: InternalButton[]) {
+export default function inlineKFunction(num: number, buttons: InternalButton[], page = 1) {
   let keyboard = new InlineKeyboard()
 
   if (buttons.length >= 15) {

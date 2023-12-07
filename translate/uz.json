@@ -22,10 +22,6 @@
     "Boysun": 76,
     "Buloqboshi": 73,
     "Burchmulla": 44,
-    "Chimboy": 67,
-    "Chimkent": 23,
-    "Chortoq": 35,
-    "Chust": 33,
     "Denov": 6,
     "Deҳqonobod": 84,
     "Do'stlik": 51,
@@ -88,7 +84,11 @@
     "Xonqa": 80,
     "Yangibozor": 81,
     "Zarafshon": 61,
-    "Zomin": 50
+    "Zomin": 50,
+    "Chimboy": 67,
+    "Chimkent": 23,
+    "Chortoq": 35,
+    "Chust": 33
   },
   "chooseRegion": "Shaxaringizni belgilang",
   "infoPrayTime": "$region shahar namoz vaqtlari\n\n🏙 Bomdod $fajr\n🌅 Quyosh $sunrise\n🏞 Peshin $zuhr\n🌆 Asr $asr\n🌉 Shom $maghrib\n🌃 Xufton $isha",

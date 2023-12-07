@@ -10,12 +10,10 @@ const scene = new Scene<BotContext>('Fasting')
 scene.step(async (ctx) => {
   const message = HLanguage('fastingMessage')
   const keyboardMessage = HLanguage('agreementFasting')
-  const buttons = inlineKFunction(
-    Infinity,
-    1,
+  const buttons = inlineKFunction(Infinity, [
     { view: keyboardMessage[0], text: keyboardMessage[0] },
     { view: keyboardMessage[1], text: keyboardMessage[1] },
-  )
+  ])
 
   ctx.session.keyboardMessage = keyboardMessage
   ctx.session.message = message
