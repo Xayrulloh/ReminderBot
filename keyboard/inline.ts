@@ -9,7 +9,7 @@ export default function inlineKFunction(num: number, buttons: InternalButton[], 
   let keyboard = new InlineKeyboard()
 
   if (buttons.length >= 15) {
-    const displayButtons = buttons.splice(page * 12 - 12, 12)
+    const displayButtons = buttons.splice((page - 1) * 12, 12)
 
     displayButtons.forEach((el, index) => {
       if (index % num == 0) {
