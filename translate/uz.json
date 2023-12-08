@@ -14,7 +14,7 @@
     "Xiva": 21,
     "Marg'ilon": 13
   },
-  "chooseRegion": "Shaxaringizni belgilang",
+  "chooseRegion": "Shahringizni belgilang",
   "infoPrayTime": "$region shahar namoz vaqtlari\n\n🏙 Bomdod $fajr\n🌅 Quyosh $sunrise\n🏞 Peshin $zuhr\n🌆 Asr $asr\n🌉 Shom $maghrib\n🌃 Xufton $isha",
   "notifChange": "O'zgartirildi",
   "locationChange": "Sizning joylashuvingiz o'zgartirildi.",
@@ -71,5 +71,6 @@
   "sourceMessage": "_Namoz vaqtlari:_ [islom.uz]($siteLink)\n_Hadislar to'plami:_ [Riyozus solihiyn]($sourceLink)",
   "share_qu'ron_va_tafsiri": "https://t.me/Quron_va_Tafsiri\n\nAssalomu alaykum. Ushbu kanalda siz qur'on va uning tafsirini audio tarzda eshitib o'rganishingiz mumkin. Audio format avval o'zbek tilida keyin esa arab tilida keltirilgan. O'ylaymizki bu siz uchun manfatli bo'ladi",
   "feedbackStartMessage": "Taklif yoki shikoyatingizni yozing",
-  "feedbackEndMessage": "Taklif yoki shikoyatingizni yozganingiz uchun rahmat"
+  "feedbackEndMessage": "Taklif yoki shikoyatingizni yozganingiz uchun rahmat",
+  "currentRegion": "Sizning hozirgi shahringiz: <i><b>$region</b></i>"
 }
