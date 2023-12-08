@@ -11,10 +11,7 @@ import { IPrayTime, IUser } from '#types/database'
 let scene = new Scene<BotContext>('Location')
 
 scene.step(async (ctx) => {
-  let currentRegionMsg = HLanguage('currentRegion');
-  currentRegionMsg = HReplace(currentRegionMsg, ['$region'], [ctx.user.region])
-
-  const message = currentRegionMsg + '\n\n' + HLanguage('chooseRegion')
+  const message =  `Hozirgi mintaqa: ${ctx.user.region}` + '\n\n' + HLanguage('chooseRegion')
   const keyboardMessage = HLanguage('region')
   const keyboard = []
 
