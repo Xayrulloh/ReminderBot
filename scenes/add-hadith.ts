@@ -24,7 +24,7 @@ scene.wait('hadith').on('message:text', async (ctx) => {
   if (categories.length) {
     buttons = inlineKFunction(
       5,
-      ...categories.map((c) => {
+      categories.map((c) => {
         return { view: c, text: c }
       }),
     )
