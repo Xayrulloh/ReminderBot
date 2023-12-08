@@ -22,51 +22,70 @@ scene.step(async (ctx) => {
     keyboard.push({ view: region, text: keyboardMessage[region] })
   }
 
-  const buttons = inlineKFunction(3, ...keyboard)
+  const buttons = inlineKFunction(3, keyboard)
 
   ctx.session.message = message
   ctx.session.buttons = buttons
   ctx.session.regionId = Object.values(keyboardMessage)
   ctx.session.regions = keyboardMessage
+  ctx.session.currPage = 1
+  ctx.session.keyboard = keyboard
   await ctx.reply(message, { reply_markup: buttons, parse_mode: 'HTML' })
 })
 
 scene.wait('location').on('callback_query:data', async (ctx) => {
-  if (ctx.session.regionId.includes(+ctx.update.callback_query.data)) {
-    await ctx.answerCallbackQuery()
+  const inputData = ctx.update.callback_query.data
 
-    const now = new Date()
-    const today = now.getDate()
-    const message = HLanguage('infoPrayTime')
-    const data = await Model.PrayTime.findOne<IPrayTime>({ day: today, regionId: +ctx.update.callback_query.data })
-    let regionName = ''
+  if (ctx.session.regionId.includes(+inputData) || ['<', '>'].includes(inputData)) {
+    if (['<', '>', 'pageNumber'].includes(inputData)) {
+      if (inputData == '<' && ctx.session.currPage != 1) {
+        await ctx.answerCallbackQuery()
 
-    if (!data) return ctx.scene.exit()
+        ctx.session.buttons = inlineKFunction(3, ctx.session.keyboard, --ctx.session.currPage)
 
-    for (const key in ctx.session.regions) {
-      if (ctx.session.regions[key] === data.regionId) {
-        regionName = key
-        break
+        await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons, parse_mode: 'HTML' })
+      } else if (inputData == '>' && ctx.session.currPage * 12 <= ctx.session.regionId.length) {
+        await ctx.answerCallbackQuery()
+
+        ctx.session.buttons = inlineKFunction(3, ctx.session.keyboard, ++ctx.session.currPage)
+
+        await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons, parse_mode: 'HTML' })
+      } else {
+        await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
       }
+    } else {
+      await ctx.answerCallbackQuery()
+
+      const now = new Date()
+      const today = now.getDate()
+      const message = HLanguage('infoPrayTime')
+      const data = await Model.PrayTime.findOne<IPrayTime>({ day: today, regionId: +inputData })
+      let regionName = ''
+
+      if (!data) return ctx.scene.exit()
+
+      for (const key in ctx.session.regions) {
+        if (ctx.session.regions[key] === data.regionId) {
+          regionName = key
+          break
+        }
+      }
+
+      await Model.User.updateOne<IUser>({ userId: ctx.user.userId }, { region: regionName, regionId: +inputData })
+
+      let response = HReplace(
+        message,
+        ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha'],
+        [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha],
+      )
+      const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
+      const locationMessage = HLanguage('locationChange')
+
+      await ctx.editMessageText(locationMessage + '\n\n' + response + dailyHadith, {
+        parse_mode: 'HTML',
+      })
+      ctx.scene.exit()
     }
-
-    await Model.User.updateOne<IUser>(
-      { userId: ctx.user.userId },
-      { region: regionName, regionId: +ctx.update.callback_query.data },
-    )
-
-    let response = HReplace(
-      message,
-      ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha'],
-      [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha],
-    )
-    const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
-    const locationMessage = HLanguage('locationChange')
-
-    await ctx.editMessageText(locationMessage + '\n\n' + response + dailyHadith, {
-      parse_mode: 'HTML',
-    })
-    ctx.scene.exit()
   } else {
     await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
   }
