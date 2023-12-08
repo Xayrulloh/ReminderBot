@@ -27,5 +27,3 @@ export const FEEDBACK_MESSAGE: string = `
 **LastName:** %s
 **Message:** %s
 `
-
-export const PER_PAGE = 12
