@@ -11,7 +11,10 @@ import { IPrayTime, IUser } from '#types/database'
 let scene = new Scene<BotContext>('Location')
 
 scene.step(async (ctx) => {
-  const message = HLanguage('chooseRegion')
+  let currentRegionMsg = HLanguage('currentRegion');
+  currentRegionMsg = HReplace(currentRegionMsg, ['$region'], [ctx.user.region])
+
+  const message = currentRegionMsg + '\n\n' + HLanguage('chooseRegion')
   const keyboardMessage = HLanguage('region')
   const keyboard = []
 
@@ -25,8 +28,7 @@ scene.step(async (ctx) => {
   ctx.session.buttons = buttons
   ctx.session.regionId = Object.values(keyboardMessage)
   ctx.session.regions = keyboardMessage
-
-  await ctx.reply(message, { reply_markup: buttons })
+  await ctx.reply(message, { reply_markup: buttons, parse_mode: 'HTML' })
 })
 
 scene.wait('location').on('callback_query:data', async (ctx) => {
