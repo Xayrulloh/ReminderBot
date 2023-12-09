@@ -69,6 +69,7 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
       }
 
       await Model.User.updateOne<IUser>({ userId: ctx.user.userId }, { region: regionName, regionId: +inputData })
+      ctx.user.region = regionName
 
       let response = HReplace(
         message,
