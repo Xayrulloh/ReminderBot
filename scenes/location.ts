@@ -11,7 +11,7 @@ import { IPrayTime, IUser } from '#types/database'
 let scene = new Scene<BotContext>('Location')
 
 scene.step(async (ctx) => {
-  const message =  `Hozirgi mintaqa: ${ctx.user.region}` + '\n\n' + HLanguage('chooseRegion')
+  const message = `${HLanguage('currentRegion')} <b>${ctx.user.region}</b>\n\n ${HLanguage('chooseRegion')}`
   const keyboardMessage = HLanguage('region')
   const keyboard = []
 
@@ -70,6 +70,9 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
 
       await Model.User.updateOne<IUser>({ userId: ctx.user.userId }, { region: regionName, regionId: +inputData })
 
+      ctx.user.region = regionName
+      ctx.user.regionId = +inputData
+
       let response = HReplace(
         message,
         ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha'],
@@ -81,6 +84,7 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
       await ctx.editMessageText(locationMessage + '\n\n' + response + dailyHadith, {
         parse_mode: 'HTML',
       })
+
       ctx.scene.exit()
     }
   } else {
