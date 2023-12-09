@@ -70,7 +70,8 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
 
       await Model.User.updateOne<IUser>({ userId: ctx.user.userId }, { region: regionName, regionId: +inputData })
 
-      memoryStorage.delete(String(ctx.from?.id))
+      ctx.user.region = regionName
+      ctx.user.regionId = +inputData
 
       let response = HReplace(
         message,
