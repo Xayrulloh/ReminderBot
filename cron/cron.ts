@@ -31,6 +31,7 @@ async function monthly() {
     })
     const pdfData = await pdfParser(pdf.data)
     const data = pdfData.text.split('\n')
+    const prayTimes = []
 
     for (let el of data) {
       if (el.length > 20 && el.split(' ').length == 1) {
@@ -39,7 +40,7 @@ async function monthly() {
             let dayNumber = el.split(day)[0]
             let times = el.split(day)[1].match(/.{1,5}/g) as RegExpMatchArray
 
-            await Model.PrayTime.create<IPrayTime>({
+            prayTimes.push({
               region: regions[i],
               regionId: regionIds[i],
               day: dayNumber,
@@ -54,6 +55,8 @@ async function monthly() {
         }
       }
     }
+
+    await Model.PrayTime.insertMany<IPrayTime>(prayTimes)
   }
 }
 

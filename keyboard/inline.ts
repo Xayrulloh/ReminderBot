@@ -22,7 +22,7 @@ export default function inlineKFunction(num: number, buttons: InternalButton[], 
     keyboard.row()
 
     keyboard.text('<', '<')
-    keyboard.text(page.toString(), 'pageNumber')
+    keyboard.text(`${page.toString()}/${Math.ceil(buttons.length / PER_PAGE)}`, 'pageNumber')
     keyboard.text('>', '>')
   } else {
     buttons.forEach((el, index) => {
