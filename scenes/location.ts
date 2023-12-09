@@ -11,7 +11,7 @@ import { IPrayTime, IUser } from '#types/database'
 let scene = new Scene<BotContext>('Location')
 
 scene.step(async (ctx) => {
-  const message = HLanguage('chooseRegion')
+  const message =  `Hozirgi mintaqa: ${ctx.user.region}` + '\n\n' + HLanguage('chooseRegion')
   const keyboardMessage = HLanguage('region')
   const keyboard = []
 
@@ -27,8 +27,7 @@ scene.step(async (ctx) => {
   ctx.session.regions = keyboardMessage
   ctx.session.currPage = 1
   ctx.session.keyboard = keyboard
-
-  await ctx.reply(message, { reply_markup: buttons })
+  await ctx.reply(message, { reply_markup: buttons, parse_mode: 'HTML' })
 })
 
 scene.wait('location').on('callback_query:data', async (ctx) => {
@@ -41,13 +40,13 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
 
         ctx.session.buttons = inlineKFunction(3, ctx.session.keyboard, --ctx.session.currPage)
 
-        await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons })
+        await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons, parse_mode: 'HTML' })
       } else if (inputData == '>' && ctx.session.currPage * 12 <= ctx.session.regionId.length) {
         await ctx.answerCallbackQuery()
 
         ctx.session.buttons = inlineKFunction(3, ctx.session.keyboard, ++ctx.session.currPage)
 
-        await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons })
+        await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons, parse_mode: 'HTML' })
       } else {
         await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
       }

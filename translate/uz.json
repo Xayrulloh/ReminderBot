@@ -90,7 +90,7 @@
     "Chortoq": 35,
     "Chust": 33
   },
-  "chooseRegion": "Shaxaringizni belgilang",
+  "chooseRegion": "Mintaqani belgilang",
   "infoPrayTime": "$region shahar namoz vaqtlari\n\n🏙 Bomdod $fajr\n🌅 Quyosh $sunrise\n🏞 Peshin $zuhr\n🌆 Asr $asr\n🌉 Shom $maghrib\n🌃 Xufton $isha",
   "notifChange": "O'zgartirildi",
   "locationChange": "Sizning joylashuvingiz o'zgartirildi.",
