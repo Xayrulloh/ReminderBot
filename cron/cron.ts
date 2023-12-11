@@ -8,12 +8,11 @@ import schedule from 'node-schedule'
 import customKFunction from '#keyboard/custom'
 import { Bot, InlineKeyboard, InputFile } from 'grammy'
 import { BotContext } from '#types/context'
-import { memoryStorage } from '#config/storage'
-import { DAILY_HADITH_KEY } from '#utils/constants'
-import { IHadith, IPrayTime, IUser } from '#types/database'
+import { IPrayTime, IUser } from '#types/database'
 import { env } from '#utils/env'
 import cron from 'node-cron'
 import { handleSendMessageError } from '#helper/errorHandler'
+import { getHadith } from '#helper/getHadith'
 
 async function monthly() {
   const now = new Date()
@@ -66,23 +65,8 @@ async function daily(bot: Bot<BotContext>) {
   const monthDay = now.getDate()
   const weekDay = now.getDay()
   const regions = await Model.PrayTime.find<IPrayTime>({ day: monthDay })
-
-  // taking hadith
-  let hadith: IHadith[] | string
   const file = new InputFile(resolve('public', 'JumaMuborak.jpg'))
-  if (weekDay == 5) {
-    hadith = await Model.Hadith.aggregate<IHadith>([{ $match: { category: 'juma' } }, { $sample: { size: 1 } }])
-  } else {
-    hadith = await Model.Hadith.aggregate<IHadith>([
-      { $match: { category: { $ne: 'juma' } } },
-      { $sample: { size: 1 } },
-    ])
-  }
-
-  hadith = '\n\n<pre>' + hadith[0]?.content + '</pre>'
-
-  // Set daily hadith to storage
-  memoryStorage.write(DAILY_HADITH_KEY, hadith)
+  const hadith = await getHadith()
 
   // sending
   for (let region of regions) {
@@ -323,4 +307,5 @@ export async function cronStarter(bot: Bot<BotContext>) {
   )
 
   await reminder(bot)
+  await getHadith()
 }
