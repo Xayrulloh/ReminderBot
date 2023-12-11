@@ -80,8 +80,17 @@ async function daily(bot: Bot<BotContext>) {
       const info = HLanguage('infoPrayTime')
       let message = HReplace(
         info,
-        ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha'],
-        [region.region, region.fajr, region.sunrise, region.dhuhr, region.asr, region.maghrib, region.isha],
+        ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha', '$date'],
+        [
+          region.region,
+          region.fajr,
+          region.sunrise,
+          region.dhuhr,
+          region.asr,
+          region.maghrib,
+          region.isha,
+          now.toLocaleDateString(),
+        ],
       )
 
       const keyboardText = HLanguage('mainKeyboard')

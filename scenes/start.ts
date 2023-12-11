@@ -94,8 +94,8 @@ scene.wait('the_end').on('callback_query:data', async (ctx) => {
 
   let response = HReplace(
     message,
-    ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha'],
-    [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha],
+    ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha', '$date'],
+    [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha, now.toLocaleDateString()],
   )
   const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
 
