@@ -57,7 +57,7 @@ scene.wait('region').on('callback_query:data', async (ctx) => {
       await ctx.answerCallbackQuery()
 
       const selectDayKeyboard = new InlineKeyboard()
-      ctx.session.regionId = inputData
+      ctx.session.regionId = +inputData
 
       for (const dayOption of HLanguage('selectDayOptions')) {
         selectDayKeyboard.text(dayOption)
