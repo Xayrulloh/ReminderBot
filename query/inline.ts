@@ -84,8 +84,17 @@ export async function inlineQuery(ctx: BotContext) {
 
     const content = HReplace(
       message,
-      ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha'],
-      [regionName, region.fajr, region.sunrise, region.dhuhr, region.asr, region.maghrib, region.isha],
+      ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha', '$date'],
+      [
+        regionName,
+        region.fajr,
+        region.sunrise,
+        region.dhuhr,
+        region.asr,
+        region.maghrib,
+        region.isha,
+        now.toLocaleDateString(),
+      ],
     )
 
     response.push({

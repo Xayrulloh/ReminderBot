@@ -91,7 +91,7 @@
     "Chust": 33
   },
   "chooseRegion": "Mintaqani belgilang",
-  "infoPrayTime": "$region shahar namoz vaqtlari\n\n🏙 Bomdod $fajr\n🌅 Quyosh $sunrise\n🏞 Peshin $zuhr\n🌆 Asr $asr\n🌉 Shom $maghrib\n🌃 Xufton $isha",
+  "infoPrayTime": "Sana: $date\n$region shahar namoz vaqtlari\n\n🏙 Bomdod $fajr\n🌅 Quyosh $sunrise\n🏞 Peshin $zuhr\n🌆 Asr $asr\n🌉 Shom $maghrib\n🌃 Xufton $isha",
   "notifChange": "O'zgartirildi",
   "locationChange": "Sizning joylashuvingiz o'zgartirildi.",
   "agreementFasting": ["Ha", "Yo'q"],
@@ -148,5 +148,10 @@
   "share_qu'ron_va_tafsiri": "https://t.me/Quron_va_Tafsiri\n\nAssalomu alaykum. Ushbu kanalda siz qur'on va uning tafsirini audio tarzda eshitib o'rganishingiz mumkin. Audio format avval o'zbek tilida keyin esa arab tilida keltirilgan. O'ylaymizki bu siz uchun manfatli bo'ladi",
   "feedbackStartMessage": "Taklif yoki shikoyatingizni yozing",
   "feedbackEndMessage": "Fikr-mulohazalaringiz uchun tashakkur. Biz buni qadrlaymiz!",
-  "currentRegion": "Hozirgi mintaqa: "
+  "currentRegion": "Hozirgi mintaqa: ",
+  "selectDay": "Kerakli kunni belgilang:",
+  "selectDayOptions": [
+    "Bugun",
+    "Boshqa kun"
+  ]
 }
