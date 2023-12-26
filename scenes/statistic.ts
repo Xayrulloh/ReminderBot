@@ -15,13 +15,17 @@ scene.step(async (ctx) => {
   const enterMessage = HLanguage('enter')
   keyboard.url(enterMessage, 'https://t.me/' + ctx.me.username)
 
-  if (1151533771 === ctx.user.userId) {
+  if ([1151533771, 900604435, 962526857].includes(ctx.user.userId)) {
+    let deletedUsers = 0
     const blockedUsers = users.reduce((count, user) => {
       if (user.status === false) count++
+      if (user.deletedAt) deletedUsers++
       return count
     }, 0)
 
-    shareMessage += `.\n\n Blocked users:  ${blockedUsers}\n Pure users:   ${users.length - blockedUsers}`
+    shareMessage += `.\n\n Blocked users:  ${blockedUsers}\n Deleted account users: ${deletedUsers}\n Pure users:   ${
+      users.length - blockedUsers
+    }`
   }
 
   await ctx.reply(countMessage + users.length + '.\n\n' + shareMessage, { reply_markup: keyboard })
