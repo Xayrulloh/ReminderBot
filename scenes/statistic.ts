@@ -8,24 +8,28 @@ import { InlineKeyboard } from 'grammy'
 const scene = new Scene<BotContext>('Statistic')
 
 scene.step(async (ctx) => {
-  const users = await Model.User.find<IUser>({ deletedAt: null })
+  const users = await Model.User.find<IUser>()
   const countMessage = HLanguage('usersCount')
   let shareMessage = HLanguage('shareMessage')
   const keyboard = new InlineKeyboard()
   const enterMessage = HLanguage('enter')
+
   keyboard.url(enterMessage, 'https://t.me/' + ctx.me.username)
 
   if ([1151533771, 900604435, 962526857].includes(ctx.user.userId)) {
-    let deletedUsers = 0
-    const blockedUsers = users.reduce((count, user) => {
-      if (user.status === false) count++
-      if (user.deletedAt) deletedUsers++
-      return count
-    }, 0)
+    const usersInfo = users.reduce(
+      (userObj, user) => {
+        if (user.status === false && !user.deletedAt) ++userObj.blockedUsers
+        if (user.deletedAt) ++userObj.deletedUsers
 
-    shareMessage += `.\n\n Blocked users:  ${blockedUsers}\n Deleted account users: ${deletedUsers}\n Pure users:   ${
-      users.length - blockedUsers
-    }`
+        return userObj
+      },
+      { blockedUsers: 0, deletedUsers: 0 },
+    )
+
+    shareMessage += `.\n\n Blocked users:  ${usersInfo.blockedUsers}\n Deleted account users: ${
+      usersInfo.deletedUsers
+    }\n Pure users:   ${users.length - (usersInfo.blockedUsers + usersInfo.deletedUsers)}`
   }
 
   await ctx.reply(countMessage + users.length + '.\n\n' + shareMessage, { reply_markup: keyboard })
