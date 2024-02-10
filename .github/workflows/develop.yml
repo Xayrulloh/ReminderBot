@@ -14,7 +14,7 @@ jobs:
       - name: Set up Node.js LTS
         uses: actions/setup-node@v3
         with:
-          node-version: lts/Hydrogen
+          node-version: lts/Iron
 
       - name: Install package manager
         uses: pnpm/action-setup@v2
@@ -38,7 +38,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           script: |
-            cd ReminderBotDev
+            cd projects/ReminderBotDev
             git pull
             pnpm install
             pnpm run build
