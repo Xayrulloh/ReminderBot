@@ -75,6 +75,7 @@ scene.wait('commonDays').on('callback_query:data', async (ctx) => {
   const dayInput = ctx.callbackQuery.data
   const dayOptions: string[] = HLanguage('selectDayOptions')
   const now = new Date()
+  const currentMonth = now.getMonth() + 1
   let day: number
 
   switch (dayInput) {
@@ -102,7 +103,7 @@ scene.wait('commonDays').on('callback_query:data', async (ctx) => {
       break
   }
   const message = HLanguage('infoPrayTime')
-  const data = await Model.PrayTime.findOne<IPrayTime>({ day, regionId: ctx.session.regionId })
+  const data = await Model.PrayTime.findOne<IPrayTime>({ day, regionId: ctx.session.regionId, month: currentMonth })
 
   if (!data) return ctx.scene.exit()
 

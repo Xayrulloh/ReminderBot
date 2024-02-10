@@ -14,57 +14,59 @@ import cron from 'node-cron'
 import { handleSendMessageError } from '#helper/errorHandler'
 import { getHadith } from '#helper/getHadith'
 
-async function monthly() {
-  const now = new Date()
-  const currentMonth = now.getMonth() + 1
+async function yearly() {
   const keyboardMessage = HLanguage('region')
   const regions = Object.keys(keyboardMessage)
   const regionIds = Object.values(keyboardMessage)
   const daysOfWeek = ['Якшанба', 'Душанба', 'Сешанба', 'Чоршанба', 'Пайшанба', 'Жума', 'Шанба']
+  const prayTimes = []
 
   await Model.PrayTime.deleteMany()
 
-  for (let i = 0; i < regions.length; i++) {
-    const pdf = await axios.get(env.TIME_API + regionIds[i] + '/' + currentMonth, {
-      responseType: 'arraybuffer',
-    })
-    const pdfData = await pdfParser(pdf.data)
-    const data = pdfData.text.split('\n')
-    const prayTimes = []
+  for (let month = 1; month <= 12; month++) {
+    for (let region = 0; region < regions.length; region++) {
+      const pdf = await axios.get(env.TIME_API + regionIds[region] + '/' + month, {
+        responseType: 'arraybuffer',
+      })
+      const pdfData = await pdfParser(pdf.data)
+      const data = pdfData.text.split('\n')
 
-    for (let el of data) {
-      if (el.length > 20 && el.split(' ').length == 1) {
-        for (let day of daysOfWeek) {
-          if (el.includes(day)) {
-            let dayNumber = el.split(day)[0]
-            let times = el.split(day)[1].match(/.{1,5}/g) as RegExpMatchArray
+      for (let el of data) {
+        if (el.length > 20 && el.split(' ').length == 1) {
+          for (let day of daysOfWeek) {
+            if (el.includes(day)) {
+              let dayNumber = el.split(day)[0]
+              let times = el.split(day)[1].match(/.{1,5}/g) as RegExpMatchArray
 
-            prayTimes.push({
-              region: regions[i],
-              regionId: regionIds[i],
-              day: dayNumber,
-              fajr: times[0],
-              sunrise: times[1],
-              dhuhr: times[2],
-              asr: times[3],
-              maghrib: times[4],
-              isha: times[5],
-            })
+              prayTimes.push({
+                region: regions[region],
+                regionId: regionIds[region],
+                day: dayNumber,
+                fajr: times[0],
+                sunrise: times[1],
+                dhuhr: times[2],
+                asr: times[3],
+                maghrib: times[4],
+                isha: times[5],
+                month,
+              })
+            }
           }
         }
       }
     }
-
-    await Model.PrayTime.insertMany<IPrayTime>(prayTimes)
   }
+
+  await Model.PrayTime.insertMany<IPrayTime>(prayTimes)
 }
 
 async function daily(bot: Bot<BotContext>) {
   // taking data
   const now = new Date()
-  const monthDay = now.getDate()
+  const today = now.getDate()
   const weekDay = now.getDay()
-  const regions = await Model.PrayTime.find<IPrayTime>({ day: monthDay })
+  const currentMonth = now.getMonth() + 1
+  const regions = await Model.PrayTime.find<IPrayTime>({ day: today, month: currentMonth })
   const file = new InputFile(resolve('public', 'JumaMuborak.jpg'))
   const hadith = await getHadith()
 
@@ -119,8 +121,9 @@ async function reminder(bot: Bot<BotContext>) {
   await schedule.gracefulShutdown()
 
   const now = new Date()
-  const currentDay = now.getDate()
-  const regions = await Model.PrayTime.find<IPrayTime>({ day: currentDay })
+  const today = now.getDate()
+  const currentMonth = now.getMonth() + 1
+  const regions = await Model.PrayTime.find<IPrayTime>({ day: today, month: currentMonth })
 
   for (let region of regions) {
     // times
@@ -287,9 +290,9 @@ export async function cronStarter(bot: Bot<BotContext>) {
   }
 
   cron.schedule(
-    '30 0 1 * *',
+    '30 0 1 1 *',
     async () => {
-      await monthly()
+      await yearly()
     },
     scheduleOptions,
   )

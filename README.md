@@ -1,3 +1,6 @@
+## READ FIRST
+This project has reached EOL, which means that no new features will be developed. We're only merging bug fixes and/or security pull requests.
+
 # ReminderBot - Telegram Prayer Time Reminder Bot
 
 ![Telegram Bot](https://img.shields.io/badge/Telegram%20Bot-ReminderBot-blue)

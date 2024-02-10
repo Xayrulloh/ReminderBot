@@ -62,9 +62,10 @@ export async function inlineQuery(ctx: BotContext) {
   regionIds = [...new Set(regionIds)].slice(0, 3)
 
   const now = new Date()
-  const currentDay = now.getDate()
+  const today = now.getDate()
+  const currentMonth = now.getMonth() + 1
   const regionTranslations: Record<string, number> = HLanguage('region')
-  const regions = await Model.PrayTime.find<IPrayTime>({ day: currentDay, regionId: regionIds })
+  const regions = await Model.PrayTime.find<IPrayTime>({ day: today, regionId: regionIds, month: currentMonth })
   const message = HLanguage('infoPrayTime')
   const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
   const response: InlineQueryResult[] = []

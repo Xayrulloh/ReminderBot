@@ -30,6 +30,7 @@ export interface IPrayTime extends Document {
   asr: string
   maghrib: string
   isha: string
+  month: number
 }
 
 export interface IHadith extends Document {

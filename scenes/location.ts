@@ -55,8 +55,9 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
 
       const now = new Date()
       const today = now.getDate()
+      const currentMonth = now.getMonth() + 1
       const message = HLanguage('infoPrayTime')
-      const data = await Model.PrayTime.findOne<IPrayTime>({ day: today, regionId: +inputData })
+      const data = await Model.PrayTime.findOne<IPrayTime>({ day: today, regionId: +inputData, month: currentMonth })
       let regionName = ''
 
       if (!data) return ctx.scene.exit()

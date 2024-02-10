@@ -82,6 +82,11 @@ const PrayTime = new mongoose.Schema(
       required: true,
       type: Number,
     },
+    month: {
+      required: true,
+      type: Number,
+      default: 2,
+    },
     day: {
       required: true,
       type: Number,
