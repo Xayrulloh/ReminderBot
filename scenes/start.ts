@@ -67,9 +67,14 @@ scene.wait('the_end').on('callback_query:data', async (ctx) => {
   const fasting = ctx.session.keyboardMessage[0] === ctx.update.callback_query.data
 
   const now = new Date()
-  const today = now.getDate()
+  const currentMonth = now.getMonth() + 1
   const message = HLanguage('infoPrayTime')
-  const data = await Model.PrayTime.findOne<IPrayTime>({ day: today, regionId: ctx.session.regionId })
+  const today = now.getDate()
+  const data = await Model.PrayTime.findOne<IPrayTime>({
+    day: today,
+    regionId: ctx.session.regionId,
+    month: currentMonth,
+  })
   let regionName = ''
 
   if (!data) return ctx.scene.exit()
