@@ -27,33 +27,67 @@ scene.step(async (ctx) => {
   ctx.session.message = message
   ctx.session.buttons = buttons
   ctx.session.regions = keyboardMessage
+  ctx.session.currPage = 1
+  ctx.session.keyboard = keyboard
 
   await ctx.reply(message, { reply_markup: buttons })
 })
 
 // fasting
 scene.wait('fasting').on('callback_query:data', async (ctx) => {
-  if (!ctx.session.regionId.includes(+ctx.update.callback_query.data)) {
-    return ctx.answerCallbackQuery(HLanguage('wrongSelection'))
+  const inputData = ctx.update.callback_query.data
+
+  if (!ctx.session.regionId.includes(+inputData) && !['<', '>'].includes(inputData)) {
+
+    await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
+
   }
 
-  await ctx.answerCallbackQuery()
+  if (['<', '>', 'pageNumber'].includes(inputData)) {
 
-  ctx.session.regionId = +ctx.update.callback_query.data
+    if (inputData == '<' && ctx.session.currPage != 1) {
 
-  const message = HLanguage('fastingMessage')
-  const keyboardMessage = HLanguage('agreementFasting')
-  const buttons = inlineKFunction(Infinity, [
-    { view: keyboardMessage[0], text: keyboardMessage[0] },
-    { view: keyboardMessage[1], text: keyboardMessage[1] },
-  ])
+      await ctx.answerCallbackQuery()
 
-  ctx.session.keyboardMessage = keyboardMessage
-  ctx.session.message = message
-  ctx.session.buttons = buttons
+      ctx.session.buttons = inlineKFunction(3, ctx.session.keyboard, --ctx.session.currPage)
 
-  await ctx.editMessageText(message, { reply_markup: buttons })
-  ctx.scene.resume()
+      await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons, parse_mode: 'HTML' })
+
+    } else if (inputData == '>' && ctx.session.currPage * 12 <= ctx.session.regionId.length) {
+
+      await ctx.answerCallbackQuery()
+
+      ctx.session.buttons = inlineKFunction(3, ctx.session.keyboard, ++ctx.session.currPage)
+
+      await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons, parse_mode: 'HTML' })
+
+    } else {
+
+      await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
+    }
+
+  } else {
+
+    await ctx.answerCallbackQuery()
+
+    ctx.session.regionId = +ctx.update.callback_query.data
+
+    const message = HLanguage('fastingMessage')
+    const keyboardMessage = HLanguage('agreementFasting')
+    const buttons = inlineKFunction(Infinity, [
+      { view: keyboardMessage[0], text: keyboardMessage[0] },
+      { view: keyboardMessage[1], text: keyboardMessage[1] },
+    ])
+
+    ctx.session.keyboardMessage = keyboardMessage
+    ctx.session.message = message
+    ctx.session.buttons = buttons
+
+    await ctx.editMessageText(message, { reply_markup: buttons })
+    ctx.scene.resume()
+
+  }
+
 })
 
 // the end
