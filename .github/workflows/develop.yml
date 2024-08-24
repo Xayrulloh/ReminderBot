@@ -72,8 +72,13 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           script: |
+            echo "Logging in to Docker registry..."
             echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin ${{ env.REGISTRY }}
+            echo "Pulling Docker image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}..."
             docker pull "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+            echo "Stopping container: ${{ env.CONTAINER_NAME }} (if running)..."
             docker stop "${{ env.CONTAINER_NAME }}" || true
+            echo "Removing container: ${{ env.CONTAINER_NAME }} (if exists)..."
             docker rm "${{ env.CONTAINER_NAME }}" || true
+            echo "Running new container: ${{ env.CONTAINER_NAME }}..."
             docker run -d --name "${{ env.CONTAINER_NAME }}" -p "${{ env.PORT }}" "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
