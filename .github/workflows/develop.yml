@@ -66,7 +66,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         env:
           PORT: ${{ secrets.WEBHOOK_PORT }}
-          CONTAINER_NAME: '${{ env.REGISTRY }}-${{ github.ref }}'
+          CONTAINER_NAME: '${{ env.IMAGE_NAME }}-${{ github.ref }}'
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
@@ -75,7 +75,7 @@ jobs:
             echo "Logging in to Docker registry..."
             echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin ${{ env.REGISTRY }}
             echo "Pulling Docker image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}..."
-            docker pull "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+            docker pull "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }},,"
             echo "Stopping container: ${{ env.CONTAINER_NAME }} (if running)..."
             docker stop "${{ env.CONTAINER_NAME }}" || true
             echo "Removing container: ${{ env.CONTAINER_NAME }} (if exists)..."
