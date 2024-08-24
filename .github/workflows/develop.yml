@@ -67,7 +67,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         env:
           PORT: ${{ secrets.WEBHOOK_PORT }}
-          CONTAINER_NAME: '${{ env.IMAGE_NAME }}-${{ github.ref_name }}'
+          CONTAINER_NAME: 'reminderbot-${{ github.ref_name }}'
           REGISTRY: ${{ env.IMAGE_TAG }}
         with:
           host: ${{ secrets.HOST }}
@@ -77,8 +77,8 @@ jobs:
             echo "Pulling Docker image: ${{ env.REGISTRY }}..."
             docker pull "${{ env.REGISTRY }}"
             echo "Stopping container: ${{ env.CONTAINER_NAME }} (if running)..."
-            docker stop "${{ env.CONTAINER_NAME }}" || true
+            docker stop "${{ env.CONTAINER_NAME }}" 2> /dev/null
             echo "Removing container: ${{ env.CONTAINER_NAME }} (if exists)..."
-            docker rm "${{ env.CONTAINER_NAME }}" || true
+            docker rm "${{ env.CONTAINER_NAME }}" 2> /dev/null
             echo "Running new container: ${{ env.CONTAINER_NAME }}..."
             docker run -d --name "${{ env.CONTAINER_NAME }}" -p "${{ env.PORT }}" "${{ env.REGISTRY }}"
