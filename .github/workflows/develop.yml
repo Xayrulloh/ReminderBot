@@ -72,7 +72,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           script: |
-            REGISTRY=$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" | tr [:upper:] [:lower:])
+            set REGISTRY (echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" | tr [:upper:] [:lower:])
             echo "Logging in to Docker registry..."
             echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin ${{ env.REGISTRY }}
             echo "Pulling Docker image: $REGISTRY..."
