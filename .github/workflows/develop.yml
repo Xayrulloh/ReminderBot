@@ -67,7 +67,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         env:
           PORT: ${{ secrets.WEBHOOK_PORT }}
-          CONTAINER_NAME: '${{ env.IMAGE_NAME }}-${{ github.ref }}'
+          CONTAINER_NAME: '${{ env.IMAGE_TAG }}-${{ github.ref_name }}'
           REGISTRY: '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}'
         with:
           host: ${{ secrets.HOST }}
