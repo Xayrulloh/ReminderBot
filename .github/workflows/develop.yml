@@ -61,12 +61,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: [build]
-    env:
-      PORT: ${{ secrets.WEBHOOK_PORT }}
-      CONTAINER_NAME: '${{ env.REGISTRY }}-${{ github.ref }}'
     steps:
       - name: Executing remote SSH commands
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          PORT: ${{ secrets.WEBHOOK_PORT }}
+          CONTAINER_NAME: '${{ env.REGISTRY }}-${{ github.ref }}'
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
