@@ -10,6 +10,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  IMAGE_TAG: xayrulloh/reminderbot:latest
 
 # There is a single job in this workflow. It's configured to run on the latest available version of Ubuntu.
 jobs:
@@ -47,7 +48,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ env.IMAGE_TAG }}
           labels: ${{ steps.meta.outputs.labels }}
 
       # This step generates an artifact attestation for the image, which is an unforgeable statement about where and how it was built. It increases supply chain security for people who consume the image. For more information, see "[AUTOTITLE](/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds)."
@@ -67,19 +68,17 @@ jobs:
         env:
           PORT: ${{ secrets.WEBHOOK_PORT }}
           CONTAINER_NAME: '${{ env.IMAGE_NAME }}-${{ github.ref }}'
+          REGISTRY: '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}'
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           script: |
-            set REGISTRY (echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" | tr [:upper:] [:lower:])
-            echo "Logging in to Docker registry..."
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin ${{ env.REGISTRY }}
-            echo "Pulling Docker image: $REGISTRY..."
-            docker pull "$REGISTRY"
+            echo "Pulling Docker image: ${{ env.REGISTRY }}..."
+            docker pull "${{ env.REGISTRY }}"
             echo "Stopping container: ${{ env.CONTAINER_NAME }} (if running)..."
             docker stop "${{ env.CONTAINER_NAME }}" || true
             echo "Removing container: ${{ env.CONTAINER_NAME }} (if exists)..."
             docker rm "${{ env.CONTAINER_NAME }}" || true
             echo "Running new container: ${{ env.CONTAINER_NAME }}..."
-            docker run -d --name "${{ env.CONTAINER_NAME }}" -p "${{ env.PORT }}" "$REGISTRY"
+            docker run -d --name "${{ env.CONTAINER_NAME }}" -p "${{ env.PORT }}" "${{ env.REGISTRY }}"
