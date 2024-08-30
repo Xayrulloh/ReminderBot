@@ -66,7 +66,7 @@ jobs:
       - name: Executing remote SSH commands
         uses: appleboy/ssh-action@v1.0.3
         env:
-          PORT: ${{ secrets.WEBHOOK_PORT }}
+          PORT: 3600
           CONTAINER_NAME: 'reminderbot-${{ github.ref_name }}'
           REGISTRY: ${{ env.IMAGE_TAG }}
         with:
