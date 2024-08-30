@@ -24,7 +24,8 @@
     "node-cron": "3.0.2",
     "node-schedule": "2.1.1",
     "pdf-parse": "1.1.1",
-    "zod": "3.22.2"
+    "zod": "3.22.2",
+    "tsconfig-paths": "4.2.0"
   },
   "devDependencies": {
     "@grammyjs/types": "3.3.0",
@@ -35,7 +36,6 @@
     "prettier": "3.0.3",
     "rimraf": "5.0.1",
     "tsc-watch": "6.0.4",
-    "tsconfig-paths": "4.2.0",
     "typescript": "5.2.2"
   },
   "engines": {
