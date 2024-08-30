@@ -80,5 +80,12 @@ jobs:
             docker stop "${{ env.CONTAINER_NAME }}" 2> /dev/null
             echo "Removing container: ${{ env.CONTAINER_NAME }} (if exists)..."
             docker rm "${{ env.CONTAINER_NAME }}" 2> /dev/null
+            export INFISICAL_TOKEN=$(infisical login \
+              --method=universal-auth \
+              --client-id=${{ secrets.INFISICAL_CLIENT_ID }} \
+              --client-secret=${{ secrets.INFISICAL_CLIENT_SECRET }} \
+              --plain \
+              --silent \
+            )
             echo "Running new container: ${{ env.CONTAINER_NAME }}..."
-            docker run -d --name "${{ env.CONTAINER_NAME }}" -p "${{ env.PORT }}" "${{ env.REGISTRY }}"
+            docker run -d -e INFISICAL_TOKEN=$INFISICAL_TOKEN --name "${{ env.CONTAINER_NAME }}" -p "${{ env.PORT }}" "${{ env.REGISTRY }}"

@@ -16,6 +16,11 @@ FROM node:${NODE_VERSION}-alpine as base
 # Set working directory for all build stages.
 WORKDIR /usr/src/app
 
+# Install secret manager
+RUN apk add --no-cache bash curl && curl -1sLf \
+    'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.alpine.sh' | bash \
+    && apk add infisical
+
 # Install pnpm.
 RUN --mount=type=cache,target=/root/.npm \
     npm install -g pnpm@${PNPM_VERSION}
@@ -73,4 +78,4 @@ COPY --from=build /usr/src/app/dist ./dist
 EXPOSE 3700
 
 # Run the application.
-CMD pnpm start
+CMD ["infisical", "run", "--", "pnpm", "start"]
