@@ -79,4 +79,4 @@ COPY --from=build /usr/src/app/dist ./dist
 EXPOSE 3700
 
 # Run the application.
-CMD ["infisical", "run", "--projectId", ${INFISICAL_PROJECT_ID}, "--", "pnpm", "start"]
+CMD ["sh", "-c", "infisical run --projectId $INFISICAL_PROJECT_ID -- pnpm start"]
