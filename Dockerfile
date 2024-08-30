@@ -17,7 +17,7 @@ FROM node:${NODE_VERSION}-alpine as base
 WORKDIR /usr/src/app
 
 # Install secret manager
-RUN apk add --no-cache bash curl && curl -1sLf \
+RUN apk add --no-cache bash curl jq && curl -1sLf \
     'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.alpine.sh' | bash \
     && apk add infisical
 
@@ -61,6 +61,7 @@ FROM base as final
 
 # Use production node environment by default.
 ENV NODE_ENV production
+RUN export INFISICAL_PROJECT_ID=$(jq -r '.workspaceId' .infisical.json)
 
 # Run the application as a non-root user.
 USER node
@@ -78,4 +79,4 @@ COPY --from=build /usr/src/app/dist ./dist
 EXPOSE 3700
 
 # Run the application.
-CMD ["infisical", "run", "--", "pnpm", "start"]
+CMD ["infisical", "run", "--projectId", ${INFISICAL_PROJECT_ID}, "--", "pnpm", "start"]
