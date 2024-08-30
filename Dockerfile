@@ -77,6 +77,6 @@ COPY --from=build /usr/src/app/dist ./dist
 
 # Expose the port that the application listens on.
 EXPOSE 3700
-
+RUN echo $INFISICAL_PROJECT_ID
 # Run the application.
 CMD ["sh", "-c", "infisical run --projectId $INFISICAL_PROJECT_ID -- pnpm start"]
