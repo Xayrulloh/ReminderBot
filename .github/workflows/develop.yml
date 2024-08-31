@@ -95,4 +95,4 @@ jobs:
               --silent \
             )
             echo "Running new container: ${{ env.CONTAINER_NAME }}..."
-            docker run -d -e INFISICAL_TOKEN=$INFISICAL_TOKEN -e NODE_ENV=dev --name "${{ env.CONTAINER_NAME }}" -p "${{ env.WEBHOOK_PORT }}:${{ env.WEBHOOK_PORT }}" "${{ env.REGISTRY }}"
+            docker run -d -e INFISICAL_TOKEN=$INFISICAL_TOKEN -e NODE_ENV=dev --network host --name "${{ env.CONTAINER_NAME }}" -p "${{ env.WEBHOOK_PORT }}:${{ env.WEBHOOK_PORT }}" "${{ env.REGISTRY }}"
