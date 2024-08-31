@@ -59,9 +59,6 @@ RUN pnpm run build
 # where the necessary files are copied from the build stage.
 FROM base as final
 
-# Use production node environment by default.
-ENV NODE_ENV=production
-
 # Run the application as a non-root user.
 USER node
 
@@ -75,4 +72,4 @@ COPY --from=deps /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/dist ./dist
 
 # Run the application.
-CMD ["sh", "-c", "infisical run --projectId 74138f50-f83d-44b4-ae9e-9e9479fbe9a5 -- pnpm start"]
+CMD ["sh", "-c", "infisical run -e $NODE_ENV --projectId 74138f50-f83d-44b4-ae9e-9e9479fbe9a5 -- pnpm start"]

@@ -66,7 +66,6 @@ jobs:
       - name: Executing remote SSH commands
         uses: appleboy/ssh-action@v1.0.3
         env:
-          PORT: 3600
           CONTAINER_NAME: 'reminderbot-${{ github.ref_name }}'
           REGISTRY: ${{ env.IMAGE_TAG }}
         with:
@@ -88,4 +87,4 @@ jobs:
               --silent \
             )
             echo "Running new container: ${{ env.CONTAINER_NAME }}..."
-            docker run -d -e INFISICAL_TOKEN=$INFISICAL_TOKEN --name "${{ env.CONTAINER_NAME }}" -p "${{ env.PORT }}:${{ env.PORT }}" "${{ env.REGISTRY }}"
+            docker run -d -e INFISICAL_TOKEN=$INFISICAL_TOKEN -e NODE_ENV=dev --name "${{ env.CONTAINER_NAME }}" -p "${{ env.PORT }}:${{ env.PORT }}" "${{ env.REGISTRY }}"
