@@ -140,7 +140,7 @@ async function reminder(bot: Bot<BotContext>) {
         regionId: region.regionId,
         deletedAt: null,
         status: true,
-        $or: [{ 'notificationSetting.fajr': true }, { fasting: true }],
+        'notificationSetting.fajr': true,
       })
 
       for (const user of users) {
@@ -222,7 +222,7 @@ async function reminder(bot: Bot<BotContext>) {
         regionId: region.regionId,
         deletedAt: null,
         status: true,
-        $or: [{ 'notificationSetting.maghrib': true }, { fasting: true }],
+        'notificationSetting.maghrib': true,
       })
 
       for (const user of users) {
