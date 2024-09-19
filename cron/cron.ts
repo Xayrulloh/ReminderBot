@@ -13,6 +13,7 @@ import { env } from '#utils/env'
 import cron from 'node-cron'
 import { handleSendMessageError } from '#helper/errorHandler'
 import { getHadith } from '#helper/getHadith'
+import dayjs from '#utils/dayjs'
 
 async function yearly() {
   const keyboardMessage = HLanguage('region')
@@ -62,10 +63,10 @@ async function yearly() {
 
 async function daily(bot: Bot<BotContext>) {
   // taking data
-  const now = new Date()
-  const today = now.getDate()
-  const weekDay = now.getDay()
-  const currentMonth = now.getMonth() + 1
+  const now = dayjs()
+  const today = now.get("date")
+  const weekDay = now.get("day")
+  const currentMonth = now.get("month") + 1
   const regions = await Model.PrayTime.find<IPrayTime>({ day: today, month: currentMonth })
   const file = new InputFile(resolve('public', 'JumaMuborak.jpg'))
   const hadith = await getHadith()
@@ -91,7 +92,7 @@ async function daily(bot: Bot<BotContext>) {
           region.asr,
           region.maghrib,
           region.isha,
-          now.toLocaleDateString(),
+          now.format("dd/mm/yyyy"),
         ],
       )
 
@@ -120,9 +121,9 @@ async function daily(bot: Bot<BotContext>) {
 async function reminder(bot: Bot<BotContext>) {
   await schedule.gracefulShutdown()
 
-  const now = new Date()
-  const today = now.getDate()
-  const currentMonth = now.getMonth() + 1
+  const now = dayjs()
+  const today = now.get("date")
+  const currentMonth = now.get("month") + 1
   const regions = await Model.PrayTime.find<IPrayTime>({ day: today, month: currentMonth })
 
   for (let region of regions) {

@@ -2,12 +2,13 @@ import {Scene} from "grammy-scenes";
 import {BotContext} from "#types/context";
 import HLanguage from "#helper/language";
 import {HReplace} from "#helper/replacer";
+import dayjs from "#utils/dayjs";
 
 const scene = new Scene<BotContext>('Source');
 
 scene.step(async (ctx) => {
     let sourceReplyMessage = HLanguage('sourceMessage')
-    const regionTimeLink = 'https://islom.uz/vaqtlar/' + ctx.user.regionId + '/' + (new Date().getMonth() + 1);
+    const regionTimeLink = 'https://islom.uz/vaqtlar/' + ctx.user.regionId + '/' + (dayjs().get("month") + 1);
 
     sourceReplyMessage = HReplace(
         sourceReplyMessage,

@@ -1,4 +1,5 @@
 import { Scene } from 'grammy-scenes'
+import dayjs from "#utils/dayjs"
 import Model from '#config/database'
 import inlineKFunction from '#keyboard/inline'
 import customKFunction from '#keyboard/custom'
@@ -100,10 +101,10 @@ scene.wait('the_end').on('callback_query:data', async (ctx) => {
 
   const fasting = ctx.session.keyboardMessage[0] === ctx.update.callback_query.data
 
-  const now = new Date()
-  const currentMonth = now.getMonth() + 1
+  const now = dayjs()
+  const currentMonth = now.get("month") + 1
   const message = HLanguage('infoPrayTime')
-  const today = now.getDate()
+  const today = now.get("date")
   const data = await Model.PrayTime.findOne<IPrayTime>({
     day: today,
     regionId: ctx.session.regionId,
@@ -134,7 +135,7 @@ scene.wait('the_end').on('callback_query:data', async (ctx) => {
   let response = HReplace(
     message,
     ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha', '$date'],
-    [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha, now.toLocaleDateString()],
+    [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha, now.format("dd/mm/yyyy")],
   )
   const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
 
