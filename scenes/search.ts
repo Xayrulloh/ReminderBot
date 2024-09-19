@@ -8,6 +8,7 @@ import { memoryStorage } from '#config/storage'
 import { DAILY_HADITH_KEY } from '#utils/constants'
 import { IPrayTime } from '#types/database'
 import { InlineKeyboard } from 'grammy'
+import dayjs from '#utils/dayjs'
 
 let scene = new Scene<BotContext>('Search')
 
@@ -74,19 +75,19 @@ scene.wait('region').on('callback_query:data', async (ctx) => {
 scene.wait('commonDays').on('callback_query:data', async (ctx) => {
   const dayInput = ctx.callbackQuery.data
   const dayOptions: string[] = HLanguage('selectDayOptions')
-  const now = new Date()
-  const currentMonth = now.getMonth() + 1
+  const now = dayjs()
+  const currentMonth = now.get("month") + 1
   let day: number
 
   switch (dayInput) {
     // today
     case dayOptions[0]:
-      day = now.getDate()
+      day = now.get("date")
       break
     // other day
     case dayOptions[1]:
       const daysKeyboard = new InlineKeyboard()
-      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+      const daysInMonth = new Date(now.get("year"), now.get("month") + 1, 0).getDate()
       for (let i = 1; i <= daysInMonth; i++) {
         daysKeyboard.text(i.toString())
         if (i % 5 === 0) {
@@ -118,7 +119,7 @@ scene.wait('commonDays').on('callback_query:data', async (ctx) => {
       data.asr,
       data.maghrib,
       data.isha,
-      new Date(now.getFullYear(), now.getMonth(), day).toLocaleDateString(),
+      new Date(now.get("year"), now.get("month"), day).toLocaleDateString(),
     ],
   )
 

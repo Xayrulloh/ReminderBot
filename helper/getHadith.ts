@@ -2,11 +2,12 @@ import Model from '#config/database'
 import { memoryStorage } from '#config/storage'
 import { IHadith } from '#types/database'
 import { DAILY_HADITH_KEY } from '#utils/constants'
+import dayjs from '#utils/dayjs'
 
 export async function getHadith(): Promise<string> {
   // taking hadith
-  const now = new Date()
-  const weekDay = now.getDay()
+  const now = dayjs()
+  const weekDay = now.get("day")
   let hadith: IHadith[] | string
 
   if (weekDay == 5) {
