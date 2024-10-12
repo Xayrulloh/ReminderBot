@@ -4,7 +4,7 @@ name: Build, publish and deploy
 # Configures this workflow to run every time a change is pushed to the branch called `release`.
 on:
   push:
-    branches: ['main']
+    branches: ["main"]
 
 # Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
 env:
@@ -68,13 +68,13 @@ jobs:
         with:
           client-id: ${{ secrets.INFISICAL_CLIENT_ID }} # Update this to your own Github references
           client-secret: ${{ secrets.INFISICAL_CLIENT_SECRET }} # Update this to your own Github references
-          env-slug: 'prod'
-          project-slug: 'example-project-y-k6-k'
+          env-slug: "prod"
+          project-slug: "example-project-y-k6-k"
 
       - name: Executing remote SSH commands
         uses: appleboy/ssh-action@v1.0.3
         env:
-          CONTAINER_NAME: 'reminderbot-${{ github.ref_name }}'
+          CONTAINER_NAME: "reminderbot-${{ github.ref_name }}"
           REGISTRY: ${{ env.IMAGE_TAG }}
         with:
           host: ${{ secrets.HOST }}

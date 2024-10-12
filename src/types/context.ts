@@ -5,9 +5,9 @@ import { IUser } from "#types/database.ts";
 type SessionData = ScenesSessionData & Record<string, any>;
 
 export type BotContext =
-    & Context
-    & SessionFlavor<SessionData>
-    & ScenesFlavor
-    & {
-        user: IUser;
-    };
+  & Context
+  & SessionFlavor<SessionData>
+  & ScenesFlavor
+  & {
+    user: IUser;
+  };

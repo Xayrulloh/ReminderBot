@@ -2,46 +2,46 @@ import { PER_PAGE } from "#utils/constants.ts";
 import { InlineKeyboard } from "grammy";
 
 type InternalButton = {
-    view: string;
-    text: string;
+  view: string;
+  text: string;
 };
 
 export default function inlineKFunction(
-    num: number,
-    buttons: InternalButton[],
-    page = 1,
+  num: number,
+  buttons: InternalButton[],
+  page = 1,
 ) {
-    const keyboard = new InlineKeyboard();
+  const keyboard = new InlineKeyboard();
 
-    if (buttons.length >= 15) {
-        const displayButtons = buttons.slice(
-            (page - 1) * PER_PAGE,
-            PER_PAGE * page,
-        );
+  if (buttons.length >= 15) {
+    const displayButtons = buttons.slice(
+      (page - 1) * PER_PAGE,
+      PER_PAGE * page,
+    );
 
-        displayButtons.forEach((el, index) => {
-            if (index % num == 0) {
-                keyboard.row();
-            }
-            keyboard.text(el.view, el.text);
-        });
-
+    displayButtons.forEach((el, index) => {
+      if (index % num == 0) {
         keyboard.row();
+      }
+      keyboard.text(el.view, el.text);
+    });
 
-        keyboard.text("<", "<");
-        keyboard.text(
-            `${page.toString()}/${Math.ceil(buttons.length / PER_PAGE)}`,
-            "pageNumber",
-        );
-        keyboard.text(">", ">");
-    } else {
-        buttons.forEach((el, index) => {
-            if (index % num == 0) {
-                keyboard.row();
-            }
-            keyboard.text(el.view, el.text);
-        });
-    }
+    keyboard.row();
 
-    return keyboard;
+    keyboard.text("<", "<");
+    keyboard.text(
+      `${page.toString()}/${Math.ceil(buttons.length / PER_PAGE)}`,
+      "pageNumber",
+    );
+    keyboard.text(">", ">");
+  } else {
+    buttons.forEach((el, index) => {
+      if (index % num == 0) {
+        keyboard.row();
+      }
+      keyboard.text(el.view, el.text);
+    });
+  }
+
+  return keyboard;
 }

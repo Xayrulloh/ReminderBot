@@ -1,98 +1,37 @@
-#
-name: Build, publish and deploy
-
-# Configures this workflow to run every time a change is pushed to the branch called `release`.
+name: Deploy
 on:
   push:
-    branches: ['develop']
+    branches: [main]
+  pull_request:
+    branches: [main]
 
-# Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-  IMAGE_TAG: ghcr.io/xayrulloh/reminderbot:latest
-
-# There is a single job in this workflow. It's configured to run on the latest available version of Ubuntu.
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
-      #
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      # Uses the `docker/login-action` action to log in to the Container registry registry using the account and password that will publish the packages. Once published, the packages are scoped to the account defined here.
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      # This step uses [docker/metadata-action](https://github.com/docker/metadata-action#about) to extract tags and labels that will be applied to the specified image. The `id` "meta" allows the output of this step to be referenced in a subsequent step. The `images` value provides the base name for the tags and labels.
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
-      # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
-      # It uses the `context` parameter to define the build's context as the set of files located in the specified path. For more information, see "[Usage](https://github.com/docker/build-push-action#usage)" in the README of the `docker/build-push-action` repository.
-      # It uses the `tags` and `labels` parameters to tag and label the image with the output from the "meta" step.
-      - name: Build and push Docker image
-        id: push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ${{ env.IMAGE_TAG }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-      # This step generates an artifact attestation for the image, which is an unforgeable statement about where and how it was built. It increases supply chain security for people who consume the image. For more information, see "[AUTOTITLE](/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds)."
-      - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v1
-        with:
-          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
-          subject-digest: ${{ steps.push.outputs.digest }}
-          push-to-registry: true
-
   deploy:
+    name: Deploy
     runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-      - uses: Infisical/secrets-action@v1.0.7
-        with:
-          client-id: ${{ secrets.INFISICAL_CLIENT_ID }} # Update this to your own Github references
-          client-secret: ${{ secrets.INFISICAL_CLIENT_SECRET }} # Update this to your own Github references
-          env-slug: 'dev'
-          project-slug: 'example-project-y-k6-k'
 
-      - name: Executing remote SSH commands
-        uses: appleboy/ssh-action@v1.0.3
-        env:
-          CONTAINER_NAME: 'reminderbot-${{ github.ref_name }}'
-          REGISTRY: ${{ env.IMAGE_TAG }}
+    permissions:
+      id-token: write # Needed for auth with Deno Deploy
+      contents: read # Needed to clone the repository
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Install Deno
+        uses: denoland/setup-deno@v1
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.KEY }}
-          script: |
-            echo "Pulling Docker image: ${{ env.REGISTRY }}..."
-            docker pull "${{ env.REGISTRY }}"
-            echo "Stopping container: ${{ env.CONTAINER_NAME }} (if running)..."
-            docker stop "${{ env.CONTAINER_NAME }}" 2> /dev/null
-            echo "Removing container: ${{ env.CONTAINER_NAME }} (if exists)..."
-            docker rm "${{ env.CONTAINER_NAME }}" 2> /dev/null
-            export INFISICAL_TOKEN=$(infisical login \
-              --method=universal-auth \
-              --client-id=${{ secrets.INFISICAL_CLIENT_ID }} \
-              --client-secret=${{ secrets.INFISICAL_CLIENT_SECRET }} \
-              --plain \
-              --silent \
-            )
-            echo "Running new container: ${{ env.CONTAINER_NAME }}..."
-            docker run -d -e INFISICAL_TOKEN=$INFISICAL_TOKEN -e NODE_ENV=dev --network host --name "${{ env.CONTAINER_NAME }}" -p "${{ env.WEBHOOK_PORT }}:${{ env.WEBHOOK_PORT }}" "${{ env.REGISTRY }}"
+          deno-version: v1.x
+
+      - name: Check
+        run: "deno check src"
+
+      - name: Lint
+        run: "deno lint"
+
+      - name: Upload to Deno Deploy
+        uses: denoland/deployctl@v1
+        with:
+          project: "deno-reminder-bot"
+          entrypoint: "main.ts"
+          root: "."

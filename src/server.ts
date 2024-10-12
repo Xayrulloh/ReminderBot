@@ -20,18 +20,18 @@ const bot = new Bot<BotContext>(env.TOKEN);
 
 // plugins
 bot.api.config.use(
-    autoRetry({
-        maxDelaySeconds: 1,
-        maxRetryAttempts: 3,
-    }),
+  autoRetry({
+    maxDelaySeconds: 1,
+    maxRetryAttempts: 3,
+  }),
 );
 
 // middleware
 bot.use(
-    session({
-        initial: () => (Promise.resolve({} as any)),
-        storage: new MemorySessionStorage(env.SESSION_TTL),
-    }),
+  session({
+    initial: () => (Promise.resolve({} as any)),
+    storage: new MemorySessionStorage(env.SESSION_TTL),
+  }),
 );
 bot.use(scenes.manager());
 bot.use(authMiddleware);
@@ -39,98 +39,98 @@ bot.use(scenes);
 
 // Commands
 bot.command("notification", async (ctx) => {
-    await ctx.scenes.enter("Notification");
+  await ctx.scenes.enter("Notification");
 });
 
 bot.command("fasting", async (ctx) => {
-    await ctx.scenes.enter("Fasting");
+  await ctx.scenes.enter("Fasting");
 });
 
 bot.command("location", async (ctx) => {
-    await ctx.scenes.enter("Location");
+  await ctx.scenes.enter("Location");
 });
 
 bot.command("search", async (ctx) => {
-    await ctx.scenes.enter("Search");
+  await ctx.scenes.enter("Search");
 });
 
 bot.command("statistic", async (ctx) => {
-    await ctx.scenes.enter("Statistic");
+  await ctx.scenes.enter("Statistic");
 });
 
 bot.command("announcement", async (ctx) => {
-    await ctx.scenes.enter("Announcement");
+  await ctx.scenes.enter("Announcement");
 });
 
 bot.command("hadith", async (ctx) => {
-    await ctx.scenes.enter("Hadith");
+  await ctx.scenes.enter("Hadith");
 });
 
 bot.command("addHadith", async (ctx) => {
-    await ctx.scenes.enter("AddHadith");
+  await ctx.scenes.enter("AddHadith");
 });
 
 bot.command("quran", async (ctx) => {
-    await ctx.scenes.enter("Quran");
+  await ctx.scenes.enter("Quran");
 });
 
 bot.command("start", async (ctx) => {
-    const welcomeText = HLanguage("welcome");
-    const keyboardText = HLanguage("mainKeyboard");
-    const buttons = customKFunction(2, ...keyboardText);
+  const welcomeText = HLanguage("welcome");
+  const keyboardText = HLanguage("mainKeyboard");
+  const buttons = customKFunction(2, ...keyboardText);
 
-    if (!ctx.user.status) {
-        await Model.User.updateOne({ userId: ctx.user.userId }, {
-            status: true,
-        }, {});
-    }
+  if (!ctx.user.status) {
+    await Model.User.updateOne({ userId: ctx.user.userId }, {
+      status: true,
+    }, {});
+  }
 
-    await ctx.reply(welcomeText, {
-        reply_markup: {
-            keyboard: buttons.build(),
-            resize_keyboard: true,
-        },
-    });
+  await ctx.reply(welcomeText, {
+    reply_markup: {
+      keyboard: buttons.build(),
+      resize_keyboard: true,
+    },
+  });
 });
 
 bot.command("source", async (ctx) => {
-    await ctx.scenes.enter("Source");
+  await ctx.scenes.enter("Source");
 });
 
 bot.command("feedback", async (ctx) => {
-    await ctx.scenes.enter("Feedback");
+  await ctx.scenes.enter("Feedback");
 });
 
 bot.on("message:text", async (ctx) => {
-    const mappedScene = keyboardMapper(ctx.message.text);
+  const mappedScene = keyboardMapper(ctx.message.text);
 
-    if (mappedScene) {
-        return ctx.scenes.enter(mappedScene);
-    } else {
-        const discordClient = new WebhookClient({
-            url: env.DISCORD_WEBHOOK_URL,
-        });
+  if (mappedScene) {
+    return ctx.scenes.enter(mappedScene);
+  } else {
+    const discordClient = new WebhookClient({
+      url: env.DISCORD_WEBHOOK_URL,
+    });
 
-        const embed = new EmbedBuilder()
-            .setColor("Blue")
-            .setTitle(`**ID:** ${ctx.from.id}`)
-            .setDescription(
-                format(
-                    FLOOD_MESSAGE,
-                    env.NODE_ENV,
-                    ctx.from.username,
-                    ctx.from.first_name,
-                    ctx.from.last_name,
-                    ctx.message.text,
-                ),
-            )
-            .setTimestamp(new Date());
+    const embed = new EmbedBuilder()
+      .setColor("Blue")
+      .setTitle(`**ID:** ${ctx.from.id}`)
+      .setDescription(
+        format(
+          FLOOD_MESSAGE,
+          env.NODE_ENV,
+          ctx.from.username,
+          ctx.from.first_name,
+          ctx.from.last_name,
+          ctx.message.text,
+        ),
+      )
+      .setTimestamp(new Date());
 
-        await discordClient.send({
-            threadId: env.DISCORD_FLOOD_THREAD_ID,
-            embeds: [embed],
-        });
-    }
+    await discordClient.send({
+      threadId: env.DISCORD_FLOOD_THREAD_ID,
+      embeds: [embed],
+    });
+  }
 });
 
 // error handling
@@ -140,24 +140,24 @@ void cronStarter(bot);
 
 // webhook
 if (env.WEBHOOK_ENABLED) {
-    const server = Fastify();
+  const server = Fastify();
 
-    server.post(`/${env.TOKEN}`, webhookCallback(bot, "fastify"));
-    server.setErrorHandler(errorHandler);
-    server.listen({ port: env.WEBHOOK_PORT }, async () => {
-        await bot.api.setWebhook(env.WEBHOOK_URL + env.TOKEN);
-    });
+  server.post(`/${env.TOKEN}`, webhookCallback(bot, "fastify"));
+  server.setErrorHandler(errorHandler);
+  server.listen({ port: env.WEBHOOK_PORT }, async () => {
+    await bot.api.setWebhook(env.WEBHOOK_URL + env.TOKEN);
+  });
 } else {
-    bot
-        .start({
-            onStart: () => {
-                console.info("Bot successfully started");
-            },
-        })
-        .catch((e) => {
-            console.error(Color.Red, "Something went wrong!", e);
-            Deno.exit();
-        });
+  bot
+    .start({
+      onStart: () => {
+        console.info("Bot successfully started");
+      },
+    })
+    .catch((e) => {
+      console.error(Color.Red, "Something went wrong!", e);
+      Deno.exit();
+    });
 }
 
 // commented works
