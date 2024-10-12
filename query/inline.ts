@@ -95,7 +95,7 @@ export async function inlineQuery(ctx: BotContext) {
         region.asr,
         region.maghrib,
         region.isha,
-        now.format("dd/mm/yyyy"),
+        now.format("DD/MM/YYYY"),
       ],
     )
 
