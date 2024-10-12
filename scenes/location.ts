@@ -78,7 +78,7 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
       let response = HReplace(
         message,
         ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha', '$date'],
-        [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha, now.format("dd/mm/yyyy")],
+        [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha, now.format("DD/MM/YYYY")],
       )
       const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
       const locationMessage = HLanguage('locationChange')
