@@ -1,9 +1,9 @@
 name: Deploy
 on:
   push:
-    branches: [main]
+    branches: [deno]
   pull_request:
-    branches: [main]
+    branches: [deno]
 
 jobs:
   deploy:
@@ -16,12 +16,12 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Deno
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@v2
         with:
-          deno-version: v1.x
+          deno-version: v2.x
 
       - name: Check
         run: "deno check src"
@@ -33,5 +33,5 @@ jobs:
         uses: denoland/deployctl@v1
         with:
           project: "deno-reminder-bot"
-          entrypoint: "main.ts"
+          entrypoint: "src/server.ts"
           root: "."
