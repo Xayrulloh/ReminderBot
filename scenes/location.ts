@@ -7,6 +7,7 @@ import { BotContext } from '#types/context'
 import { memoryStorage } from '#config/storage'
 import { DAILY_HADITH_KEY } from '#utils/constants'
 import { IPrayTime, IUser } from '#types/database'
+import dayjs from '#utils/dayjs'
 
 let scene = new Scene<BotContext>('Location')
 
@@ -53,9 +54,9 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
     } else {
       await ctx.answerCallbackQuery()
 
-      const now = new Date()
-      const today = now.getDate()
-      const currentMonth = now.getMonth() + 1
+      const now = dayjs()
+      const today = now.get("date")
+      const currentMonth = now.get("month") + 1
       const message = HLanguage('infoPrayTime')
       const data = await Model.PrayTime.findOne<IPrayTime>({ day: today, regionId: +inputData, month: currentMonth })
       let regionName = ''
@@ -77,7 +78,7 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
       let response = HReplace(
         message,
         ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha', '$date'],
-        [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha, now.toLocaleDateString()],
+        [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha, now.format("DD/MM/YYYY")],
       )
       const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
       const locationMessage = HLanguage('locationChange')

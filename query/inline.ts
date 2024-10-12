@@ -9,6 +9,7 @@ import fuzzy from 'fuzzy'
 import { memoryStorage } from '#config/storage'
 import { DAILY_HADITH_KEY } from '#utils/constants'
 import { IPrayTime } from '#types/database'
+import dayjs from '#utils/dayjs'
 
 export async function inlineQuery(ctx: BotContext) {
   const inlineQueryMessage = ctx.inlineQuery?.query
@@ -61,9 +62,9 @@ export async function inlineQuery(ctx: BotContext) {
 
   regionIds = [...new Set(regionIds)].slice(0, 3)
 
-  const now = new Date()
-  const today = now.getDate()
-  const currentMonth = now.getMonth() + 1
+  const now = dayjs()
+  const today = now.get("date")
+  const currentMonth = now.get("month") + 1
   const regionTranslations: Record<string, number> = HLanguage('region')
   const regions = await Model.PrayTime.find<IPrayTime>({ day: today, regionId: regionIds, month: currentMonth })
   const message = HLanguage('infoPrayTime')
@@ -94,7 +95,7 @@ export async function inlineQuery(ctx: BotContext) {
         region.asr,
         region.maghrib,
         region.isha,
-        now.toLocaleDateString(),
+        now.format("DD/MM/YYYY"),
       ],
     )
 

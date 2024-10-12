@@ -29,3 +29,4 @@ export const FEEDBACK_MESSAGE: string = `
 `
 
 export const PER_PAGE = 12
+export const TZ = "Asia/Tashkent"
