@@ -14,3 +14,4 @@ dist
 # IDE, Editor config files
 .vscode
 .idea
+.zed

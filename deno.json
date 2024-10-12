@@ -1,0 +1,39 @@
+{
+  "$schema": "https://raw.githubusercontent.com/denoland/deno/refs/heads/main/cli/schemas/config-file.v1.json",
+  "tasks": {
+    "start:dev": "deno run --watch -A src/server.ts",
+    "start": "deno run -A src/server.ts"
+  },
+  "imports": {
+    "#config/": "./src/config/",
+    "#daily/": "./src/daily/",
+    "#helper/": "./src/helper/",
+    "#keyboard/": "./src/keyboard/",
+    "#middlewares/": "./src/middlewares/",
+    "#query/": "./src/query/",
+    "#scenes/": "./src/scenes/",
+    "#types/": "./src/types/",
+    "#utils/": "./src/utils/",
+    "@grammyjs/auto-retry": "npm:@grammyjs/auto-retry@^2.0.2",
+    "@grammyjs/types": "npm:@grammyjs/types@^3.3.0",
+    "@std/crypto": "jsr:@std/crypto@1.0.3",
+    "@std/path": "jsr:@std/path@1.0.6",
+    "axios": "npm:axios@^1.7.7",
+    "dayjs": "npm:dayjs@^1.11.13",
+    "discord.js": "npm:discord.js@^14.16.3",
+    "fastify": "npm:fastify@^5.0.0",
+    "fuzzy": "npm:fuzzy@^0.1.3",
+    "grammy": "npm:grammy@^1.19.0",
+    "grammy-scenes": "npm:grammy-scenes@^10.2.0",
+    "mongoose": "npm:mongoose@^8.7.1",
+    "node-cron": "npm:node-cron@^3.0.3",
+    "node-schedule": "npm:node-schedule@^2.1.1",
+    "pdf-parse": "npm:pdf-parse@^1.1.1",
+    "zod": "npm:zod@^3.23.8"
+  },
+  "lint": {
+    "rules": {
+      "exclude": ["no-explicit-any"]
+    }
+  }
+}
