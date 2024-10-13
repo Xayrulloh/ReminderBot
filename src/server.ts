@@ -139,9 +139,6 @@ void cronStarter(bot);
 
 // webhook
 if (env.WEBHOOK_ENABLED) {
-  env.WEBHOOK_URL = "https://3ac4-84-54-66-241.ngrok-free.app/";
-  env.WEBHOOK_PORT = 8000;
-
   const secretToken = env.TOKEN.split(":")[1];
   Deno.serve(
     {
