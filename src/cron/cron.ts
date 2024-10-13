@@ -9,7 +9,6 @@ import { Bot, InlineKeyboard, InputFile } from "grammy";
 import { BotContext } from "#types/context.ts";
 import { IPrayTime, IUser } from "#types/database.ts";
 import { env } from "#utils/env.ts";
-import { Cron } from "croner";
 import { handleSendMessageError } from "#helper/errorHandler.ts";
 import { getHadith } from "#helper/getHadith.ts";
 import dayjs from "#utils/dayjs.ts";
@@ -152,10 +151,18 @@ async function daily(bot: Bot<BotContext>) {
 }
 
 async function reminder(bot: Bot<BotContext>) {
-  const scheduleOptions = {
-    timezone: "Asia/Tashkent",
-    maxRuns: 1,
-  };
+
+  // todo:
+  // 1. open kv
+  // 2. enqueue with delay (date of pray time which is calculated)
+  // 3. consume that queue and dequeue
+
+  // way:
+  // 0. calculate each prayer time
+  // 1. give all kv.enqueue for each prayer time
+  // 2. listen for them on kv.listenQueue
+  // 3. handle logic of each of them
+
   const now = dayjs();
   const today = now.get("date");
   const currentMonth = now.get("month") + 1;
@@ -174,134 +181,134 @@ async function reminder(bot: Bot<BotContext>) {
     const isha = region.isha.split(":");
 
     // schedule
-    new Cron(`${fajr[1]} ${fajr[0]} * * *`, scheduleOptions, async () => {
-      const users = await Model.User.find<IUser>({
-        regionId: region.regionId,
-        deletedAt: null,
-        status: true,
-        "notificationSetting.fajr": true,
-      });
+    // Deno.cron('fajr start', `${fajr[1]} ${fajr[0]} * * *`, async () => {
+    //   const users = await Model.User.find<IUser>({
+    //     regionId: region.regionId,
+    //     deletedAt: null,
+    //     status: true,
+    //     "notificationSetting.fajr": true,
+    //   });
 
-      for (const user of users) {
-        try {
-          let message: string;
+    //   for (const user of users) {
+    //     try {
+    //       let message: string;
 
-          if (user.fasting) {
-            message = HLanguage("closeFast");
-            message +=
-              `\n\nنَوَيْتُ أَنْ أَصُومَ صَوْمَ شَهْرَ رَمَضَانَ مِنَ الْفَجْرِ إِلَى الْمَغْرِبِ، خَالِصًا لِلهِ تَعَالَى أَللهُ أَكْبَرُ\n\nНавайту ан асувма совма шаҳри рамазона минал фажри илал мағриби, холисан лиллаҳи таъаалаа Аллоҳу акбар`;
-          } else {
-            message = HLanguage("fajrTime");
-          }
+    //       if (user.fasting) {
+    //         message = HLanguage("closeFast");
+    //         message +=
+    //           `\n\nنَوَيْتُ أَنْ أَصُومَ صَوْمَ شَهْرَ رَمَضَانَ مِنَ الْفَجْرِ إِلَى الْمَغْرِبِ، خَالِصًا لِلهِ تَعَالَى أَللهُ أَكْبَرُ\n\nНавайту ан асувма совма шаҳри рамазона минал фажри илал мағриби, холисан лиллаҳи таъаалаа Аллоҳу акбар`;
+    //       } else {
+    //         message = HLanguage("fajrTime");
+    //       }
 
-          await bot.api.sendMessage(user.userId, message);
-        } catch (error: any) {
-          await handleSendMessageError(error, user);
-        }
-      }
-    });
+    //       await bot.api.sendMessage(user.userId, message);
+    //     } catch (error: any) {
+    //       await handleSendMessageError(error, user);
+    //     }
+    //   }
+    // });
 
-    new Cron(`${sunrise[1]} ${sunrise[0]} * * *`, scheduleOptions, async () => {
-      const users = await Model.User.find<IUser>({
-        "regionId": region.regionId,
-        "deletedAt": null,
-        "status": true,
-        "notificationSetting.sunrise": true,
-      });
+    // Deno.cron('fajr end', `${sunrise[1]} ${sunrise[0]} * * *`, async () => {
+    //   const users = await Model.User.find<IUser>({
+    //     "regionId": region.regionId,
+    //     "deletedAt": null,
+    //     "status": true,
+    //     "notificationSetting.sunrise": true,
+    //   });
 
-      for (const user of users) {
-        try {
-          const sunriseTime = HLanguage("sunriseTime");
+    //   for (const user of users) {
+    //     try {
+    //       const sunriseTime = HLanguage("sunriseTime");
 
-          await bot.api.sendMessage(user.userId, sunriseTime);
-        } catch (error: any) {
-          await handleSendMessageError(error, user);
-        }
-      }
-    });
+    //       await bot.api.sendMessage(user.userId, sunriseTime);
+    //     } catch (error: any) {
+    //       await handleSendMessageError(error, user);
+    //     }
+    //   }
+    // });
 
-    new Cron(`${dhuhr[1]} ${dhuhr[0]} * * *`, scheduleOptions, async () => {
-      const users = await Model.User.find<IUser>({
-        "regionId": region.regionId,
-        "deletedAt": null,
-        "status": true,
-        "notificationSetting.dhuhr": true,
-      });
-      for (const user of users) {
-        try {
-          const dhuhrTime = HLanguage("dhuhrTime");
+    // Deno.cron('dhuhr', `${dhuhr[1]} ${dhuhr[0]} * * *`, async () => {
+    //   const users = await Model.User.find<IUser>({
+    //     "regionId": region.regionId,
+    //     "deletedAt": null,
+    //     "status": true,
+    //     "notificationSetting.dhuhr": true,
+    //   });
+    //   for (const user of users) {
+    //     try {
+    //       const dhuhrTime = HLanguage("dhuhrTime");
 
-          await bot.api.sendMessage(user.userId, dhuhrTime);
-        } catch (error: any) {
-          await handleSendMessageError(error, user);
-        }
-      }
-    });
+    //       await bot.api.sendMessage(user.userId, dhuhrTime);
+    //     } catch (error: any) {
+    //       await handleSendMessageError(error, user);
+    //     }
+    //   }
+    // });
 
-    new Cron(`${asr[1]} ${asr[0]} * * *`, scheduleOptions, async () => {
-      const users = await Model.User.find<IUser>({
-        "regionId": region.regionId,
-        "deletedAt": null,
-        "status": true,
-        "notificationSetting.asr": true,
-      });
+    // Deno.cron('asr', `${asr[1]} ${asr[0]} * * *`, async () => {
+    //   const users = await Model.User.find<IUser>({
+    //     "regionId": region.regionId,
+    //     "deletedAt": null,
+    //     "status": true,
+    //     "notificationSetting.asr": true,
+    //   });
 
-      for (const user of users) {
-        try {
-          const asrTime = HLanguage("asrTime");
+    //   for (const user of users) {
+    //     try {
+    //       const asrTime = HLanguage("asrTime");
 
-          await bot.api.sendMessage(user.userId, asrTime);
-        } catch (error: any) {
-          await handleSendMessageError(error, user);
-        }
-      }
-    });
+    //       await bot.api.sendMessage(user.userId, asrTime);
+    //     } catch (error: any) {
+    //       await handleSendMessageError(error, user);
+    //     }
+    //   }
+    // });
 
-    new Cron(`${maghrib[1]} ${maghrib[0]} * * *`, scheduleOptions, async () => {
-      const users = await Model.User.find<IUser>({
-        regionId: region.regionId,
-        deletedAt: null,
-        status: true,
-        "notificationSetting.maghrib": true,
-      });
+    // Deno.cron('maghrib', `${maghrib[1]} ${maghrib[0]} * * *`, async () => {
+    //   const users = await Model.User.find<IUser>({
+    //     regionId: region.regionId,
+    //     deletedAt: null,
+    //     status: true,
+    //     "notificationSetting.maghrib": true,
+    //   });
 
-      for (const user of users) {
-        try {
-          let message;
+    //   for (const user of users) {
+    //     try {
+    //       let message;
 
-          if (user.fasting) {
-            message = HLanguage("breakFast");
-            message +=
-              `\n\nاَللَّهُمَّ لَكَ صُمْتُ وَ بِكَ آمَنْتُ وَ عَلَيْكَ تَوَكَّلْتُ وَ عَلَى رِزْقِكَ أَفْتَرْتُ، فَغْفِرْلِى مَا قَدَّمْتُ وَ مَا أَخَّرْتُ بِرَحْمَتِكَ يَا أَرْحَمَ الرَّاحِمِينَ\n\nАллоҳумма лака сумту ва бика ааманту ва аълайка таваккалту ва аълаа ризқика афтарту, фағфирлий ма қоддамту ва маа аххорту бироҳматика йаа арҳамар рооҳимийн`;
-          } else {
-            message = HLanguage("maghribTime");
-          }
+    //       if (user.fasting) {
+    //         message = HLanguage("breakFast");
+    //         message +=
+    //           `\n\nاَللَّهُمَّ لَكَ صُمْتُ وَ بِكَ آمَنْتُ وَ عَلَيْكَ تَوَكَّلْتُ وَ عَلَى رِزْقِكَ أَفْتَرْتُ، فَغْفِرْلِى مَا قَدَّمْتُ وَ مَا أَخَّرْتُ بِرَحْمَتِكَ يَا أَرْحَمَ الرَّاحِمِينَ\n\nАллоҳумма лака сумту ва бика ааманту ва аълайка таваккалту ва аълаа ризқика афтарту, фағфирлий ма қоддамту ва маа аххорту бироҳматика йаа арҳамар рооҳимийн`;
+    //       } else {
+    //         message = HLanguage("maghribTime");
+    //       }
 
-          await bot.api.sendMessage(user.userId, message);
-        } catch (error: any) {
-          await handleSendMessageError(error, user);
-        }
-      }
-    });
+    //       await bot.api.sendMessage(user.userId, message);
+    //     } catch (error: any) {
+    //       await handleSendMessageError(error, user);
+    //     }
+    //   }
+    // });
 
-    new Cron(`${isha[1]} ${isha[0]} * * *`, scheduleOptions, async () => {
-      const users = await Model.User.find<IUser>({
-        "regionId": region.regionId,
-        "deletedAt": null,
-        "status": true,
-        "notificationSetting.isha": true,
-      });
+    // Deno.cron('isha', `${isha[1]} ${isha[0]} * * *`, async () => {
+    //   const users = await Model.User.find<IUser>({
+    //     "regionId": region.regionId,
+    //     "deletedAt": null,
+    //     "status": true,
+    //     "notificationSetting.isha": true,
+    //   });
 
-      for (const user of users) {
-        try {
-          const ishaTime = HLanguage("ishaTime");
+    //   for (const user of users) {
+    //     try {
+    //       const ishaTime = HLanguage("ishaTime");
 
-          await bot.api.sendMessage(user.userId, ishaTime);
-        } catch (error: any) {
-          await handleSendMessageError(error, user);
-        }
-      }
-    });
+    //       await bot.api.sendMessage(user.userId, ishaTime);
+    //     } catch (error: any) {
+    //       await handleSendMessageError(error, user);
+    //     }
+    //   }
+    // });
   }
 }
 
@@ -328,30 +335,24 @@ async function weekly(bot: Bot<BotContext>) {
 }
 
 export async function cronStarter(bot: Bot<BotContext>) {
-  const scheduleOptions = {
-    timezone: "Asia/Tashkent",
-  };
 
-  new Cron(
-    "30 0 1 1 *",
-    scheduleOptions,
+  Deno.cron('yearly',
+    "0 20 31 12 *",
     async () => {
       await yearly();
     },
   );
 
-  new Cron(
-    "0 1 * * *",
-    scheduleOptions,
+  Deno.cron('daily',
+    "0 21 * * *",
     async () => {
       await daily(bot);
       await reminder(bot);
     },
   );
 
-  new Cron(
-    "0 13 * * 1",
-    scheduleOptions,
+  Deno.cron('weekly',
+    "0 8 * * 1",
     async () => {
       await weekly(bot);
     },

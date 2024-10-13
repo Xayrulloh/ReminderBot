@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/denoland/deno/refs/heads/main/cli/schemas/config-file.v1.json",
   "tasks": {
-    "start:dev": "deno run --watch -A src/server.ts",
+    "start:dev": "deno run --watch -A --env --unstable-cron src/server.ts",
     "start": "deno run -A src/server.ts"
   },
   "imports": {
@@ -19,7 +19,6 @@
     "@std/crypto": "jsr:@std/crypto@1.0.3",
     "@std/path": "jsr:@std/path@1.0.6",
     "axios": "npm:axios@^1.7.7",
-    "croner": "https://deno.land/x/croner@5.3.4/src/croner.js",
     "dayjs": "npm:dayjs@^1.11.13",
     "discord.js": "npm:discord.js@^14.16.3",
     "fuzzy": "npm:fuzzy@^0.1.3",
