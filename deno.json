@@ -1,8 +1,8 @@
 {
   "$schema": "https://raw.githubusercontent.com/denoland/deno/refs/heads/main/cli/schemas/config-file.v1.json",
   "tasks": {
-    "start:dev": "deno run --watch -A --env --unstable-cron src/server.ts",
-    "start": "deno run -A src/server.ts"
+    "start:dev": "deno run --watch -A --env --unstable-cron --unstable-kv src/server.ts",
+    "start": "deno run -A --unstable-cron --unstable-kv src/server.ts"
   },
   "imports": {
     "#config/": "./src/config/",

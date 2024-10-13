@@ -152,16 +152,11 @@ async function daily(bot: Bot<BotContext>) {
 
 async function reminder(bot: Bot<BotContext>) {
 
-  // todo:
-  // 1. open kv
-  // 2. enqueue with delay (date of pray time which is calculated)
-  // 3. consume that queue and dequeue
 
-  // way:
-  // 0. calculate each prayer time
-  // 1. give all kv.enqueue for each prayer time
-  // 2. listen for them on kv.listenQueue
-  // 3. handle logic of each of them
+  type KVListenQueue = {
+    key: string;
+    regionId: number;
+  }
 
   const now = dayjs();
   const today = now.get("date");
@@ -170,146 +165,80 @@ async function reminder(bot: Bot<BotContext>) {
     day: today,
     month: currentMonth,
   });
+  const kv = await Deno.openKv();
 
   for (const region of regions) {
-    // times
+
     const fajr = region.fajr.split(":");
+    const fajrTime = now.clone().hour(+fajr[0]).minute(+fajr[1]).second(0).millisecond(0);
+    const fajrDelay = now.diff(fajrTime, "millisecond");
+
+    await kv.enqueue({key: "fajr", regionId: region.regionId}, { delay: fajrDelay });
+
     const sunrise = region.sunrise.split(":");
+    const sunriseTime = now.clone().hour(+sunrise[0]).minute(+sunrise[1]).second(0).millisecond(0);
+    const sunriseDelay = now.diff(sunriseTime, "millisecond");
+
+    await kv.enqueue({key: "sunrise", regionId: region.regionId}, { delay: sunriseDelay });
+
     const dhuhr = region.dhuhr.split(":");
+    const dhuhrTime = now.clone().hour(+dhuhr[0]).minute(+dhuhr[1]).second(0).millisecond(0);
+    const dhuhrDelay = now.diff(dhuhrTime, "millisecond");
+
+    await kv.enqueue({key: "dhuhr", regionId: region.regionId}, { delay: dhuhrDelay });
+
     const asr = region.asr.split(":");
+    const asrTime = now.clone().hour(+asr[0]).minute(+asr[1]).second(0).millisecond(0);
+    const asrDelay = now.diff(asrTime, "millisecond");
+
+    await kv.enqueue({key: "asr", regionId: region.regionId}, { delay: asrDelay });
+
     const maghrib = region.maghrib.split(":");
+    const maghribTime = now.clone().hour(+maghrib[0]).minute(+maghrib[1]).second(0).millisecond(0);
+    const maghribDelay = now.diff(maghribTime, "millisecond");
+
+    await kv.enqueue({key: "maghrib", regionId: region.regionId}, { delay: maghribDelay });
+
     const isha = region.isha.split(":");
+    const ishaTime = now.clone().hour(+isha[0]).minute(+isha[1]).second(0).millisecond(0);
+    const ishaDelay = now.diff(ishaTime, "millisecond");
 
-    // schedule
-    // Deno.cron('fajr start', `${fajr[1]} ${fajr[0]} * * *`, async () => {
-    //   const users = await Model.User.find<IUser>({
-    //     regionId: region.regionId,
-    //     deletedAt: null,
-    //     status: true,
-    //     "notificationSetting.fajr": true,
-    //   });
+    await kv.enqueue({key: "isha", regionId: region.regionId}, { delay: ishaDelay });
 
-    //   for (const user of users) {
-    //     try {
-    //       let message: string;
-
-    //       if (user.fasting) {
-    //         message = HLanguage("closeFast");
-    //         message +=
-    //           `\n\nنَوَيْتُ أَنْ أَصُومَ صَوْمَ شَهْرَ رَمَضَانَ مِنَ الْفَجْرِ إِلَى الْمَغْرِبِ، خَالِصًا لِلهِ تَعَالَى أَللهُ أَكْبَرُ\n\nНавайту ан асувма совма шаҳри рамазона минал фажри илал мағриби, холисан лиллаҳи таъаалаа Аллоҳу акбар`;
-    //       } else {
-    //         message = HLanguage("fajrTime");
-    //       }
-
-    //       await bot.api.sendMessage(user.userId, message);
-    //     } catch (error: any) {
-    //       await handleSendMessageError(error, user);
-    //     }
-    //   }
-    // });
-
-    // Deno.cron('fajr end', `${sunrise[1]} ${sunrise[0]} * * *`, async () => {
-    //   const users = await Model.User.find<IUser>({
-    //     "regionId": region.regionId,
-    //     "deletedAt": null,
-    //     "status": true,
-    //     "notificationSetting.sunrise": true,
-    //   });
-
-    //   for (const user of users) {
-    //     try {
-    //       const sunriseTime = HLanguage("sunriseTime");
-
-    //       await bot.api.sendMessage(user.userId, sunriseTime);
-    //     } catch (error: any) {
-    //       await handleSendMessageError(error, user);
-    //     }
-    //   }
-    // });
-
-    // Deno.cron('dhuhr', `${dhuhr[1]} ${dhuhr[0]} * * *`, async () => {
-    //   const users = await Model.User.find<IUser>({
-    //     "regionId": region.regionId,
-    //     "deletedAt": null,
-    //     "status": true,
-    //     "notificationSetting.dhuhr": true,
-    //   });
-    //   for (const user of users) {
-    //     try {
-    //       const dhuhrTime = HLanguage("dhuhrTime");
-
-    //       await bot.api.sendMessage(user.userId, dhuhrTime);
-    //     } catch (error: any) {
-    //       await handleSendMessageError(error, user);
-    //     }
-    //   }
-    // });
-
-    // Deno.cron('asr', `${asr[1]} ${asr[0]} * * *`, async () => {
-    //   const users = await Model.User.find<IUser>({
-    //     "regionId": region.regionId,
-    //     "deletedAt": null,
-    //     "status": true,
-    //     "notificationSetting.asr": true,
-    //   });
-
-    //   for (const user of users) {
-    //     try {
-    //       const asrTime = HLanguage("asrTime");
-
-    //       await bot.api.sendMessage(user.userId, asrTime);
-    //     } catch (error: any) {
-    //       await handleSendMessageError(error, user);
-    //     }
-    //   }
-    // });
-
-    // Deno.cron('maghrib', `${maghrib[1]} ${maghrib[0]} * * *`, async () => {
-    //   const users = await Model.User.find<IUser>({
-    //     regionId: region.regionId,
-    //     deletedAt: null,
-    //     status: true,
-    //     "notificationSetting.maghrib": true,
-    //   });
-
-    //   for (const user of users) {
-    //     try {
-    //       let message;
-
-    //       if (user.fasting) {
-    //         message = HLanguage("breakFast");
-    //         message +=
-    //           `\n\nاَللَّهُمَّ لَكَ صُمْتُ وَ بِكَ آمَنْتُ وَ عَلَيْكَ تَوَكَّلْتُ وَ عَلَى رِزْقِكَ أَفْتَرْتُ، فَغْفِرْلِى مَا قَدَّمْتُ وَ مَا أَخَّرْتُ بِرَحْمَتِكَ يَا أَرْحَمَ الرَّاحِمِينَ\n\nАллоҳумма лака сумту ва бика ааманту ва аълайка таваккалту ва аълаа ризқика афтарту, фағфирлий ма қоддамту ва маа аххорту бироҳматика йаа арҳамар рооҳимийн`;
-    //       } else {
-    //         message = HLanguage("maghribTime");
-    //       }
-
-    //       await bot.api.sendMessage(user.userId, message);
-    //     } catch (error: any) {
-    //       await handleSendMessageError(error, user);
-    //     }
-    //   }
-    // });
-
-    // Deno.cron('isha', `${isha[1]} ${isha[0]} * * *`, async () => {
-    //   const users = await Model.User.find<IUser>({
-    //     "regionId": region.regionId,
-    //     "deletedAt": null,
-    //     "status": true,
-    //     "notificationSetting.isha": true,
-    //   });
-
-    //   for (const user of users) {
-    //     try {
-    //       const ishaTime = HLanguage("ishaTime");
-
-    //       await bot.api.sendMessage(user.userId, ishaTime);
-    //     } catch (error: any) {
-    //       await handleSendMessageError(error, user);
-    //     }
-    //   }
-    // });
   }
+
+  kv.listenQueue(async (input: KVListenQueue) => {
+    
+    const users = await Model.User.find<IUser>({
+      "regionId": input.regionId,
+      "deletedAt": null,
+      "status": true,
+      ["notificationSetting." + input.key]: true,
+    });
+
+    for (const user of users) {
+      try {
+
+        let message = HLanguage(input.key + "Time");
+
+        if (user.fasting && input.key == "fajr") {
+
+          message = HLanguage("closeFast");
+
+        } else if (user.fasting && input.key == "maghrib") {
+
+          message = HLanguage("breakFast");
+
+        }
+
+        await bot.api.sendMessage(user.userId, message);
+
+      } catch (error: any) {
+        await handleSendMessageError(error, user);
+      }
+    }
+
+  });
 }
 
 async function weekly(bot: Bot<BotContext>) {
