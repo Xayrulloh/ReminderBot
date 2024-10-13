@@ -3,7 +3,6 @@ import { scenes } from "#scenes/index.ts";
 import HLanguage from "#helper/language.ts";
 import { cronStarter } from "./cron/cron.ts";
 import customKFunction from "#keyboard/custom.ts";
-import Fastify from "fastify";
 import { authMiddleware } from "#middlewares/auth.ts";
 import { keyboardMapper } from "#helper/keyboardMapper.ts";
 import { BotContext } from "#types/context.ts";
@@ -29,7 +28,7 @@ bot.api.config.use(
 // middleware
 bot.use(
   session({
-    initial: () => (Promise.resolve({} as any)),
+    initial: () => ({}),
     storage: new MemorySessionStorage(env.SESSION_TTL),
   }),
 );
@@ -140,13 +139,24 @@ void cronStarter(bot);
 
 // webhook
 if (env.WEBHOOK_ENABLED) {
-  const server = Fastify();
+  env.WEBHOOK_URL = "https://3ac4-84-54-66-241.ngrok-free.app/";
+  env.WEBHOOK_PORT = 8000;
 
-  server.post(`/${env.TOKEN}`, webhookCallback(bot, "fastify"));
-  server.setErrorHandler(errorHandler);
-  server.listen({ port: env.WEBHOOK_PORT }, async () => {
-    await bot.api.setWebhook(env.WEBHOOK_URL + env.TOKEN);
-  });
+  const secretToken = env.TOKEN.split(":")[1];
+  Deno.serve(
+    {
+      port: env.WEBHOOK_PORT,
+      onListen: async (addr) => {
+        await bot.api.setWebhook(env.WEBHOOK_URL as string, {
+          secret_token: secretToken,
+        });
+        console.info(
+          `Webhook server is listening on [${addr.hostname}:${addr.port}]`,
+        );
+      },
+    },
+    webhookCallback(bot, "std/http", { secretToken }),
+  );
 } else {
   bot
     .start({
