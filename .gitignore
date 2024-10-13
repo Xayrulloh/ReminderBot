@@ -8,9 +8,6 @@ translate/localStorage.json
 # MacOS behavior
 .DS_Store
 
-# Output
-dist
-
 # IDE, Editor config files
 .vscode
 .idea

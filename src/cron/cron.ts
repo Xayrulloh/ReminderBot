@@ -4,13 +4,12 @@ import pdfParser from "pdf-parse";
 import Model from "#config/database.ts";
 import HLanguage from "#helper/language.ts";
 import { HReplace } from "#helper/replacer.ts";
-import schedule from "node-schedule";
 import customKFunction from "#keyboard/custom.ts";
 import { Bot, InlineKeyboard, InputFile } from "grammy";
 import { BotContext } from "#types/context.ts";
 import { IPrayTime, IUser } from "#types/database.ts";
 import { env } from "#utils/env.ts";
-import cron from "node-cron";
+import { Cron } from "croner";
 import { handleSendMessageError } from "#helper/errorHandler.ts";
 import { getHadith } from "#helper/getHadith.ts";
 import dayjs from "#utils/dayjs.ts";
@@ -153,8 +152,10 @@ async function daily(bot: Bot<BotContext>) {
 }
 
 async function reminder(bot: Bot<BotContext>) {
-  await schedule.gracefulShutdown();
-
+  const scheduleOptions = {
+    timezone: "Asia/Tashkent",
+    maxRuns: 1,
+  };
   const now = dayjs();
   const today = now.get("date");
   const currentMonth = now.get("month") + 1;
@@ -173,11 +174,7 @@ async function reminder(bot: Bot<BotContext>) {
     const isha = region.isha.split(":");
 
     // schedule
-    schedule.scheduleJob({
-      hour: fajr[0],
-      minute: fajr[1],
-      tz: "Asia/Tashkent",
-    }, async () => {
+    new Cron(`${fajr[1]} ${fajr[0]} * * *`, scheduleOptions, async () => {
       const users = await Model.User.find<IUser>({
         regionId: region.regionId,
         deletedAt: null,
@@ -204,11 +201,7 @@ async function reminder(bot: Bot<BotContext>) {
       }
     });
 
-    schedule.scheduleJob({
-      hour: sunrise[0],
-      minute: sunrise[1],
-      tz: "Asia/Tashkent",
-    }, async () => {
+    new Cron(`${sunrise[1]} ${sunrise[0]} * * *`, scheduleOptions, async () => {
       const users = await Model.User.find<IUser>({
         "regionId": region.regionId,
         "deletedAt": null,
@@ -227,11 +220,7 @@ async function reminder(bot: Bot<BotContext>) {
       }
     });
 
-    schedule.scheduleJob({
-      hour: dhuhr[0],
-      minute: dhuhr[1],
-      tz: "Asia/Tashkent",
-    }, async () => {
+    new Cron(`${dhuhr[1]} ${dhuhr[0]} * * *`, scheduleOptions, async () => {
       const users = await Model.User.find<IUser>({
         "regionId": region.regionId,
         "deletedAt": null,
@@ -249,11 +238,7 @@ async function reminder(bot: Bot<BotContext>) {
       }
     });
 
-    schedule.scheduleJob({
-      hour: asr[0],
-      minute: asr[1],
-      tz: "Asia/Tashkent",
-    }, async () => {
+    new Cron(`${asr[1]} ${asr[0]} * * *`, scheduleOptions, async () => {
       const users = await Model.User.find<IUser>({
         "regionId": region.regionId,
         "deletedAt": null,
@@ -272,11 +257,7 @@ async function reminder(bot: Bot<BotContext>) {
       }
     });
 
-    schedule.scheduleJob({
-      hour: maghrib[0],
-      minute: maghrib[1],
-      tz: "Asia/Tashkent",
-    }, async () => {
+    new Cron(`${maghrib[1]} ${maghrib[0]} * * *`, scheduleOptions, async () => {
       const users = await Model.User.find<IUser>({
         regionId: region.regionId,
         deletedAt: null,
@@ -303,11 +284,7 @@ async function reminder(bot: Bot<BotContext>) {
       }
     });
 
-    schedule.scheduleJob({
-      hour: isha[0],
-      minute: isha[1],
-      tz: "Asia/Tashkent",
-    }, async () => {
+    new Cron(`${isha[1]} ${isha[0]} * * *`, scheduleOptions, async () => {
       const users = await Model.User.find<IUser>({
         "regionId": region.regionId,
         "deletedAt": null,
@@ -355,29 +332,29 @@ export async function cronStarter(bot: Bot<BotContext>) {
     timezone: "Asia/Tashkent",
   };
 
-  cron.schedule(
+  new Cron(
     "30 0 1 1 *",
+    scheduleOptions,
     async () => {
       await yearly();
     },
-    scheduleOptions,
   );
 
-  cron.schedule(
+  new Cron(
     "0 1 * * *",
+    scheduleOptions,
     async () => {
       await daily(bot);
       await reminder(bot);
     },
-    scheduleOptions,
   );
 
-  cron.schedule(
+  new Cron(
     "0 13 * * 1",
+    scheduleOptions,
     async () => {
       await weekly(bot);
     },
-    scheduleOptions,
   );
 
   await reminder(bot);

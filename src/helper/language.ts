@@ -10,7 +10,7 @@ export default function HLanguage(key: any): any {
 
   const decoder = new TextDecoder("utf-8");
   let data = Deno.readFileSync(
-    path.join(Deno.cwd(), "translate", "uz.json"),
+    path.join(Deno.cwd(), "src", "translate", "uz.json"),
   );
 
   data = JSON.parse(decoder.decode(data));
