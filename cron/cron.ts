@@ -14,6 +14,7 @@ import cron from 'node-cron'
 import { handleSendMessageError } from '#helper/errorHandler'
 import { getHadith } from '#helper/getHadith'
 import dayjs from '#utils/dayjs'
+import { cwd } from 'process'
 
 async function yearly() {
   const keyboardMessage = HLanguage('region')
@@ -68,7 +69,7 @@ async function daily(bot: Bot<BotContext>) {
   const weekDay = now.get("day")
   const currentMonth = now.get("month") + 1
   const regions = await Model.PrayTime.find<IPrayTime>({ day: today, month: currentMonth })
-  const file = new InputFile(resolve('public', 'JumaMuborak.jpg'))
+  const file = new InputFile(resolve(cwd(), 'public', 'JumaMuborak.jpg'))  
   const hadith = await getHadith()
 
   // sending
