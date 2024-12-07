@@ -69,7 +69,7 @@ async function daily(bot: Bot<BotContext>) {
   const weekDay = now.get("day")
   const currentMonth = now.get("month") + 1
   const regions = await Model.PrayTime.find<IPrayTime>({ day: today, month: currentMonth })
-  const file = new InputFile(resolve(cwd(), 'public', 'JumaMuborak.jpg'))  
+  const file = new InputFile(resolve(cwd(), 'dist', 'public', 'JumaMuborak.jpg'))  
   const hadith = await getHadith()
 
   // sending
@@ -318,4 +318,5 @@ export async function cronStarter(bot: Bot<BotContext>) {
 
   await reminder(bot)
   await getHadith()
+  await daily(bot)
 }
