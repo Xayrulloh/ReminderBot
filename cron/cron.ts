@@ -102,7 +102,7 @@ async function daily(bot: Bot<BotContext>) {
       try {
         if (weekDay == 5) {
           await bot.api.sendPhoto(user.userId, file, {
-            caption: `\n\n${message}\n\n<b>Kunlik hadis:</b>\n\n<pre>${hadith}</pre>`,
+            caption: `\n\n${message}\n\n<b>Kunlik hadis:</b>\n\n${hadith}`,
             parse_mode: 'HTML',
           })
         } else {
