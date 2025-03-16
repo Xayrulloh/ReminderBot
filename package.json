@@ -6,12 +6,14 @@
   "type": "commonjs",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "pnpm run prebuild && tsc",
+    "copy-public": "cp -rv public dist/public/",
+    "build": "pnpm run prebuild && tsc && pnpm run copy-public",
     "start": "TS_NODE_BASEURL=./dist node -r tsconfig-paths/register dist/server.js",
     "start:dev": "tsc-watch --outDir ./dist --onSuccess 'pnpm start'"
   },
   "author": "",
   "license": "MIT",
+  "packageManager": "pnpm@9.12.2",
   "dependencies": {
     "@grammyjs/auto-retry": "1.1.1",
     "axios": "1.5.0",
