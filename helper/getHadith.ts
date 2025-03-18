@@ -19,7 +19,7 @@ export async function getHadith(): Promise<string> {
     ])
   }
 
-  hadith = '\n\n<pre>' + hadith[0]?.content + '</pre>'
+  hadith = '\n\n' + hadith[0]?.content
 
   // Set daily hadith to storage
   memoryStorage.write(DAILY_HADITH_KEY, hadith)
