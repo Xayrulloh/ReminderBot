@@ -69,8 +69,8 @@ async function daily(bot: Bot<BotContext>) {
   const weekDay = now.get("day")
   const currentMonth = now.get("month") + 1
   const regions = await Model.PrayTime.find<IPrayTime>({ day: today, month: currentMonth })
-  const file = new InputFile(resolve(cwd(), 'dist', 'public', 'JumaMuborak.jpg'))  
-  const hadith = await getHadith()
+  const file = new InputFile(resolve(cwd(), 'dist', 'public', 'JumaMuborak.jpg'))
+  const hadith = (await getHadith()).replace('\n\n', '');
 
   // sending
   for (let region of regions) {
@@ -103,7 +103,7 @@ async function daily(bot: Bot<BotContext>) {
       try {
         if (weekDay == 5) {
           await bot.api.sendPhoto(user.userId, file, {
-            caption: `\n\n${message}\n\n<b>Kunlik hadis:</b>\n\n${hadith}`,
+            caption: `\n\n${message}\n\n<b>Kunlik hadis:</b>${hadith}`,
             parse_mode: 'HTML',
           })
         } else {
