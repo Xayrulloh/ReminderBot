@@ -3,6 +3,7 @@ import { memoryStorage } from '#config/storage'
 import { IHadith } from '#types/database'
 import { DAILY_HADITH_KEY } from '#utils/constants'
 import dayjs from '#utils/dayjs'
+import { blockQuote } from './html'
 
 export async function getHadith(): Promise<string> {
   // taking hadith
@@ -19,7 +20,7 @@ export async function getHadith(): Promise<string> {
     ])
   }
 
-  hadith = '\n\n' + hadith[0]?.content
+  hadith = '\n\n' + blockQuote(hadith[0]?.content);
 
   // Set daily hadith to storage
   memoryStorage.write(DAILY_HADITH_KEY, hadith)
