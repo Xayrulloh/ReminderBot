@@ -12,7 +12,7 @@ scene.step(async (ctx) => {
   const enterMessage = HLanguage('enter')
   let hadith: IHadith[] | string = await Model.Hadith.aggregate<IHadith>([{ $sample: { size: 1 } }])
 
-  hadith = '<blockquote>' + (hadith[0]?.content || 'Hozircha hadis mavjud emas') + '</blockquote>'
+  hadith = blockQuote(hadith[0]?.content || 'Hozircha hadis mavjud emas')
 
   keyboard.url(enterMessage, 'https://t.me/' + ctx.me.username)
 
