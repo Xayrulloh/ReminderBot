@@ -4,6 +4,7 @@ import { BotContext } from '#types/context'
 import { IHadith } from '#types/database'
 import HLanguage from '#helper/language'
 import { InlineKeyboard } from 'grammy'
+import { blockQuote } from '#helper/html'
 
 const scene = new Scene<BotContext>('Hadith')
 
