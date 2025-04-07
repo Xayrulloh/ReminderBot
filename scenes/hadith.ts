@@ -4,6 +4,7 @@ import { BotContext } from '#types/context'
 import { IHadith } from '#types/database'
 import HLanguage from '#helper/language'
 import { InlineKeyboard } from 'grammy'
+import { blockQuote } from '#helper/html'
 
 const scene = new Scene<BotContext>('Hadith')
 
@@ -12,7 +13,7 @@ scene.step(async (ctx) => {
   const enterMessage = HLanguage('enter')
   let hadith: IHadith[] | string = await Model.Hadith.aggregate<IHadith>([{ $sample: { size: 1 } }])
 
-  hadith = '\n\n<pre>' + (hadith[0]?.content || 'Hozircha hadis mavjud emas') + '</pre>'
+  hadith = blockQuote(hadith[0]?.content || 'Hozircha hadis mavjud emas')
 
   keyboard.url(enterMessage, 'https://t.me/' + ctx.me.username)
 

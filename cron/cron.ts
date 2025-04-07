@@ -70,7 +70,7 @@ async function daily(bot: Bot<BotContext>) {
   const currentMonth = now.get("month") + 1
   const regions = await Model.PrayTime.find<IPrayTime>({ day: today, month: currentMonth })
   const file = new InputFile(resolve(cwd(), 'dist', 'public', 'JumaMuborak.jpg'))
-  const hadith = (await getHadith()).replace('\n\n', '');
+  const hadith = (await getHadith()).trim()
 
   // sending
   for (let region of regions) {
