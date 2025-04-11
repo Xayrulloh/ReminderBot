@@ -63,8 +63,8 @@ export async function inlineQuery(ctx: BotContext) {
   regionIds = [...new Set(regionIds)].slice(0, 3)
 
   const now = dayjs()
-  const today = now.get("date")
-  const currentMonth = now.get("month") + 1
+  const today = now.get('date')
+  const currentMonth = now.get('month') + 1
   const regionTranslations: Record<string, number> = HLanguage('region')
   const regions = await Model.PrayTime.find<IPrayTime>({ day: today, regionId: regionIds, month: currentMonth })
   const message = HLanguage('infoPrayTime')
@@ -95,7 +95,7 @@ export async function inlineQuery(ctx: BotContext) {
         region.asr,
         region.maghrib,
         region.isha,
-        now.format("DD/MM/YYYY"),
+        now.format('DD/MM/YYYY'),
       ],
     )
 

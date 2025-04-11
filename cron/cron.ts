@@ -65,9 +65,9 @@ async function yearly() {
 async function daily(bot: Bot<BotContext>) {
   // taking data
   const now = dayjs()
-  const today = now.get("date")
-  const weekDay = now.get("day")
-  const currentMonth = now.get("month") + 1
+  const today = now.get('date')
+  const weekDay = now.get('day')
+  const currentMonth = now.get('month') + 1
   const regions = await Model.PrayTime.find<IPrayTime>({ day: today, month: currentMonth })
   const file = new InputFile(resolve(cwd(), 'dist', 'public', 'JumaMuborak.jpg'))
   const hadith = (await getHadith()).trim()
@@ -93,27 +93,27 @@ async function daily(bot: Bot<BotContext>) {
           region.asr,
           region.maghrib,
           region.isha,
-          now.format("DD/MM/YYYY"),
+          now.format('DD/MM/YYYY'),
         ],
       )
 
       const keyboardText = HLanguage('mainKeyboard')
       const buttons = customKFunction(2, ...keyboardText)
 
-      try {
-        if (weekDay == 5) {
-          await bot.api.sendPhoto(user.userId, file, {
+      if (weekDay == 5) {
+        await bot.api
+          .sendPhoto(user.userId, file, {
             caption: `\n\n${message} ${hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''}`,
             parse_mode: 'HTML',
           })
-        } else {
-          await bot.api.sendMessage(user.userId, message + (hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''), {
+          .catch(async (e) => await handleSendMessageError(e, user))
+      } else {
+        await bot.api
+          .sendMessage(user.userId, message + (hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''), {
             reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
             parse_mode: 'HTML',
           })
-        }
-      } catch (error) {
-        await handleSendMessageError(error, user)
+          .catch(async (e) => await handleSendMessageError(e, user))
       }
     }
   }
@@ -123,8 +123,8 @@ async function reminder(bot: Bot<BotContext>) {
   await schedule.gracefulShutdown()
 
   const now = dayjs()
-  const today = now.get("date")
-  const currentMonth = now.get("month") + 1
+  const today = now.get('date')
+  const currentMonth = now.get('month') + 1
   const regions = await Model.PrayTime.find<IPrayTime>({ day: today, month: currentMonth })
 
   for (let region of regions) {
@@ -139,27 +139,23 @@ async function reminder(bot: Bot<BotContext>) {
     // schedule
     schedule.scheduleJob({ hour: fajr[0], minute: fajr[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        regionId: region.regionId,
-        deletedAt: null,
-        status: true,
+        'regionId': region.regionId,
+        'deletedAt': null,
+        'status': true,
         'notificationSetting.fajr': true,
       })
 
       for (const user of users) {
-        try {
-          let message: string
+        let message: string
 
-          if (user.fasting) {
-            message = HLanguage('closeFast')
-            message += `\n\nنَوَيْتُ أَنْ أَصُومَ صَوْمَ شَهْرَ رَمَضَانَ مِنَ الْفَجْرِ إِلَى الْمَغْرِبِ، خَالِصًا لِلهِ تَعَالَى أَللهُ أَكْبَرُ\n\nНавайту ан асувма совма шаҳри рамазона минал фажри илал мағриби, холисан лиллаҳи таъаалаа Аллоҳу акбар`
-          } else {
-            message = HLanguage('fajrTime')
-          }
-
-          await bot.api.sendMessage(user.userId, message)
-        } catch (error: any) {
-          await handleSendMessageError(error, user)
+        if (user.fasting) {
+          message = HLanguage('closeFast')
+          message += `\n\nنَوَيْتُ أَنْ أَصُومَ صَوْمَ شَهْرَ رَمَضَانَ مِنَ الْفَجْرِ إِلَى الْمَغْرِبِ، خَالِصًا لِلهِ تَعَالَى أَللهُ أَكْبَرُ\n\nНавайту ан асувма совма шаҳри рамазона минал фажри илал мағриби, холисан лиллаҳи таъаалаа Аллоҳу акбар`
+        } else {
+          message = HLanguage('fajrTime')
         }
+
+        await bot.api.sendMessage(user.userId, message).catch(async (e) => await handleSendMessageError(e, user))
       }
     })
 
@@ -172,13 +168,9 @@ async function reminder(bot: Bot<BotContext>) {
       })
 
       for (const user of users) {
-        try {
-          const sunriseTime = HLanguage('sunriseTime')
+        const sunriseTime = HLanguage('sunriseTime')
 
-          await bot.api.sendMessage(user.userId, sunriseTime)
-        } catch (error: any) {
-          await handleSendMessageError(error, user)
-        }
+        await bot.api.sendMessage(user.userId, sunriseTime).catch(async (e) => await handleSendMessageError(e, user))
       }
     })
 
@@ -190,13 +182,9 @@ async function reminder(bot: Bot<BotContext>) {
         'notificationSetting.dhuhr': true,
       })
       for (const user of users) {
-        try {
-          const dhuhrTime = HLanguage('dhuhrTime')
+        const dhuhrTime = HLanguage('dhuhrTime')
 
-          await bot.api.sendMessage(user.userId, dhuhrTime)
-        } catch (error) {
-          await handleSendMessageError(error, user)
-        }
+        await bot.api.sendMessage(user.userId, dhuhrTime).catch(async (e) => await handleSendMessageError(e, user))
       }
     })
 
@@ -209,39 +197,31 @@ async function reminder(bot: Bot<BotContext>) {
       })
 
       for (const user of users) {
-        try {
-          const asrTime = HLanguage('asrTime')
+        const asrTime = HLanguage('asrTime')
 
-          await bot.api.sendMessage(user.userId, asrTime)
-        } catch (error) {
-          await handleSendMessageError(error, user)
-        }
+        await bot.api.sendMessage(user.userId, asrTime).catch(async (e) => await handleSendMessageError(e, user))
       }
     })
 
     schedule.scheduleJob({ hour: maghrib[0], minute: maghrib[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        regionId: region.regionId,
-        deletedAt: null,
-        status: true,
+        'regionId': region.regionId,
+        'deletedAt': null,
+        'status': true,
         'notificationSetting.maghrib': true,
       })
 
       for (const user of users) {
-        try {
-          let message
+        let message
 
-          if (user.fasting) {
-            message = HLanguage('breakFast')
-            message += `\n\nاَللَّهُمَّ لَكَ صُمْتُ وَ بِكَ آمَنْتُ وَ عَلَيْكَ تَوَكَّلْتُ وَ عَلَى رِزْقِكَ أَفْتَرْتُ، فَغْفِرْلِى مَا قَدَّمْتُ وَ مَا أَخَّرْتُ بِرَحْمَتِكَ يَا أَرْحَمَ الرَّاحِمِينَ\n\nАллоҳумма лака сумту ва бика ааманту ва аълайка таваккалту ва аълаа ризқика афтарту, фағфирлий ма қоддамту ва маа аххорту бироҳматика йаа арҳамар рооҳимийн`
-          } else {
-            message = HLanguage('maghribTime')
-          }
-
-          await bot.api.sendMessage(user.userId, message)
-        } catch (error) {
-          await handleSendMessageError(error, user)
+        if (user.fasting) {
+          message = HLanguage('breakFast')
+          message += `\n\nاَللَّهُمَّ لَكَ صُمْتُ وَ بِكَ آمَنْتُ وَ عَلَيْكَ تَوَكَّلْتُ وَ عَلَى رِزْقِكَ أَفْتَرْتُ، فَغْفِرْلِى مَا قَدَّمْتُ وَ مَا أَخَّرْتُ بِرَحْمَتِكَ يَا أَرْحَمَ الرَّاحِمِينَ\n\nАллоҳумма лака сумту ва бика ааманту ва аълайка таваккалту ва аълаа ризқика афтарту, фағфирлий ма қоддамту ва маа аххорту бироҳматика йаа арҳамар рооҳимийн`
+        } else {
+          message = HLanguage('maghribTime')
         }
+
+        await bot.api.sendMessage(user.userId, message).catch(async (e) => await handleSendMessageError(e, user))
       }
     })
 
@@ -254,13 +234,9 @@ async function reminder(bot: Bot<BotContext>) {
       })
 
       for (const user of users) {
-        try {
-          const ishaTime = HLanguage('ishaTime')
+        const ishaTime = HLanguage('ishaTime')
 
-          await bot.api.sendMessage(user.userId, ishaTime)
-        } catch (error) {
-          await handleSendMessageError(error, user)
-        }
+        await bot.api.sendMessage(user.userId, ishaTime).catch(async (e) => await handleSendMessageError(e, user))
       }
     })
   }
@@ -273,16 +249,14 @@ async function weekly(bot: Bot<BotContext>) {
   })
 
   for (const user of users) {
-    try {
-      const message = HLanguage('shareBot')
-      const keyboard = new InlineKeyboard()
-      const enterMessage = HLanguage('enter')
-      keyboard.url(enterMessage, 'https://t.me/' + bot.botInfo.username)
+    const message = HLanguage('shareBot')
+    const keyboard = new InlineKeyboard()
+    const enterMessage = HLanguage('enter')
+    keyboard.url(enterMessage, 'https://t.me/' + bot.botInfo.username)
 
-      await bot.api.sendMessage(user.userId, message, { reply_markup: keyboard })
-    } catch (error) {
-      await handleSendMessageError(error, user)
-    }
+    await bot.api
+      .sendMessage(user.userId, message, { reply_markup: keyboard })
+      .catch(async (e) => await handleSendMessageError(e, user))
   }
 }
 

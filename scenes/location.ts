@@ -55,8 +55,8 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
       await ctx.answerCallbackQuery()
 
       const now = dayjs()
-      const today = now.get("date")
-      const currentMonth = now.get("month") + 1
+      const today = now.get('date')
+      const currentMonth = now.get('month') + 1
       const message = HLanguage('infoPrayTime')
       const data = await Model.PrayTime.findOne<IPrayTime>({ day: today, regionId: +inputData, month: currentMonth })
       let regionName = ''
@@ -78,7 +78,7 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
       let response = HReplace(
         message,
         ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha', '$date'],
-        [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha, now.format("DD/MM/YYYY")],
+        [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha, now.format('DD/MM/YYYY')],
       )
       const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
       const locationMessage = HLanguage('locationChange')
