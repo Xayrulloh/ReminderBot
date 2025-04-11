@@ -101,15 +101,19 @@ async function daily(bot: Bot<BotContext>) {
       const buttons = customKFunction(2, ...keyboardText)
 
       if (weekDay == 5) {
-        await bot.api.sendPhoto(user.userId, file, {
-          caption: `\n\n${message} ${hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''}`,
-          parse_mode: 'HTML',
-        }).catch(async (e) => await handleSendMessageError(e, user))
+        await bot.api
+          .sendPhoto(user.userId, file, {
+            caption: `\n\n${message} ${hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''}`,
+            parse_mode: 'HTML',
+          })
+          .catch(async (e) => await handleSendMessageError(e, user))
       } else {
-        await bot.api.sendMessage(user.userId, message + (hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''), {
-          reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
-          parse_mode: 'HTML',
-        }).catch(async (e) => await handleSendMessageError(e, user))
+        await bot.api
+          .sendMessage(user.userId, message + (hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''), {
+            reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
+            parse_mode: 'HTML',
+          })
+          .catch(async (e) => await handleSendMessageError(e, user))
       }
     }
   }
@@ -250,7 +254,9 @@ async function weekly(bot: Bot<BotContext>) {
     const enterMessage = HLanguage('enter')
     keyboard.url(enterMessage, 'https://t.me/' + bot.botInfo.username)
 
-    await bot.api.sendMessage(user.userId, message, { reply_markup: keyboard }).catch(async (e) => await handleSendMessageError(e, user))
+    await bot.api
+      .sendMessage(user.userId, message, { reply_markup: keyboard })
+      .catch(async (e) => await handleSendMessageError(e, user))
   }
 }
 
