@@ -81,7 +81,7 @@ async function daily(bot: Bot<BotContext>) {
     })
 
     for (let user of users) {
-      const info = HLanguage('infoPrayTime')
+      const info = user.fasting ? HLanguage('infoPrayTimeFasting') : HLanguage('infoPrayTime')
       let message = HReplace(
         info,
         ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha', '$date'],
@@ -146,16 +146,11 @@ async function reminder(bot: Bot<BotContext>) {
       })
 
       for (const user of users) {
-        let message: string
-
-        if (user.fasting) {
-          message = HLanguage('closeFast')
-          message += `\n\nنَوَيْتُ أَنْ أَصُومَ صَوْمَ شَهْرَ رَمَضَانَ مِنَ الْفَجْرِ إِلَى الْمَغْرِبِ، خَالِصًا لِلهِ تَعَالَى أَللهُ أَكْبَرُ\n\nНавайту ан асувма совма шаҳри рамазона минал фажри илал мағриби, холисан лиллаҳи таъаалаа Аллоҳу акбар`
-        } else {
-          message = HLanguage('fajrTime')
-        }
-
-        await bot.api.sendMessage(user.userId, message).catch(async (e) => await handleSendMessageError(e, user))
+        await bot.api
+          .sendMessage(user.userId, user.fasting ? HLanguage('closeFast') : HLanguage('fajrTime'))
+          .catch(async (err: any) => {
+            await handleSendMessageError(err, user)
+          })
       }
     })
 
@@ -168,9 +163,9 @@ async function reminder(bot: Bot<BotContext>) {
       })
 
       for (const user of users) {
-        const sunriseTime = HLanguage('sunriseTime')
-
-        await bot.api.sendMessage(user.userId, sunriseTime).catch(async (e) => await handleSendMessageError(e, user))
+        await bot.api
+          .sendMessage(user.userId, user.fasting ? HLanguage('sunriseFastingTime') : HLanguage('sunriseTime'))
+          .catch(async (err: any) => await handleSendMessageError(err, user))
       }
     })
 
@@ -181,10 +176,11 @@ async function reminder(bot: Bot<BotContext>) {
         'status': true,
         'notificationSetting.dhuhr': true,
       })
-      for (const user of users) {
-        const dhuhrTime = HLanguage('dhuhrTime')
 
-        await bot.api.sendMessage(user.userId, dhuhrTime).catch(async (e) => await handleSendMessageError(e, user))
+      for (const user of users) {
+        await bot.api.sendMessage(user.userId, HLanguage('dhuhrTime')).catch(async (err: any) => {
+          await handleSendMessageError(err, user)
+        })
       }
     })
 
@@ -197,9 +193,9 @@ async function reminder(bot: Bot<BotContext>) {
       })
 
       for (const user of users) {
-        const asrTime = HLanguage('asrTime')
-
-        await bot.api.sendMessage(user.userId, asrTime).catch(async (e) => await handleSendMessageError(e, user))
+        await bot.api.sendMessage(user.userId, HLanguage('asrTime')).catch(async (err: any) => {
+          await handleSendMessageError(err, user)
+        })
       }
     })
 
@@ -212,16 +208,11 @@ async function reminder(bot: Bot<BotContext>) {
       })
 
       for (const user of users) {
-        let message
-
-        if (user.fasting) {
-          message = HLanguage('breakFast')
-          message += `\n\nاَللَّهُمَّ لَكَ صُمْتُ وَ بِكَ آمَنْتُ وَ عَلَيْكَ تَوَكَّلْتُ وَ عَلَى رِزْقِكَ أَفْتَرْتُ، فَغْفِرْلِى مَا قَدَّمْتُ وَ مَا أَخَّرْتُ بِرَحْمَتِكَ يَا أَرْحَمَ الرَّاحِمِينَ\n\nАллоҳумма лака сумту ва бика ааманту ва аълайка таваккалту ва аълаа ризқика афтарту, фағфирлий ма қоддамту ва маа аххорту бироҳматика йаа арҳамар рооҳимийн`
-        } else {
-          message = HLanguage('maghribTime')
-        }
-
-        await bot.api.sendMessage(user.userId, message).catch(async (e) => await handleSendMessageError(e, user))
+        await bot.api
+          .sendMessage(user.userId, user.fasting ? HLanguage('breakFast') : HLanguage('maghribTime'))
+          .catch(async (err: any) => {
+            await handleSendMessageError(err, user)
+          })
       }
     })
 
@@ -234,9 +225,9 @@ async function reminder(bot: Bot<BotContext>) {
       })
 
       for (const user of users) {
-        const ishaTime = HLanguage('ishaTime')
-
-        await bot.api.sendMessage(user.userId, ishaTime).catch(async (e) => await handleSendMessageError(e, user))
+        await bot.api.sendMessage(user.userId, HLanguage('ishaTime')).catch(async (err: any) => {
+          await handleSendMessageError(err, user)
+        })
       }
     })
   }
