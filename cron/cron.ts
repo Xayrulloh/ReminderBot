@@ -100,20 +100,20 @@ async function daily(bot: Bot<BotContext>) {
       const keyboardText = HLanguage('mainKeyboard')
       const buttons = customKFunction(2, ...keyboardText)
 
-      try {
-        if (weekDay == 5) {
-          await bot.api.sendPhoto(user.userId, file, {
+      if (weekDay == 5) {
+        await bot.api
+          .sendPhoto(user.userId, file, {
             caption: `\n\n${message} ${hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''}`,
             parse_mode: 'HTML',
           })
-        } else {
-          await bot.api.sendMessage(user.userId, message + (hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''), {
+          .catch(async (e) => await handleSendMessageError(e, user))
+      } else {
+        await bot.api
+          .sendMessage(user.userId, message + (hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''), {
             reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
             parse_mode: 'HTML',
           })
-        }
-      } catch (error) {
-        await handleSendMessageError(error, user)
+          .catch(async (e) => await handleSendMessageError(e, user))
       }
     }
   }
@@ -240,16 +240,14 @@ async function weekly(bot: Bot<BotContext>) {
   })
 
   for (const user of users) {
-    try {
-      const message = HLanguage('shareBot')
-      const keyboard = new InlineKeyboard()
-      const enterMessage = HLanguage('enter')
-      keyboard.url(enterMessage, 'https://t.me/' + bot.botInfo.username)
+    const message = HLanguage('shareBot')
+    const keyboard = new InlineKeyboard()
+    const enterMessage = HLanguage('enter')
+    keyboard.url(enterMessage, 'https://t.me/' + bot.botInfo.username)
 
-      await bot.api.sendMessage(user.userId, message, { reply_markup: keyboard })
-    } catch (error) {
-      await handleSendMessageError(error, user)
-    }
+    await bot.api
+      .sendMessage(user.userId, message, { reply_markup: keyboard })
+      .catch(async (e) => await handleSendMessageError(e, user))
   }
 }
 

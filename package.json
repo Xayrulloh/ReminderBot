@@ -10,7 +10,7 @@
     "build": "pnpm run prebuild && tsc && pnpm run copy-public",
     "start": "TS_NODE_BASEURL=./dist node -r tsconfig-paths/register dist/server.js",
     "start:dev": "tsc-watch --outDir ./dist --onSuccess 'pnpm start'",
-    "format": "prettier --write './**/*.{js,ts}'"
+    "format": "prettier --write ."
   },
   "author": "",
   "license": "MIT",

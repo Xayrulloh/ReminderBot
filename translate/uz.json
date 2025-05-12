@@ -151,8 +151,5 @@
   "feedbackEndMessage": "Fikr-mulohazalaringiz uchun tashakkur. Biz buni qadrlaymiz!",
   "currentRegion": "Hozirgi mintaqa: ",
   "selectDay": "Kerakli kunni belgilang:",
-  "selectDayOptions": [
-    "Bugun",
-    "Boshqa kun"
-  ]
+  "selectDayOptions": ["Bugun", "Boshqa kun"]
 }
