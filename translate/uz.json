@@ -92,6 +92,7 @@
   },
   "chooseRegion": "Mintaqani belgilang",
   "infoPrayTime": "Sana: $date\n$region shahar namoz vaqtlari\n\n🏙 Bomdod $fajr\n🌅 Quyosh $sunrise\n🏞 Peshin $zuhr\n🌆 Asr $asr\n🌉 Shom $maghrib\n🌃 Xufton $isha",
+  "infoPrayTimeFasting": "Sana: $date\n$region shahar namoz vaqtlari\n\n🏙 Bomdod (saharlik) $fajr\n🌅 Quyosh $sunrise\n🏞 Peshin $zuhr\n🌆 Asr $asr\n🌉 Shom (iftorlik) $maghrib\n🌃 Xufton $isha",
   "notifChange": "O'zgartirildi",
   "locationChange": "Sizning joylashuvingiz o'zgartirildi.",
   "agreementFasting": ["Ha", "Yo'q"],
@@ -114,8 +115,8 @@
   "asrTime": "🌆 Asr vaqti bo'ldi",
   "maghribTime": "🌉 Shom vaqti bo'ldi",
   "ishaTime": "🌃 Xufton vaqti bo'ldi",
-  "breakFast": "🌉 Og'iz ochish vaqti bo'ldi",
-  "closeFast": "🏙 Og'iz yopish vaqti bo'ldi",
+  "breakFast": "🌉 Og'iz ochish vaqti bo'ldi\n\nاَللَّهُمَّ لَكَ صُمْتُ وَ بِكَ آمَنْتُ وَ عَلَيْكَ تَوَكَّلْتُ وَ عَلَى رِزْقِكَ أَفْتَرْتُ، فَغْفِرْلِى مَا قَدَّمْتُ وَ مَا أَخَّرْتُ بِرَحْمَتِكَ يَا أَرْحَمَ الرَّاحِمِينَ\n\nАллоҳумма лака сумту ва бика ааманту ва аълайка таваккалту ва аълаа ризқика афтарту, фағфирлий ма қоддамту ва маа аххорту бироҳматика йаа арҳамар рооҳимийн",
+  "closeFast": "🏙 Og'iz yopish vaqti bo'ldi\n\nنَوَيْتُ أَنْ أَصُومَ صَوْمَ شَهْرَ رَمَضَانَ مِنَ الْفَجْرِ إِلَى الْمَغْرِبِ، خَالِصًا لِلهِ تَعَالَى أَللهُ أَكْبَرُ\n\nНавайту ан асувма совма шаҳри рамазона минал фажри илал мағриби, холисан лиллаҳи таъаалаа Аллоҳу акбар",
   "usersCount": "Barcha foydalanuvchilar soni: ",
   "shareMessage": "Ushbu botni yaqinlaringizga ham ulashing va namoz o'z vaqtida o'qilishiga sababchi bo'ling",
   "donateMessage": "Qancha pul to'lamoqchimisiz?",
@@ -150,8 +151,5 @@
   "feedbackEndMessage": "Fikr-mulohazalaringiz uchun tashakkur. Biz buni qadrlaymiz!",
   "currentRegion": "Hozirgi mintaqa: ",
   "selectDay": "Kerakli kunni belgilang:",
-  "selectDayOptions": [
-    "Bugun",
-    "Boshqa kun"
-  ]
+  "selectDayOptions": ["Bugun", "Boshqa kun"]
 }

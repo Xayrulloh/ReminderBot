@@ -33,11 +33,7 @@ scene.wait('message').on('message:text', async (ctx) => {
   const users = await Model.User.find<IUser>(whereQuery)
 
   for (const user of users) {
-    try {
-      await ctx.api.sendMessage(user.userId, ctx.message.text)
-    } catch (error) {
-      await handleSendMessageError(error, user)
-    }
+    await ctx.api.sendMessage(user.userId, ctx.message.text).catch(async (e) => await handleSendMessageError(e, user))
   }
 
   ctx.scene.exit()
