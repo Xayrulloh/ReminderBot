@@ -28,6 +28,7 @@ scene.step(async (ctx) => {
   ctx.session.regions = keyboardMessage
   ctx.session.currPage = 1
   ctx.session.keyboard = keyboard
+
   await ctx.reply(message, { reply_markup: buttons, parse_mode: 'HTML' })
 })
 
