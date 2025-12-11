@@ -138,6 +138,7 @@ scene.wait('the_end').on('callback_query:data', async (ctx) => {
     },
     parse_mode: 'HTML',
   })
+
   ctx.scene.exit()
 })
 

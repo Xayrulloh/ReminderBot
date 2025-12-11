@@ -33,6 +33,7 @@ scene.step(async (ctx) => {
   }
 
   await ctx.reply(countMessage + users.length + '.\n\n' + shareMessage, { reply_markup: keyboard })
+
   ctx.scene.exit()
 })
 

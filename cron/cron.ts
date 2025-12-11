@@ -16,49 +16,49 @@ import { getHadith } from '#helper/getHadith'
 import dayjs from '#utils/dayjs'
 import { cwd } from 'process'
 
-async function yearly() {
+async function monthly() {
   const keyboardMessage = HLanguage('region')
   const regions = Object.keys(keyboardMessage)
   const regionIds = Object.values(keyboardMessage)
   const daysOfWeek = ['Якшанба', 'Душанба', 'Сешанба', 'Чоршанба', 'Пайшанба', 'Жума', 'Шанба']
   const prayTimes = []
 
-  await Model.PrayTime.deleteMany()
+  const now = dayjs()
+  const currentMonth = now.get('month') + 1
 
-  for (let month = 1; month <= 12; month++) {
-    for (let region = 0; region < regions.length; region++) {
-      const pdf = await axios.get(env.TIME_API + regionIds[region] + '/' + month, {
-        responseType: 'arraybuffer',
-      })
-      const pdfData = await pdfParser(pdf.data)
-      const data = pdfData.text.split('\n')
+  for (let region = 0; region < regions.length; region++) {
+    const pdf = await axios.get(env.TIME_API + regionIds[region] + '/' + currentMonth, {
+      responseType: 'arraybuffer',
+    })
+    const pdfData = await pdfParser(pdf.data)
+    const data = pdfData.text.split('\n')
 
-      for (let el of data) {
-        if (el.length > 20 && el.split(' ').length == 1) {
-          for (let day of daysOfWeek) {
-            if (el.includes(day)) {
-              let dayNumber = el.split(day)[0]
-              let times = el.split(day)[1].match(/.{1,5}/g) as RegExpMatchArray
+    for (let el of data) {
+      if (el.length > 20 && el.split(' ').length == 1) {
+        for (let day of daysOfWeek) {
+          if (el.includes(day)) {
+            let dayNumber = el.split(day)[0]
+            let times = el.split(day)[1].match(/.{1,5}/g) as RegExpMatchArray
 
-              prayTimes.push({
-                region: regions[region],
-                regionId: regionIds[region],
-                day: dayNumber,
-                fajr: times[0],
-                sunrise: times[1],
-                dhuhr: times[2],
-                asr: times[3],
-                maghrib: times[4],
-                isha: times[5],
-                month,
-              })
-            }
+            prayTimes.push({
+              region: regions[region],
+              regionId: regionIds[region],
+              day: dayNumber,
+              fajr: times[0],
+              sunrise: times[1],
+              dhuhr: times[2],
+              asr: times[3],
+              maghrib: times[4],
+              isha: times[5],
+              month: currentMonth,
+            })
           }
         }
       }
     }
   }
 
+  await Model.PrayTime.deleteMany()
   await Model.PrayTime.insertMany<IPrayTime>(prayTimes)
 }
 
@@ -257,9 +257,9 @@ export async function cronStarter(bot: Bot<BotContext>) {
   }
 
   cron.schedule(
-    '30 0 1 1 *',
+    '30 0 1 * *',
     async () => {
-      await yearly()
+      await monthly()
     },
     scheduleOptions,
   )
