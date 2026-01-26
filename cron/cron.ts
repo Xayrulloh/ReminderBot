@@ -8,10 +8,10 @@ import schedule from 'node-schedule'
 import customKFunction from '#keyboard/custom'
 import { Bot, InlineKeyboard, InputFile } from 'grammy'
 import { BotContext } from '#types/context'
-import { IPrayTime, IUser } from '#types/database'
+import { IPrayTime, IUser, IGroup } from '#types/database'
 import { env } from '#utils/env'
 import cron from 'node-cron'
-import { handleSendMessageError } from '#helper/errorHandler'
+import { handleGroupSendMessageError, handleUserSendMessageError } from '#helper/errorHandler'
 import { getHadith } from '#helper/getHadith'
 import dayjs from '#utils/dayjs'
 import { cwd } from 'process'
@@ -106,14 +106,56 @@ async function daily(bot: Bot<BotContext>) {
             caption: `\n\n${message} ${hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''}`,
             parse_mode: 'HTML',
           })
-          .catch(async (e) => await handleSendMessageError(e, user))
+          .catch(async (e) => await handleUserSendMessageError(e, user))
       } else {
         await bot.api
           .sendMessage(user.userId, message + (hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''), {
             reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
             parse_mode: 'HTML',
           })
-          .catch(async (e) => await handleSendMessageError(e, user))
+          .catch(async (e) => await handleUserSendMessageError(e, user))
+      }
+    }
+
+    const groups = await Model.Group.find<IGroup>({
+      regionId: region.regionId,
+      deletedAt: null,
+      status: true,
+    })
+
+    for (let group of groups) {
+      let message = HReplace(
+        HLanguage('infoPrayTime'),
+        ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha', '$date'],
+        [
+          region.region,
+          region.fajr,
+          region.sunrise,
+          region.dhuhr,
+          region.asr,
+          region.maghrib,
+          region.isha,
+          now.format('DD/MM/YYYY'),
+        ],
+      )
+
+      if (weekDay == 5) {
+        await bot.api
+          .sendPhoto(group.groupId, file, {
+            caption: `\n\n${message} ${hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''}`,
+            parse_mode: 'HTML',
+          })
+          .catch(async (e) => {
+            await handleGroupSendMessageError(e, group)
+          })
+      } else {
+        await bot.api
+          .sendMessage(group.groupId, message + (hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''), {
+            parse_mode: 'HTML',
+          })
+          .catch(async (e) => {
+            await handleGroupSendMessageError(e, group)
+          })
       }
     }
   }
@@ -139,94 +181,94 @@ async function reminder(bot: Bot<BotContext>) {
     // schedule
     schedule.scheduleJob({ hour: fajr[0], minute: fajr[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        'regionId': region.regionId,
-        'deletedAt': null,
-        'status': true,
-        'notificationSetting.fajr': true,
+        regionId: region.regionId,
+        deletedAt: null,
+        status: true,
+        notificationSetting: { fajr: true },
       })
 
       for (const user of users) {
         await bot.api
           .sendMessage(user.userId, user.fasting ? HLanguage('closeFast') : HLanguage('fajrTime'))
           .catch(async (err: any) => {
-            await handleSendMessageError(err, user)
+            await handleUserSendMessageError(err, user)
           })
       }
     })
 
     schedule.scheduleJob({ hour: sunrise[0], minute: sunrise[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        'regionId': region.regionId,
-        'deletedAt': null,
-        'status': true,
-        'notificationSetting.sunrise': true,
+        regionId: region.regionId,
+        deletedAt: null,
+        status: true,
+        notificationSetting: { sunrise: true },
       })
 
       for (const user of users) {
         await bot.api
           .sendMessage(user.userId, user.fasting ? HLanguage('sunriseFastingTime') : HLanguage('sunriseTime'))
-          .catch(async (err: any) => await handleSendMessageError(err, user))
+          .catch(async (err: any) => await handleUserSendMessageError(err, user))
       }
     })
 
     schedule.scheduleJob({ hour: dhuhr[0], minute: dhuhr[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        'regionId': region.regionId,
-        'deletedAt': null,
-        'status': true,
-        'notificationSetting.dhuhr': true,
+        regionId: region.regionId,
+        deletedAt: null,
+        status: true,
+        notificationSetting: { dhuhr: true },
       })
 
       for (const user of users) {
         await bot.api.sendMessage(user.userId, HLanguage('dhuhrTime')).catch(async (err: any) => {
-          await handleSendMessageError(err, user)
+          await handleUserSendMessageError(err, user)
         })
       }
     })
 
     schedule.scheduleJob({ hour: asr[0], minute: asr[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        'regionId': region.regionId,
-        'deletedAt': null,
-        'status': true,
-        'notificationSetting.asr': true,
+        regionId: region.regionId,
+        deletedAt: null,
+        status: true,
+        notificationSetting: { asr: true },
       })
 
       for (const user of users) {
         await bot.api.sendMessage(user.userId, HLanguage('asrTime')).catch(async (err: any) => {
-          await handleSendMessageError(err, user)
+          await handleUserSendMessageError(err, user)
         })
       }
     })
 
     schedule.scheduleJob({ hour: maghrib[0], minute: maghrib[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        'regionId': region.regionId,
-        'deletedAt': null,
-        'status': true,
-        'notificationSetting.maghrib': true,
+        regionId: region.regionId,
+        deletedAt: null,
+        status: true,
+        notificationSetting: { maghrib: true },
       })
 
       for (const user of users) {
         await bot.api
           .sendMessage(user.userId, user.fasting ? HLanguage('breakFast') : HLanguage('maghribTime'))
           .catch(async (err: any) => {
-            await handleSendMessageError(err, user)
+            await handleUserSendMessageError(err, user)
           })
       }
     })
 
     schedule.scheduleJob({ hour: isha[0], minute: isha[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        'regionId': region.regionId,
-        'deletedAt': null,
-        'status': true,
-        'notificationSetting.isha': true,
+        regionId: region.regionId,
+        deletedAt: null,
+        status: true,
+        notificationSetting: { isha: true },
       })
 
       for (const user of users) {
         await bot.api.sendMessage(user.userId, HLanguage('ishaTime')).catch(async (err: any) => {
-          await handleSendMessageError(err, user)
+          await handleUserSendMessageError(err, user)
         })
       }
     })
@@ -243,11 +285,29 @@ async function weekly(bot: Bot<BotContext>) {
     const message = HLanguage('shareBot')
     const keyboard = new InlineKeyboard()
     const enterMessage = HLanguage('enter')
+
     keyboard.url(enterMessage, 'https://t.me/' + bot.botInfo.username)
 
     await bot.api
       .sendMessage(user.userId, message, { reply_markup: keyboard })
-      .catch(async (e) => await handleSendMessageError(e, user))
+      .catch(async (e) => await handleUserSendMessageError(e, user))
+  }
+
+  const groups = await Model.Group.find<IGroup>({
+    status: true,
+    deletedAt: null,
+  })
+
+  for (const group of groups) {
+    const message = HLanguage('shareBot')
+    const keyboard = new InlineKeyboard()
+    const enterMessage = HLanguage('enter')
+
+    keyboard.url(enterMessage, 'https://t.me/' + bot.botInfo.username)
+
+    await bot.api.sendMessage(group.groupId, message, { reply_markup: keyboard }).catch(async (e) => {
+      await handleGroupSendMessageError(e, group)
+    })
   }
 }
 

@@ -12,6 +12,8 @@ import source from './source'
 import addHadith from './add-hadith'
 import quran from './quran'
 import feedback from './feedback'
+import groupStart from './group-start'
+import groupLocation from './group-location'
 import { BotContext } from '#types/context'
 
 export const scenes = new ScenesComposer<BotContext>(
@@ -28,4 +30,6 @@ export const scenes = new ScenesComposer<BotContext>(
   addHadith,
   quran,
   feedback,
+  groupStart,
+  groupLocation,
 )

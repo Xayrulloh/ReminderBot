@@ -37,3 +37,13 @@ export interface IHadith extends Document {
   content: string
   category: string
 }
+
+export interface IGroup extends Document {
+  groupId: number
+  groupName: string
+  region: string
+  regionId: number
+  status: boolean
+  deletedAt: Date
+  type: string
+}

@@ -2,7 +2,7 @@ import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
 import { BotContext } from '#types/context'
 import { IUser } from '#types/database'
-import { handleSendMessageError } from '#helper/errorHandler'
+import { handleUserSendMessageError } from '#helper/errorHandler'
 import { FilterQuery } from 'mongoose'
 
 const scene = new Scene<BotContext>('Announcement')
@@ -33,7 +33,9 @@ scene.wait('message').on('message:text', async (ctx) => {
   const users = await Model.User.find<IUser>(whereQuery)
 
   for (const user of users) {
-    await ctx.api.sendMessage(user.userId, ctx.message.text).catch(async (e) => await handleSendMessageError(e, user))
+    await ctx.api
+      .sendMessage(user.userId, ctx.message.text)
+      .catch(async (e) => await handleUserSendMessageError(e, user))
   }
 
   ctx.scene.exit()
