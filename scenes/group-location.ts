@@ -78,6 +78,8 @@ scene.wait('group_location_update').on('callback_query:data', async (ctx) => {
         ctx.group.regionId = +inputData
       }
 
+      memoryStorage.write(String(ctx.chat!.id), ctx.group)
+
       let response = HReplace(
         message,
         ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha', '$date'],

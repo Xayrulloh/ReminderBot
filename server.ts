@@ -16,6 +16,8 @@ import Model from '#config/database'
 import { WebhookClient, EmbedBuilder } from 'discord.js'
 import { format } from 'node:util'
 import { FLOOD_MESSAGE } from '#utils/constants'
+import { memoryStorage } from '#config/storage'
+import { IGroup } from '#types/database'
 
 const bot = new Bot<BotContext>(env.TOKEN)
 
@@ -130,6 +132,10 @@ groupChatBot.command('start', async (ctx) => {
 
   if (!ctx.group?.status) {
     await Model.Group.updateOne({ groupId: ctx.chat.id }, { status: true, deletedAt: null }, {})
+
+    const group = await Model.Group.findOne<IGroup>({ groupId: ctx.chat.id })
+
+    memoryStorage.write(String(ctx.chat!.id), group)
   }
 
   await ctx.reply(welcomeText)

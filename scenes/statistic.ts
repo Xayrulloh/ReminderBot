@@ -4,28 +4,33 @@ import HLanguage from '#helper/language'
 import { BotContext } from '#types/context'
 import { IUser, IGroup } from '#types/database'
 import { InlineKeyboard } from 'grammy'
+import { handleGroupSendMessageError } from '#helper/errorHandler'
 
 const scene = new Scene<BotContext>('Statistic')
 
 scene.step(async (ctx) => {
   const users = await Model.User.find<IUser>()
-  const groups = await Model.Group.find<IGroup>({ status: true })
+  const groups = await Model.Group.find<IGroup>({ status: true, deletedAt: null })
   const countMessage = HLanguage('usersCount')
   let shareMessage = HLanguage('shareMessage')
   const keyboard = new InlineKeyboard()
   const enterMessage = HLanguage('enter')
 
-  let groupUsersCount = 0
+  const memberCounts = await Promise.all(
+    groups.map(async (group) => {
+      try {
+        return await ctx.api.getChatMemberCount(group.groupId)
+      } catch (e) {
+        console.error(`Failed to get member count for group ${group.groupId}:`, e)
 
-  for (const group of groups) {
-    try {
-      const data = await ctx.api.getChatMemberCount(group.groupId)
+        handleGroupSendMessageError(e, group)
 
-      groupUsersCount += data
-    } catch (e) {
-      console.error(`Failed to get member count for group ${group.groupId}:`, e)
-    }
-  }
+        return 0
+      }
+    }),
+  )
+
+  const groupUsersCount = memberCounts.reduce((sum, count) => sum + count, 0)
 
   keyboard.url(enterMessage, 'https://t.me/' + ctx.me.username)
 
@@ -45,7 +50,10 @@ scene.step(async (ctx) => {
     }\n Pure users:   ${users.length - (usersInfo.blockedUsers + usersInfo.deletedUsers)}`
   }
 
-  await ctx.reply(countMessage + users.length + '.\n\n' + 'Guruhlardagi azolar: ' + groupUsersCount + '.\n\n' + shareMessage, { reply_markup: keyboard })
+  await ctx.reply(
+    countMessage + users.length + '.\n\n' + 'Guruhlardagi azolar: ' + groupUsersCount + '.\n\n' + shareMessage,
+    { reply_markup: keyboard },
+  )
 
   ctx.scene.exit()
 })

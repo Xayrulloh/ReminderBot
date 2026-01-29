@@ -124,7 +124,9 @@ scene.wait('commonDays').on('callback_query:data', async (ctx) => {
   )
 
   const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
+
   await ctx.editMessageText(response + dailyHadith, { parse_mode: 'HTML' })
+
   ctx.scene.exit()
 })
 

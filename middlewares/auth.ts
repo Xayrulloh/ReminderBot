@@ -55,7 +55,7 @@ export async function groupAuthMiddleware(ctx: BotContext, next: NextFunction) {
     } catch (e) {
       console.error('Failed to check admins:', e)
 
-      return next()
+      return
     }
   }
 

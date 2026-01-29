@@ -181,9 +181,9 @@ async function reminder(bot: Bot<BotContext>) {
     // schedule
     schedule.scheduleJob({ hour: fajr[0], minute: fajr[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        regionId: region.regionId,
-        deletedAt: null,
-        status: true,
+        'regionId': region.regionId,
+        'deletedAt': null,
+        'status': true,
         'notificationSetting.fajr': true,
       })
 
@@ -198,9 +198,9 @@ async function reminder(bot: Bot<BotContext>) {
 
     schedule.scheduleJob({ hour: sunrise[0], minute: sunrise[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        regionId: region.regionId,
-        deletedAt: null,
-        status: true,
+        'regionId': region.regionId,
+        'deletedAt': null,
+        'status': true,
         'notificationSetting.sunrise': true,
       })
 
@@ -213,9 +213,9 @@ async function reminder(bot: Bot<BotContext>) {
 
     schedule.scheduleJob({ hour: dhuhr[0], minute: dhuhr[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        regionId: region.regionId,
-        deletedAt: null,
-        status: true,
+        'regionId': region.regionId,
+        'deletedAt': null,
+        'status': true,
         'notificationSetting.dhuhr': true,
       })
 
@@ -228,9 +228,9 @@ async function reminder(bot: Bot<BotContext>) {
 
     schedule.scheduleJob({ hour: asr[0], minute: asr[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        regionId: region.regionId,
-        deletedAt: null,
-        status: true,
+        'regionId': region.regionId,
+        'deletedAt': null,
+        'status': true,
         'notificationSetting.asr': true,
       })
 
@@ -243,9 +243,9 @@ async function reminder(bot: Bot<BotContext>) {
 
     schedule.scheduleJob({ hour: maghrib[0], minute: maghrib[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        regionId: region.regionId,
-        deletedAt: null,
-        status: true,
+        'regionId': region.regionId,
+        'deletedAt': null,
+        'status': true,
         'notificationSetting.maghrib': true,
       })
 
@@ -260,9 +260,9 @@ async function reminder(bot: Bot<BotContext>) {
 
     schedule.scheduleJob({ hour: isha[0], minute: isha[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        regionId: region.regionId,
-        deletedAt: null,
-        status: true,
+        'regionId': region.regionId,
+        'deletedAt': null,
+        'status': true,
         'notificationSetting.isha': true,
       })
 
