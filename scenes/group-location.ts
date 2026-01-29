@@ -74,6 +74,7 @@ scene.wait('group_location_update').on('callback_query:data', async (ctx) => {
       const updatedGroup = await Model.Group.findOneAndUpdate<IGroup>(
         { groupId: ctx.chat!.id },
         { region: regionName, regionId: +inputData },
+        { new: true },
       )
 
       if (updatedGroup) {

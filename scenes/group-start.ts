@@ -71,7 +71,7 @@ scene.wait('group_location').on('callback_query:data', async (ctx) => {
         }
       }
 
-      const group = await Model.Group.findOneAndUpdate<IGroup>(
+      const updatedGroup = await Model.Group.findOneAndUpdate<IGroup>(
         { groupId: ctx.chat!.id },
         {
           groupId: ctx.chat!.id,
@@ -85,7 +85,11 @@ scene.wait('group_location').on('callback_query:data', async (ctx) => {
         { upsert: true, new: true, setDefaultsOnInsert: true },
       )
 
-      memoryStorage.write(String(ctx.chat!.id), group)
+      if (updatedGroup) {
+        ctx.group = updatedGroup
+
+        memoryStorage.write(String(ctx.chat!.id), updatedGroup)
+      }
 
       let response = HReplace(
         message,

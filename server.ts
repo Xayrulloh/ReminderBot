@@ -134,7 +134,7 @@ groupChatBot.command('start', async (ctx) => {
     const updatedGroup = await Model.Group.findOneAndUpdate<IGroup>(
       { groupId: ctx.chat.id },
       { status: true, deletedAt: null },
-      {},
+      { new: true },
     )
 
     if (updatedGroup) {
