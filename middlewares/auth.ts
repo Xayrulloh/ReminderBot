@@ -3,6 +3,7 @@ import { BotContext } from '#types/context'
 import { NextFunction } from 'grammy'
 import { memoryStorage } from '#config/storage'
 import { IGroup, IUser } from '#types/database'
+import HLanguage from '#helper/language'
 
 export async function userAuthMiddleware(ctx: BotContext, next: NextFunction) {
   if (!ctx.from) return next()
@@ -50,7 +51,7 @@ export async function groupAuthMiddleware(ctx: BotContext, next: NextFunction) {
       const admins = await ctx.getChatAdministrators()
 
       if (!admins.some((admin) => admin.user.id === ctx.from!.id)) {
-        return
+        return ctx.reply(HLanguage('nonAdminPermission'))
       }
     } catch (e) {
       console.error('Failed to check admins:', e)

@@ -131,11 +131,17 @@ groupChatBot.command('start', async (ctx) => {
   const welcomeText = HLanguage('welcome')
 
   if (!ctx.group?.status) {
-    await Model.Group.updateOne({ groupId: ctx.chat.id }, { status: true, deletedAt: null }, {})
+    const updatedGroup = await Model.Group.findOneAndUpdate<IGroup>(
+      { groupId: ctx.chat.id },
+      { status: true, deletedAt: null },
+      {},
+    )
 
-    const group = await Model.Group.findOne<IGroup>({ groupId: ctx.chat.id })
+    if (updatedGroup) {
+      ctx.group = updatedGroup
 
-    memoryStorage.write(String(ctx.chat!.id), group)
+      memoryStorage.write(String(ctx.chat!.id), updatedGroup)
+    }
   }
 
   await ctx.reply(welcomeText)
