@@ -123,7 +123,7 @@
   "donateError": "Serverda xatolik yuz berdi",
   "donateUrl": "To'lov uchun havola ",
   "donateThanks": "To'lovingiz uchun rahmat",
-  "shareBot": "https://t.me/namoz5vbot\n\nAssalomu alaykum. Aziz foydalanuvchi, agarda ushbu botni foydali deb hisoblasangiz, iltimos o'z yaqinlaringiz bilan ulashishni unutmang",
+  "shareBot": "https://t.me/namoz5vbot\n\nAssalomu alaykum. Aziz foydalanuvchi, agarda ushbu botni foydali deb hisoblasangiz, iltimos o'z yaqinlaringiz bilan ulashishni hamda Telegram guruhlariga qo'shishni unutmang.\n\n Biz bilan birga bo'lganingizdan juda mamnunmiz 😊",
   "startSearch": "Qidirishni boshlang!",
   "searchPlace": "Qidirmoqchi bo'lgan shaxar yoki viloyat nomini yozing!",
   "tryAgain": "Qayta urinib ko'ramizmi?",
@@ -151,5 +151,6 @@
   "feedbackEndMessage": "Fikr-mulohazalaringiz uchun tashakkur. Biz buni qadrlaymiz!",
   "currentRegion": "Hozirgi mintaqa: ",
   "selectDay": "Kerakli kunni belgilang:",
-  "selectDayOptions": ["Bugun", "Boshqa kun"]
+  "selectDayOptions": ["Bugun", "Boshqa kun"],
+  "nonAdminPermission": "Bu guruhda faqatgina adminlar ushbu botni sozlash huquqiga ega"
 }

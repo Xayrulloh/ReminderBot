@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
-import { IHadith, IPrayTime, IUser } from '#types/database'
+import { IHadith, IPrayTime, IUser, IGroup } from '#types/database'
 import { env } from '#utils/env'
 import { Color } from '#utils/enums'
 
@@ -133,9 +133,45 @@ const Hadith = new mongoose.Schema(
   { versionKey: false },
 )
 
+const Group = new Schema(
+  {
+    groupId: {
+      required: true,
+      type: Number,
+    },
+    groupName: {
+      required: true,
+      type: String,
+    },
+    region: {
+      required: true,
+      type: String,
+    },
+    regionId: {
+      required: true,
+      type: Number,
+      ref: 'PrayTime',
+    },
+    status: {
+      default: true,
+      type: Boolean,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
+    type: {
+      required: true,
+      type: String,
+    },
+  },
+  { versionKey: false },
+)
+
 mongoose.model<IUser>('User', User)
 mongoose.model<IPrayTime>('PrayTime', PrayTime)
 mongoose.model<IHadith>('Hadith', Hadith)
+mongoose.model<IGroup>('Group', Group)
 mongoose.set('strictQuery', false)
 
 mongoose

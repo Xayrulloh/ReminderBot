@@ -1,10 +1,11 @@
-import { Bot, InlineKeyboard, MemorySessionStorage, session, webhookCallback } from 'grammy'
+import { Bot, MemorySessionStorage, session, webhookCallback } from 'grammy'
 import { scenes } from './scenes'
+import { inlineQuery } from '#query/inline'
 import HLanguage from '#helper/language'
 import { cronStarter } from './cron/cron'
 import customKFunction from './keyboard/custom'
 import Fastify from 'fastify'
-import { authMiddleware } from '#middlewares/auth'
+import { userAuthMiddleware, groupAuthMiddleware } from '#middlewares/auth'
 import { keyboardMapper } from '#helper/keyboardMapper'
 import { BotContext } from '#types/context'
 import { env } from '#utils/env'
@@ -15,6 +16,8 @@ import Model from '#config/database'
 import { WebhookClient, EmbedBuilder } from 'discord.js'
 import { format } from 'node:util'
 import { FLOOD_MESSAGE } from '#utils/constants'
+import { memoryStorage } from '#config/storage'
+import { IGroup } from '#types/database'
 
 const bot = new Bot<BotContext>(env.TOKEN)
 
@@ -34,47 +37,47 @@ bot.use(
   }),
 )
 bot.use(scenes.manager())
-bot.use(authMiddleware)
+
+const privateChatBot = bot.chatType('private')
+const groupChatBot = bot.chatType(['group', 'supergroup'])
+
+// Inline Query
+bot.on('inline_query', async (ctx) => {
+  await inlineQuery(ctx)
+})
+
+privateChatBot.use(userAuthMiddleware)
+groupChatBot.use(groupAuthMiddleware)
+
 bot.use(scenes)
 
-// Commands
-bot.command('notification', async (ctx) => {
-  await ctx.scenes.enter('Notification')
-})
+// Private chat commands
+privateChatBot.command(
+  [
+    'notification',
+    'fasting',
+    'location',
+    'search',
+    'statistic',
+    'announcement',
+    'hadith',
+    'addHadith',
+    'quran',
+    'source',
+    'feedback',
+  ],
+  async (ctx) => {
+    const command = ctx.message?.text?.split(' ')[0].substring(1)
 
-bot.command('fasting', async (ctx) => {
-  await ctx.scenes.enter('Fasting')
-})
+    if (command) {
+      const sceneName = command.charAt(0).toUpperCase() + command.slice(1)
 
-bot.command('location', async (ctx) => {
-  await ctx.scenes.enter('Location')
-})
+      await ctx.scenes.enter(sceneName)
+    }
+  },
+)
 
-bot.command('search', async (ctx) => {
-  await ctx.scenes.enter('Search')
-})
-
-bot.command('statistic', async (ctx) => {
-  await ctx.scenes.enter('Statistic')
-})
-
-bot.command('announcement', async (ctx) => {
-  await ctx.scenes.enter('Announcement')
-})
-
-bot.command('hadith', async (ctx) => {
-  await ctx.scenes.enter('Hadith')
-})
-
-bot.command('addHadith', async (ctx) => {
-  await ctx.scenes.enter('AddHadith')
-})
-
-bot.command('quran', async (ctx) => {
-  await ctx.scenes.enter('Quran')
-})
-
-bot.command('start', async (ctx) => {
+privateChatBot.command('start', async (ctx) => {
   const welcomeText = HLanguage('welcome')
   const keyboardText = HLanguage('mainKeyboard')
   const buttons = customKFunction(2, ...keyboardText)
@@ -91,15 +94,7 @@ bot.command('start', async (ctx) => {
   })
 })
 
-bot.command('source', async (ctx) => {
-  await ctx.scenes.enter('Source')
-})
-
-bot.command('feedback', async (ctx) => {
-  await ctx.scenes.enter('Feedback')
-})
-
-bot.on('message:text', async (ctx) => {
+privateChatBot.on('message:text', async (ctx) => {
   const mappedScene = keyboardMapper(ctx.message.text)
 
   if (mappedScene) {
@@ -131,6 +126,39 @@ bot.on('message:text', async (ctx) => {
   }
 })
 
+// Group chat commands
+groupChatBot.command('start', async (ctx) => {
+  const welcomeText = HLanguage('welcome')
+
+  if (!ctx.group?.status) {
+    const updatedGroup = await Model.Group.findOneAndUpdate<IGroup>(
+      { groupId: ctx.chat.id },
+      { status: true, deletedAt: null },
+      { new: true },
+    )
+
+    if (updatedGroup) {
+      ctx.group = updatedGroup
+
+      memoryStorage.write(String(ctx.chat!.id), updatedGroup)
+    }
+  }
+
+  await ctx.reply(welcomeText)
+})
+
+groupChatBot.command('location', async (ctx) => {
+  await ctx.scenes.enter('GroupLocation')
+})
+
+bot.on('my_chat_member', async (ctx) => {
+  if (ctx.myChatMember.new_chat_member.status === 'member') {
+    await ctx.scenes.enter('GroupStart')
+  } else if (['left', 'kicked'].includes(ctx.myChatMember.new_chat_member.status)) {
+    await Model.Group.updateOne({ groupId: ctx.chat.id }, { status: false })
+  }
+})
+
 // error handling
 bot.catch(errorHandler)
 
@@ -148,8 +176,34 @@ if (env.WEBHOOK_ENABLED) {
 } else {
   bot
     .start({
-      onStart: () => {
+      onStart: async () => {
         console.info('Bot successfully started')
+
+        // Set commands for private chats
+        await bot.api.setMyCommands(
+          [
+            { command: 'start', description: 'Botni ishga tushirish' },
+            { command: 'search', description: 'Qidirish' },
+            { command: 'location', description: 'Joylashuvni o`zgartirish' },
+            { command: 'fasting', description: 'Ro`za' },
+            { command: 'notification', description: 'Ogohlantirishni o`zgartirish' },
+            { command: 'statistic', description: 'Statistika' },
+            { command: 'source', description: 'Manba' },
+            { command: 'hadith', description: 'Hadis' },
+            { command: 'quran', description: 'Qur`on va Tafsiri' },
+            { command: 'feedback', description: 'Taklif yoki shikoyat' },
+          ],
+          { scope: { type: 'all_private_chats' } },
+        )
+
+        // Set commands for group chats
+        await bot.api.setMyCommands(
+          [
+            { command: 'start', description: 'Botni ishga tushirish' },
+            { command: 'location', description: 'Joylashuvni o`zgartirish' },
+          ],
+          { scope: { type: 'all_group_chats' } },
+        )
       },
     })
     .catch((e) => {
