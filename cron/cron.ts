@@ -184,7 +184,7 @@ async function reminder(bot: Bot<BotContext>) {
         regionId: region.regionId,
         deletedAt: null,
         status: true,
-        notificationSetting: { fajr: true },
+        'notificationSetting.fajr': true,
       })
 
       for (const user of users) {
@@ -201,7 +201,7 @@ async function reminder(bot: Bot<BotContext>) {
         regionId: region.regionId,
         deletedAt: null,
         status: true,
-        notificationSetting: { sunrise: true },
+        'notificationSetting.sunrise': true,
       })
 
       for (const user of users) {
@@ -216,7 +216,7 @@ async function reminder(bot: Bot<BotContext>) {
         regionId: region.regionId,
         deletedAt: null,
         status: true,
-        notificationSetting: { dhuhr: true },
+        'notificationSetting.dhuhr': true,
       })
 
       for (const user of users) {
@@ -231,7 +231,7 @@ async function reminder(bot: Bot<BotContext>) {
         regionId: region.regionId,
         deletedAt: null,
         status: true,
-        notificationSetting: { asr: true },
+        'notificationSetting.asr': true,
       })
 
       for (const user of users) {
@@ -246,7 +246,7 @@ async function reminder(bot: Bot<BotContext>) {
         regionId: region.regionId,
         deletedAt: null,
         status: true,
-        notificationSetting: { maghrib: true },
+        'notificationSetting.maghrib': true,
       })
 
       for (const user of users) {
@@ -263,7 +263,7 @@ async function reminder(bot: Bot<BotContext>) {
         regionId: region.regionId,
         deletedAt: null,
         status: true,
-        notificationSetting: { isha: true },
+        'notificationSetting.isha': true,
       })
 
       for (const user of users) {

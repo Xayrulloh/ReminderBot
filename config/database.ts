@@ -133,11 +133,6 @@ const Hadith = new mongoose.Schema(
   { versionKey: false },
 )
 
-mongoose.model<IUser>('User', User)
-mongoose.model<IPrayTime>('PrayTime', PrayTime)
-mongoose.model<IHadith>('Hadith', Hadith)
-mongoose.set('strictQuery', false)
-
 const Group = new Schema(
   {
     groupId: {
@@ -177,6 +172,7 @@ mongoose.model<IUser>('User', User)
 mongoose.model<IPrayTime>('PrayTime', PrayTime)
 mongoose.model<IHadith>('Hadith', Hadith)
 mongoose.model<IGroup>('Group', Group)
+mongoose.set('strictQuery', false)
 
 mongoose
   .connect(env.MONGO_URL, {
