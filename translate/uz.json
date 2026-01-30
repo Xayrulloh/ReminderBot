@@ -152,5 +152,6 @@
   "currentRegion": "Hozirgi mintaqa: ",
   "selectDay": "Kerakli kunni belgilang:",
   "selectDayOptions": ["Bugun", "Boshqa kun"],
-  "nonAdminPermission": "Bu guruhda faqatgina adminlar ushbu botni sozlash huquqiga ega"
+  "nonAdminPermission": "Sozlamalarni faqat guruh adminlari o'zgartirishi mumkin.",
+  "botRegistered": "Bot allaqachon ishga tushirilgan"
 }

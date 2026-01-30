@@ -67,7 +67,8 @@ export async function handleGroupSendMessageError(error: GrammyError, group: IGr
       break
     }
     case 'Bad Request: chat not found': {
-      await Model.Group.updateOne({ groupId: group.groupId }, { deletedAt: new Date() })
+      // if group is deleted, then there's no purpose from storing it
+      await Model.Group.deleteOne({ groupId: group.groupId })
 
       break
     }

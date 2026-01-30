@@ -1,9 +1,10 @@
 import Model from '#config/database'
 import { BotContext } from '#types/context'
-import { NextFunction } from 'grammy'
+import { NextFunction, GrammyError } from 'grammy'
 import { memoryStorage } from '#config/storage'
 import { IGroup, IUser } from '#types/database'
 import HLanguage from '#helper/language'
+import { handleGroupSendMessageError } from '#helper/errorHandler'
 
 export async function userAuthMiddleware(ctx: BotContext, next: NextFunction) {
   if (!ctx.from) return next()
@@ -45,48 +46,56 @@ export async function userAuthMiddleware(ctx: BotContext, next: NextFunction) {
 export async function groupAuthMiddleware(ctx: BotContext, next: NextFunction) {
   if (!ctx.chat) return next()
 
-  // check if admin
-  if (ctx.from && !ctx.myChatMember) {
-    try {
-      const admins = await ctx.getChatAdministrators()
-
-      if (!admins.some((admin) => admin.user.id === ctx.from!.id)) {
-        return ctx.reply(HLanguage('nonAdminPermission'))
-      }
-    } catch (e) {
-      console.error('Failed to check admins:', e)
-
-      return
-    }
-  }
-
-  // Caching to memory (Group)
+  // 1. caching to memory (read)
   const key = String(ctx.chat.id)
   let group = memoryStorage.read(key)
 
-  if (group) {
-    ctx.group = group
+  // 2. if new group, let it enter to GroupStart scene
+  if (!group) {
+    const groupId = ctx.chat?.id
+
+    if (groupId) {
+      group = await Model.Group.findOne<IGroup>({ groupId })
+    }
+
+    return ctx.scenes.enter('GroupStart')
+  } else if (ctx.session.scenes?.stack?.some((stack) => stack.scene === 'GroupStart')) {
+    // 3. if ctx is still in GroupStart scene, let it continue
+    return next()
+  } else if (group && group.status && ctx.message?.text?.split(' ')[0] === '/start') {
+    // 4. if group is active, and command is /start, send botregistered message
+    return ctx.reply(HLanguage('botRegistered')).catch((e) => {
+      handleGroupSendMessageError(e, group)
+    })
+  } else if (group && !group.status) {
+    // 5. if group is not active, immediately enter to GroupStart scene
+    return ctx.scenes.enter('GroupStart')
+  } else {
+    // 6. for all other cases, check for admins, if admin, let it continue, else send nonadmin message
+    if (ctx.from && !ctx.myChatMember) {
+      try {
+        const admins = await ctx.getChatAdministrators()
+
+        if (!admins.some((admin) => admin.user.id === ctx.from!.id)) {
+          await ctx.reply(HLanguage('nonAdminPermission')).catch((e) => {
+            handleGroupSendMessageError(e, group)
+          })
+
+          return
+        }
+      } catch (e) {
+        if (e instanceof GrammyError) {
+          await handleGroupSendMessageError(e, group)
+
+          return
+        }
+
+        console.error('Failed to check admins:', e)
+
+        return
+      }
+    }
 
     return next()
   }
-
-  const groupId = ctx.chat?.id
-
-  if (!groupId) return next()
-
-  group = await Model.Group.findOne<IGroup>({ groupId })
-
-  if (!group) {
-    if (ctx.session.scenes?.stack?.some((stack) => stack.scene === 'GroupStart')) {
-      return next()
-    } else {
-      return ctx.scenes.enter('GroupStart')
-    }
-  }
-
-  memoryStorage.write(key, group)
-
-  ctx.group = group
-
-  return next()
 }
