@@ -44,6 +44,5 @@ export interface IGroup extends Document {
   region: string
   regionId: number
   status: boolean
-  deletedAt: Date
   type: string
 }

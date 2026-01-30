@@ -1,9 +1,10 @@
 import Model from '#config/database'
 import { BotContext } from '#types/context'
-import { NextFunction } from 'grammy'
+import { NextFunction, GrammyError } from 'grammy'
 import { memoryStorage } from '#config/storage'
 import { IGroup, IUser } from '#types/database'
 import HLanguage from '#helper/language'
+import { handleGroupSendMessageError } from '#helper/errorHandler'
 
 export async function userAuthMiddleware(ctx: BotContext, next: NextFunction) {
   if (!ctx.from) return next()
@@ -45,48 +46,59 @@ export async function userAuthMiddleware(ctx: BotContext, next: NextFunction) {
 export async function groupAuthMiddleware(ctx: BotContext, next: NextFunction) {
   if (!ctx.chat) return next()
 
-  // check if admin
+  // 1. caching to memory (read)
+  const key = String(ctx.chat.id)
+  let group = memoryStorage.read(key)
+
+  // 2. if not in memory, try db
+  if (!group) {
+    const groupId = ctx.chat.id
+
+    group = await Model.Group.findOne<IGroup>({ groupId })
+
+    if (group) {
+      memoryStorage.write(key, group)
+    }
+  }
+
+  // 3. if still no group, enter setup (non admin is ok)
+  if (!group || !group.status) {
+    if (ctx.session.scenes?.stack?.some((stack) => stack.scene === 'GroupStart')) {
+      return next()
+    }
+
+    return ctx.scenes.enter('GroupStart')
+  }
+
+  // if the group is found, attach it to context
+  ctx.group = group
+
+  // 4. Check for admin
   if (ctx.from && !ctx.myChatMember) {
     try {
       const admins = await ctx.getChatAdministrators()
 
       if (!admins.some((admin) => admin.user.id === ctx.from!.id)) {
-        return ctx.reply(HLanguage('nonAdminPermission'))
+        await ctx.reply(HLanguage('nonAdminPermission')).catch((e) => {
+          if (group) {
+            handleGroupSendMessageError(e, group)
+          }
+        })
+
+        return
       }
     } catch (e) {
+      if (e instanceof GrammyError) {
+        await handleGroupSendMessageError(e, group)
+
+        return
+      }
+
       console.error('Failed to check admins:', e)
 
       return
     }
   }
-
-  // Caching to memory (Group)
-  const key = String(ctx.chat.id)
-  let group = memoryStorage.read(key)
-
-  if (group) {
-    ctx.group = group
-
-    return next()
-  }
-
-  const groupId = ctx.chat?.id
-
-  if (!groupId) return next()
-
-  group = await Model.Group.findOne<IGroup>({ groupId })
-
-  if (!group) {
-    if (ctx.session.scenes?.stack?.some((stack) => stack.scene === 'GroupStart')) {
-      return next()
-    } else {
-      return ctx.scenes.enter('GroupStart')
-    }
-  }
-
-  memoryStorage.write(key, group)
-
-  ctx.group = group
 
   return next()
 }

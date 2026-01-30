@@ -119,7 +119,6 @@ async function daily(bot: Bot<BotContext>) {
 
     const groups = await Model.Group.find<IGroup>({
       regionId: region.regionId,
-      deletedAt: null,
       status: true,
     })
 
@@ -295,7 +294,6 @@ async function weekly(bot: Bot<BotContext>) {
 
   const groups = await Model.Group.find<IGroup>({
     status: true,
-    deletedAt: null,
   })
 
   for (const group of groups) {

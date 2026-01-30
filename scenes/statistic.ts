@@ -10,7 +10,7 @@ const scene = new Scene<BotContext>('Statistic')
 
 scene.step(async (ctx) => {
   const users = await Model.User.find<IUser>()
-  const groups = await Model.Group.find<IGroup>({ status: true, deletedAt: null })
+  const groups = await Model.Group.find<IGroup>({ status: true })
   const countMessage = HLanguage('usersCount')
   let shareMessage = HLanguage('shareMessage')
   const keyboard = new InlineKeyboard()

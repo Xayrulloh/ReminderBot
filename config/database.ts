@@ -156,10 +156,6 @@ const Group = new Schema(
       default: true,
       type: Boolean,
     },
-    deletedAt: {
-      type: Date,
-      default: null,
-    },
     type: {
       required: true,
       type: String,
