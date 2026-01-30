@@ -6,6 +6,7 @@ import { IGroup, IUser } from '#types/database'
 import { format } from 'node:util'
 import { ErrorType } from '#types/error'
 import { ERROR_MESSAGE } from '#utils/constants'
+import { memoryStorage } from '#config/storage'
 
 export async function errorHandler(err: BotError) {
   const error: ErrorType = {
@@ -64,6 +65,8 @@ export async function handleGroupSendMessageError(error: GrammyError, group: IGr
     case 'Forbidden: bot was kicked from the group chat': {
       await Model.Group.updateOne({ groupId: group.groupId }, { status: false })
 
+      memoryStorage.delete(String(group.groupId))
+
       break
     }
     case 'Bad Request: chat not found': {
@@ -75,6 +78,8 @@ export async function handleGroupSendMessageError(error: GrammyError, group: IGr
     default: {
       if (error.error_code === 403) {
         await Model.Group.updateOne({ groupId: group.groupId }, { status: false })
+
+        memoryStorage.delete(String(group.groupId))
       } else {
         console.error(error)
       }

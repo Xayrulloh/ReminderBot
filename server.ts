@@ -10,7 +10,7 @@ import { keyboardMapper } from '#helper/keyboardMapper'
 import { BotContext } from '#types/context'
 import { env } from '#utils/env'
 import { Color } from '#utils/enums'
-import { errorHandler } from '#helper/errorHandler'
+import { errorHandler, handleGroupSendMessageError } from '#helper/errorHandler'
 import { autoRetry } from '@grammyjs/auto-retry'
 import Model from '#config/database'
 import { WebhookClient, EmbedBuilder } from 'discord.js'
@@ -128,7 +128,7 @@ privateChatBot.on('message:text', async (ctx) => {
 
 // Group chat commands
 groupChatBot.command('start', async (ctx) => {
-  const welcomeText = HLanguage('welcome')
+  const registeredText = HLanguage('botRegistered')
 
   if (!ctx.group?.status) {
     const updatedGroup = await Model.Group.findOneAndUpdate<IGroup>(
@@ -144,7 +144,9 @@ groupChatBot.command('start', async (ctx) => {
     }
   }
 
-  await ctx.reply(welcomeText)
+  await ctx.reply(registeredText).catch((e) => {
+    handleGroupSendMessageError(e, ctx.group!)
+  })
 })
 
 groupChatBot.command('location', async (ctx) => {
