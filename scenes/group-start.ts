@@ -79,7 +79,6 @@ scene.wait('group_location').on('callback_query:data', async (ctx) => {
           region: regionName,
           regionId: data.regionId,
           status: true,
-          deletedAt: null,
           type: ctx.chat!.type,
         },
         { upsert: true, new: true, setDefaultsOnInsert: true },
