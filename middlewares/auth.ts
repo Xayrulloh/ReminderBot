@@ -80,7 +80,9 @@ export async function groupAuthMiddleware(ctx: BotContext, next: NextFunction) {
 
       if (!admins.some((admin) => admin.user.id === ctx.from!.id)) {
         await ctx.reply(HLanguage('nonAdminPermission')).catch((e) => {
-          handleGroupSendMessageError(e, group!)
+          if (group) {
+            handleGroupSendMessageError(e, group)
+          }
         })
 
         return
