@@ -47,9 +47,10 @@ bot.on('inline_query', async (ctx) => {
 })
 
 privateChatBot.use(userAuthMiddleware)
-groupChatBot.use(groupAuthMiddleware)
+privateChatBot.use(scenes)
 
-bot.use(scenes)
+groupChatBot.use(groupAuthMiddleware)
+groupChatBot.use(scenes)
 
 // Private chat commands
 privateChatBot.command(

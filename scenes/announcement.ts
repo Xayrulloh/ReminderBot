@@ -34,7 +34,10 @@ scene.wait('message').on('message:text', async (ctx) => {
 
   for (const user of users) {
     await ctx.api
-      .sendMessage(user.userId, ctx.message.text)
+      .sendMessage(user.userId, ctx.message.text, {
+        entities: ctx.message.entities,
+        reply_markup: ctx.message.reply_markup,
+      })
       .catch(async (e) => await handleUserSendMessageError(e, user))
   }
 
