@@ -175,12 +175,44 @@ if (env.WEBHOOK_ENABLED) {
   server.setErrorHandler(errorHandler)
   server.listen({ port: env.WEBHOOK_PORT }, async () => {
     await bot.api.setWebhook(env.WEBHOOK_URL + env.TOKEN)
+
+    // Delete commands before setting new ones
+    await bot.api.deleteMyCommands({ scope: { type: 'all_group_chats' } })
+
+    // Set commands for private chats
+    await bot.api.setMyCommands(
+      [
+        { command: 'start', description: 'Botni ishga tushirish' },
+        { command: 'search', description: 'Qidirish' },
+        { command: 'location', description: 'Joylashuvni o`zgartirish' },
+        { command: 'fasting', description: 'Ro`za' },
+        { command: 'notification', description: 'Ogohlantirishni o`zgartirish' },
+        { command: 'statistic', description: 'Statistika' },
+        { command: 'source', description: 'Manba' },
+        { command: 'hadith', description: 'Hadis' },
+        { command: 'quran', description: 'Qur`on va Tafsiri' },
+        { command: 'feedback', description: 'Taklif yoki shikoyat' },
+      ],
+      { scope: { type: 'all_private_chats' } },
+    )
+
+    // Set commands for group chats
+    await bot.api.setMyCommands(
+      [
+        { command: 'start', description: 'Botni ishga tushirish' },
+        { command: 'location', description: 'Joylashuvni o`zgartirish' },
+      ],
+      { scope: { type: 'all_group_chats' } },
+    )
   })
 } else {
   bot
     .start({
       onStart: async () => {
         console.info('Bot successfully started')
+
+        // Delete commands before setting new ones
+        await bot.api.deleteMyCommands({ scope: { type: 'all_group_chats' } })
 
         // Set commands for private chats
         await bot.api.setMyCommands(
