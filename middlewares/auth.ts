@@ -78,7 +78,8 @@ export async function groupAuthMiddleware(ctx: BotContext, next: NextFunction) {
     ctx.message?.entities?.some((entity) => entity.type === 'bot_command') ||
     ctx.message?.caption_entities?.some((entity) => entity.type === 'bot_command') ||
     ctx.message?.reply_to_message?.from?.id === ctx.me?.id ||
-    (ctx.me?.username && ctx.message?.text?.includes(`@${ctx.me.username}`))
+    (ctx.me?.username &&
+      (ctx.message?.text?.includes(`@${ctx.me.username}`) || ctx.message?.caption?.includes(`@${ctx.me.username}`)))
 
   if (!isInteractingWithBot) return next()
 
