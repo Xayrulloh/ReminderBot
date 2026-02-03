@@ -182,6 +182,9 @@ if (env.WEBHOOK_ENABLED) {
       onStart: async () => {
         console.info('Bot successfully started')
 
+        // Delete commands before setting new ones
+        await bot.api.deleteMyCommands({ scope: { type: 'all_group_chats' } })
+
         // Set commands for private chats
         await bot.api.setMyCommands(
           [
