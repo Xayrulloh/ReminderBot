@@ -15,6 +15,7 @@ scene.step(async (ctx) => {
   let shareMessage = HLanguage('shareMessage')
   const keyboard = new InlineKeyboard()
   const enterMessage = HLanguage('enter')
+  const addToGroupMessage = HLanguage('addToGroup')
 
   const memberCounts = await Promise.all(
     groups.map(async (group) => {
@@ -33,6 +34,8 @@ scene.step(async (ctx) => {
   const groupUsersCount = memberCounts.reduce((sum, count) => sum + count, 0)
 
   keyboard.url(enterMessage, 'https://t.me/' + ctx.me.username)
+  keyboard.row()
+  keyboard.url(addToGroupMessage, 'https://t.me/' + ctx.me.username + '?startgroup=' + ctx.me.username)
 
   if ([1151533771, 900604435, 962526857].includes(ctx.user.userId)) {
     const usersInfo = users.reduce(
