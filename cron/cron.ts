@@ -280,13 +280,16 @@ async function weekly(bot: Bot<BotContext>) {
     deletedAt: null,
   })
 
+  const message = HLanguage('shareBot')
+  const keyboard = new InlineKeyboard()
+  const enterMessage = HLanguage('enter')
+  const addToGroupMessage = HLanguage('addToGroup')
+
+  keyboard.url(enterMessage, 'https://t.me/' + bot.botInfo.username)
+  keyboard.row()
+  keyboard.url(addToGroupMessage, 'https://t.me/' + bot.botInfo.username + '?startgroup=' + bot.botInfo.username)
+
   for (const user of users) {
-    const message = HLanguage('shareBot')
-    const keyboard = new InlineKeyboard()
-    const enterMessage = HLanguage('enter')
-
-    keyboard.url(enterMessage, 'https://t.me/' + bot.botInfo.username)
-
     await bot.api
       .sendMessage(user.userId, message, { reply_markup: keyboard })
       .catch(async (e) => await handleUserSendMessageError(e, user))
@@ -297,12 +300,6 @@ async function weekly(bot: Bot<BotContext>) {
   })
 
   for (const group of groups) {
-    const message = HLanguage('shareBot')
-    const keyboard = new InlineKeyboard()
-    const enterMessage = HLanguage('enter')
-
-    keyboard.url(enterMessage, 'https://t.me/' + bot.botInfo.username)
-
     await bot.api.sendMessage(group.groupId, message, { reply_markup: keyboard }).catch(async (e) => {
       await handleGroupSendMessageError(e, group)
     })

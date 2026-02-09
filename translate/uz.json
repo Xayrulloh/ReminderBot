@@ -153,5 +153,6 @@
   "selectDay": "Kerakli kunni belgilang:",
   "selectDayOptions": ["Bugun", "Boshqa kun"],
   "nonAdminPermission": "Sozlamalarni faqat guruh adminlari o'zgartirishi mumkin.",
-  "botRegistered": "Bot allaqachon ishga tushirilgan"
+  "botRegistered": "Bot allaqachon ishga tushirilgan",
+  "addToGroup": "Guruhga qo'shish"
 }
