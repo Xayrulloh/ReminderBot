@@ -153,7 +153,10 @@
   "selectDay": "Kerakli kunni belgilang:",
   "selectDayOptions": ["Bugun", "Boshqa kun"],
   "announcementToWhom": "Xabarni kimga jo'natish kerak",
-  "announcementOptions": [{"view": "Individual", "text": 1}, {"view": "Barchaga", "text": 2}],
+  "announcementOptions": [
+    { "view": "Individual", "text": 1 },
+    { "view": "Barchaga", "text": 2 }
+  ],
   "nonAdminPermission": "Sozlamalarni faqat guruh adminlari o'zgartirishi mumkin.",
   "botRegistered": "Bot allaqachon ishga tushirilgan",
   "addToGroup": "Guruhga qo'shish"

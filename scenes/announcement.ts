@@ -52,7 +52,7 @@ scene.wait('send-all_or_take-message').on('message:text', async (ctx) => {
   }
 
   const users = await Model.User.find<IUser>({ deletedAt: null, status: true })
-  const groups = await Model.Group.find<IGroup>({ deletedAt: null, status: true })
+  const groups = await Model.Group.find<IGroup>({ status: true })
 
   await ctx.reply("Xabar jo'natilmoqda")
 
@@ -74,7 +74,7 @@ scene.wait('send-all_or_take-message').on('message:text', async (ctx) => {
       .catch(async (e) => await handleUserSendMessageError(e, user))
   }
 
-  await ctx.reply('Xabar jo\'natildi')
+  await ctx.reply("Xabar jo'natildi")
 
   return ctx.scene.exit()
 })
@@ -83,17 +83,19 @@ scene.wait('individual-message').on('message:text', async (ctx) => {
   const user = await Model.User.findOne<IUser>({ userId: +ctx.session.toWhom })
 
   if (!user) {
-    await ctx.reply("User topilmadi")
+    await ctx.reply('User topilmadi')
 
     return ctx.scene.exit()
   }
 
-  await ctx.api.sendMessage(user.userId, ctx.message.text, {
-    entities: ctx.message.entities,
-    reply_markup: ctx.message.reply_markup,
-  })
+  await ctx.api
+    .sendMessage(user.userId, ctx.message.text, {
+      entities: ctx.message.entities,
+      reply_markup: ctx.message.reply_markup,
+    })
+    .catch(async (e) => await handleUserSendMessageError(e, user))
 
-  await ctx.reply('Xabar jo\'natildi')
+  await ctx.reply("Xabar jo'natildi")
 
   return ctx.scene.exit()
 })
