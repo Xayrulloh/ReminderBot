@@ -5,11 +5,12 @@ import { IGroup, IUser } from '#types/database'
 import { handleGroupSendMessageError, handleUserSendMessageError } from '#helper/errorHandler'
 import HLanguage from '#helper/language'
 import inlineKFunction from '#keyboard/inline'
+import { OWNER_ID } from '#utils/constants'
 
 const scene = new Scene<BotContext>('Announcement')
 
 scene.step(async (ctx) => {
-  if (1151533771 === ctx.from?.id) {
+  if (OWNER_ID === ctx.from?.id) {
     const message = HLanguage('announcementToWhom')
     const keyboard = inlineKFunction(2, HLanguage('announcementOptions'))
 
