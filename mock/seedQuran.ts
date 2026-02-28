@@ -3,7 +3,7 @@
  * + Arabic (Uthmani) from api.quran.com and inserts them into MongoDB.
  *
  * Run after build:
- *   node --env-file=.env -r tsconfig-paths/register dist/utils/seedQuran.js
+ *   node --env-file=.env -r tsconfig-paths/register dist/mock/seedQuran.js
  */
 
 import '#config/database'
