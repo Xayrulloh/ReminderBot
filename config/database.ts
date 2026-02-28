@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
-import { IHadith, IPrayTime, IUser, IGroup } from '#types/database'
+import { IHadith, IPrayTime, IUser, IGroup, IQuran } from '#types/database'
 import { env } from '#utils/env'
 import { Color } from '#utils/enums'
 
@@ -133,6 +133,28 @@ const Hadith = new mongoose.Schema(
   { versionKey: false },
 )
 
+const Quran = new mongoose.Schema(
+  {
+    surah: {
+      required: true,
+      type: Number,
+    },
+    ayah: {
+      required: true,
+      type: Number,
+    },
+    origin: {
+      required: true,
+      type: String,
+    },
+    uzbek: {
+      required: true,
+      type: String,
+    },
+  },
+  { versionKey: false },
+)
+
 const Group = new Schema(
   {
     groupId: {
@@ -167,6 +189,7 @@ const Group = new Schema(
 mongoose.model<IUser>('User', User)
 mongoose.model<IPrayTime>('PrayTime', PrayTime)
 mongoose.model<IHadith>('Hadith', Hadith)
+mongoose.model<IQuran>('Quran', Quran)
 mongoose.model<IGroup>('Group', Group)
 mongoose.set('strictQuery', false)
 

@@ -12,7 +12,7 @@ import { IPrayTime, IUser, IGroup } from '#types/database'
 import { env } from '#utils/env'
 import cron from 'node-cron'
 import { handleGroupSendMessageError, handleUserSendMessageError } from '#helper/errorHandler'
-import { getHadith } from '#helper/getHadith'
+import { getQuranVerse } from '#helper/getQuranVerse'
 import dayjs from '#utils/dayjs'
 import { cwd } from 'process'
 
@@ -70,7 +70,7 @@ async function daily(bot: Bot<BotContext>) {
   const currentMonth = now.get('month') + 1
   const regions = await Model.PrayTime.find<IPrayTime>({ day: today, month: currentMonth })
   const file = new InputFile(resolve(cwd(), 'dist', 'public', 'JumaMuborak.jpg'))
-  const hadith = (await getHadith()).trim()
+  const verse = (await getQuranVerse()).trim()
 
   // sending
   for (let region of regions) {
@@ -103,13 +103,13 @@ async function daily(bot: Bot<BotContext>) {
       if (weekDay == 5) {
         await bot.api
           .sendPhoto(user.userId, file, {
-            caption: `\n\n${message} ${hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''}`,
+            caption: `\n\n${message} ${verse ? `\n\n<b>Kunlik oyat: </b>${verse}` : ''}`,
             parse_mode: 'HTML',
           })
           .catch(async (e) => await handleUserSendMessageError(e, user))
       } else {
         await bot.api
-          .sendMessage(user.userId, message + (hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''), {
+          .sendMessage(user.userId, message + (verse ? `\n\n<b>Kunlik oyat: </b>${verse}` : ''), {
             reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
             parse_mode: 'HTML',
           })
@@ -141,7 +141,7 @@ async function daily(bot: Bot<BotContext>) {
       if (weekDay == 5) {
         await bot.api
           .sendPhoto(group.groupId, file, {
-            caption: `\n\n${message} ${hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''}`,
+            caption: `\n\n${message} ${verse ? `\n\n<b>Kunlik oyat: </b>${verse}` : ''}`,
             parse_mode: 'HTML',
           })
           .catch(async (e) => {
@@ -149,7 +149,7 @@ async function daily(bot: Bot<BotContext>) {
           })
       } else {
         await bot.api
-          .sendMessage(group.groupId, message + (hadith ? `\n\n<b>Kunlik hadis:</b>${hadith}` : ''), {
+          .sendMessage(group.groupId, message + (verse ? `\n\n<b>Kunlik oyat: </b>${verse}` : ''), {
             parse_mode: 'HTML',
           })
           .catch(async (e) => {
@@ -337,5 +337,6 @@ export async function cronStarter(bot: Bot<BotContext>) {
   )
 
   await reminder(bot)
-  await getHadith()
+  await getQuranVerse()
+  await daily(bot) 
 }
