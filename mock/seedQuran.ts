@@ -75,3 +75,9 @@ export async function seed() {
   console.log('Done! Quran collection seeded successfully.')
   await mongoose.disconnect()
 }
+
+seed().catch(async (error) => {
+  console.error('Quran seed failed:', error)
+  await mongoose.disconnect()
+  process.exit(1)
+})

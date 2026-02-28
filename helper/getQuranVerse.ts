@@ -25,4 +25,3 @@ export async function getQuranVerse(): Promise<string> {
 
   return text
 }
-}
