@@ -1,6 +1,7 @@
 import { ErrorType } from '#types/error'
 
 export const DAILY_HADITH_KEY = 'dailyHadith'
+export const DAILY_QURAN_KEY = 'dailyQuran'
 
 export const ERROR_MESSAGE: Record<keyof ErrorType, string> = {
   stage: `**Stage:** %s\n`,
