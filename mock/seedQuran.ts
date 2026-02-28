@@ -62,8 +62,15 @@ export async function seed() {
   }))
 
   console.log(`Inserting ${verses.length} verses into MongoDB...`)
-  await Model.Quran.deleteMany()
-  await Model.Quran.insertMany(verses)
+  const session = await mongoose.startSession()
+  try {
+    await session.withTransaction(async () => {
+      await Model.Quran.deleteMany({}, { session })
+      await Model.Quran.insertMany(verses, { session })
+    })
+  } finally {
+    await session.endSession()
+  }
 
   console.log('Done! Quran collection seeded successfully.')
   await mongoose.disconnect()
