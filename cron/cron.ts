@@ -338,5 +338,4 @@ export async function cronStarter(bot: Bot<BotContext>) {
 
   await reminder(bot)
   await getQuranVerse()
-  await daily(bot) 
 }
