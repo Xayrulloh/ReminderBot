@@ -1,5 +1,5 @@
 import { Scene } from 'grammy-scenes'
-import dayjs from "#utils/dayjs"
+import dayjs from '#utils/dayjs'
 import Model from '#config/database'
 import inlineKFunction from '#keyboard/inline'
 import customKFunction from '#keyboard/custom'
@@ -40,36 +40,26 @@ scene.wait('fasting').on('callback_query:data', async (ctx) => {
   const inputData = ctx.update.callback_query.data
 
   if (!ctx.session.regionId.includes(+inputData) && !['<', '>'].includes(inputData)) {
-
     await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
-
   }
 
   if (['<', '>', 'pageNumber'].includes(inputData)) {
-
     if (inputData == '<' && ctx.session.currPage != 1) {
-
       await ctx.answerCallbackQuery()
 
       ctx.session.buttons = inlineKFunction(3, ctx.session.keyboard, --ctx.session.currPage)
 
       await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons, parse_mode: 'HTML' })
-
     } else if (inputData == '>' && ctx.session.currPage * 12 <= ctx.session.regionId.length) {
-
       await ctx.answerCallbackQuery()
 
       ctx.session.buttons = inlineKFunction(3, ctx.session.keyboard, ++ctx.session.currPage)
 
       await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons, parse_mode: 'HTML' })
-
     } else {
-
       await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
     }
-
   } else {
-
     await ctx.answerCallbackQuery()
 
     ctx.session.regionId = +ctx.update.callback_query.data
@@ -87,9 +77,7 @@ scene.wait('fasting').on('callback_query:data', async (ctx) => {
 
     await ctx.editMessageText(message, { reply_markup: buttons })
     ctx.scene.resume()
-
   }
-
 })
 
 // the end
@@ -130,7 +118,7 @@ scene.wait('the_end').on('callback_query:data', async (ctx) => {
   let response = HReplace(
     message,
     ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha', '$date'],
-    [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha, now.format("DD/MM/YYYY")],
+    [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha, now.format('DD/MM/YYYY')],
   )
   const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
 
@@ -145,6 +133,7 @@ scene.wait('the_end').on('callback_query:data', async (ctx) => {
     },
     parse_mode: 'HTML',
   })
+
   ctx.scene.exit()
 })
 

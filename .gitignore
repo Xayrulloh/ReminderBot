@@ -10,7 +10,3 @@ translate/localStorage.json
 
 # Output
 dist
-
-# IDE, Editor config files
-.vscode
-.idea

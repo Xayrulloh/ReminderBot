@@ -80,12 +80,12 @@ scene.wait('commonDays').on('callback_query:data', async (ctx) => {
   switch (dayInput) {
     // today
     case dayOptions[0]:
-      day = now.get("date")
+      day = now.get('date')
       break
     // other day
     case dayOptions[1]:
       const daysKeyboard = new InlineKeyboard()
-      const daysInMonth = new Date(now.get("year"), now.get("month") + 1, 0).getDate()
+      const daysInMonth = new Date(now.get('year'), now.get('month') + 1, 0).getDate()
       for (let i = 1; i <= daysInMonth; i++) {
         daysKeyboard.text(i.toString())
         if (i % 5 === 0) {
@@ -102,7 +102,7 @@ scene.wait('commonDays').on('callback_query:data', async (ctx) => {
       break
   }
   const message = HLanguage('infoPrayTime')
-  const data = getPrayerTimes(ctx.session.regionId, new Date(now.get("year"), now.get("month"), day))
+  const data = getPrayerTimes(ctx.session.regionId, new Date(now.get('year'), now.get('month'), day))
 
   if (!data) return ctx.scene.exit()
 
@@ -117,12 +117,14 @@ scene.wait('commonDays').on('callback_query:data', async (ctx) => {
       data.asr,
       data.maghrib,
       data.isha,
-      new Date(now.get("year"), now.get("month"), day).toLocaleDateString(),
+      new Date(now.get('year'), now.get('month'), day).toLocaleDateString(),
     ],
   )
 
   const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
+
   await ctx.editMessageText(response + dailyHadith, { parse_mode: 'HTML' })
+
   ctx.scene.exit()
 })
 

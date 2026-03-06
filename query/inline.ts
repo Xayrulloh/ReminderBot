@@ -69,8 +69,11 @@ export async function inlineQuery(ctx: BotContext) {
   const response: InlineQueryResult[] = []
   const keyboard = new InlineKeyboard()
   const enterMessage = HLanguage('enter')
+  const addToGroupMessage = HLanguage('addToGroup')
 
   keyboard.url(enterMessage, 'https://t.me/' + ctx.me.username)
+  keyboard.row()
+  keyboard.url(addToGroupMessage, 'https://t.me/' + ctx.me.username + '?startgroup=' + ctx.me.username)
 
   for (const region of regions) {
     let regionName = ''
@@ -92,7 +95,7 @@ export async function inlineQuery(ctx: BotContext) {
         region.asr,
         region.maghrib,
         region.isha,
-        now.format("DD/MM/YYYY"),
+        now.format('DD/MM/YYYY'),
       ],
     )
 

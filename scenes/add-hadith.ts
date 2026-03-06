@@ -4,11 +4,12 @@ import inlineKFunction from '#keyboard/inline'
 import { BotContext } from '#types/context'
 import { InlineKeyboard } from 'grammy'
 import { IHadith } from '#types/database'
+import { OWNER_ID } from '#utils/constants'
 
 const scene = new Scene<BotContext>('AddHadith')
 
 scene.step(async (ctx) => {
-  if (1151533771 === ctx.from?.id) {
+  if (OWNER_ID === ctx.from?.id) {
     await ctx.reply('Give me the hadith')
   } else {
     ctx.scene.exit()

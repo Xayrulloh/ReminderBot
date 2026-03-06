@@ -1,3 +1,3 @@
 export function blockQuote(content: string): string {
-  return `<blockquote>${content}</blockquote>`
+  return `<blockquote expandable><b><i>${content}</i></b></blockquote>`
 }

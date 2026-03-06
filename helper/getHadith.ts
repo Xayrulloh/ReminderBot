@@ -8,7 +8,7 @@ import { blockQuote } from './html'
 export async function getHadith(): Promise<string> {
   // taking hadith
   const now = dayjs()
-  const weekDay = now.get("day")
+  const weekDay = now.get('day')
   let hadith: IHadith[] | string
 
   if (weekDay == 5) {
@@ -20,7 +20,7 @@ export async function getHadith(): Promise<string> {
     ])
   }
 
-  hadith = '\n\n' + blockQuote(hadith[0]?.content);
+  hadith = '\n\n' + blockQuote(hadith[0]?.content)
 
   // Set daily hadith to storage
   memoryStorage.write(DAILY_HADITH_KEY, hadith)

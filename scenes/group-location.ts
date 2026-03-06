@@ -6,14 +6,14 @@ import { HReplace } from '#helper/replacer'
 import { BotContext } from '#types/context'
 import { memoryStorage } from '#config/storage'
 import { DAILY_HADITH_KEY } from '#utils/constants'
-import { IUser } from '#types/database'
+import { IGroup } from '#types/database'
 import { getPrayerTimes } from '#utils/prayerTimes'
 import dayjs from '#utils/dayjs'
 
-let scene = new Scene<BotContext>('Location')
+const scene = new Scene<BotContext>('GroupLocation')
 
 scene.step(async (ctx) => {
-  const message = `${HLanguage('currentRegion')} <b>${ctx.user.region}</b>\n\n ${HLanguage('chooseRegion')}`
+  const message = `${HLanguage('currentRegion')} <b>${ctx.group?.region}</b>\n\n ${HLanguage('chooseRegion')}`
   const keyboardMessage = HLanguage('region')
   const keyboard = []
 
@@ -33,7 +33,7 @@ scene.step(async (ctx) => {
   await ctx.reply(message, { reply_markup: buttons, parse_mode: 'HTML' })
 })
 
-scene.wait('location').on('callback_query:data', async (ctx) => {
+scene.wait('group_location_update').on('callback_query:data', async (ctx) => {
   const inputData = ctx.update.callback_query.data
 
   if (ctx.session.regionId.includes(+inputData) || ['<', '>'].includes(inputData)) {
@@ -70,10 +70,17 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
         }
       }
 
-      await Model.User.updateOne<IUser>({ userId: ctx.user.userId }, { region: regionName, regionId: +inputData })
+      const updatedGroup = await Model.Group.findOneAndUpdate<IGroup>(
+        { groupId: ctx.chat!.id },
+        { region: regionName, regionId: +inputData },
+        { new: true },
+      )
 
-      ctx.user.region = regionName
-      ctx.user.regionId = +inputData
+      if (updatedGroup) {
+        ctx.group = updatedGroup
+
+        memoryStorage.write(String(ctx.chat!.id), updatedGroup)
+      }
 
       let response = HReplace(
         message,
