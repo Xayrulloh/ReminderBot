@@ -24,6 +24,7 @@
     "alwaysStrict": true,
     /* Completeness */
     "skipLibCheck": true,
+    "resolveJsonModule": true,
     "paths": {
       "#config/*": ["./config/*"],
       "#region": ["./regions/regions"],

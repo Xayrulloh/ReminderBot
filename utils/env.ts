@@ -6,7 +6,6 @@ export const schema = z.object({
   NODE_ENV: z.enum(['local', 'dev', 'prod']),
   TOKEN: z.string().regex(/^(\d+):(.*)$/),
   MONGO_URL: z.string(),
-  TIME_API: z.string().url(),
   PAYME_URL: z.string().url().optional(),
   PAYME_ENDPOINT: z.string().optional(),
   CARD: z

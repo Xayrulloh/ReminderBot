@@ -1,5 +1,4 @@
 import { InlineKeyboard } from 'grammy'
-import Model from '#config/database'
 import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
 import { BotContext } from '#types/context'
@@ -8,7 +7,7 @@ import crypto from 'crypto'
 import fuzzy from 'fuzzy'
 import { memoryStorage } from '#config/storage'
 import { DAILY_HADITH_KEY } from '#utils/constants'
-import { IPrayTime } from '#types/database'
+import { getPrayerTimes } from '#utils/prayerTimes'
 import dayjs from '#utils/dayjs'
 
 export async function inlineQuery(ctx: BotContext) {
@@ -63,10 +62,8 @@ export async function inlineQuery(ctx: BotContext) {
   regionIds = [...new Set(regionIds)].slice(0, 3)
 
   const now = dayjs()
-  const today = now.get("date")
-  const currentMonth = now.get("month") + 1
   const regionTranslations: Record<string, number> = HLanguage('region')
-  const regions = await Model.PrayTime.find<IPrayTime>({ day: today, regionId: regionIds, month: currentMonth })
+  const regions = regionIds.map((id) => getPrayerTimes(id, now.toDate())).filter((r): r is NonNullable<typeof r> => r !== null)
   const message = HLanguage('infoPrayTime')
   const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
   const response: InlineQueryResult[] = []

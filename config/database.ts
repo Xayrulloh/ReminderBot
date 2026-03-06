@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
-import { IHadith, IPrayTime, IUser } from '#types/database'
+import { IHadith, IUser } from '#types/database'
 import { env } from '#utils/env'
 import { Color } from '#utils/enums'
 
@@ -28,7 +28,6 @@ const User = new Schema(
     regionId: {
       required: true,
       type: Number,
-      ref: 'PrayTime',
     },
     donate: {
       required: true,
@@ -72,53 +71,6 @@ const User = new Schema(
   { versionKey: false },
 )
 
-const PrayTime = new mongoose.Schema(
-  {
-    region: {
-      required: true,
-      type: String,
-    },
-    regionId: {
-      required: true,
-      type: Number,
-    },
-    month: {
-      required: true,
-      type: Number,
-      default: 2,
-    },
-    day: {
-      required: true,
-      type: Number,
-    },
-    fajr: {
-      required: true,
-      type: String,
-    },
-    sunrise: {
-      required: true,
-      type: String,
-    },
-    dhuhr: {
-      required: true,
-      type: String,
-    },
-    asr: {
-      required: true,
-      type: String,
-    },
-    maghrib: {
-      required: true,
-      type: String,
-    },
-    isha: {
-      required: true,
-      type: String,
-    },
-  },
-  { versionKey: false },
-)
-
 const Hadith = new mongoose.Schema(
   {
     content: {
@@ -134,7 +86,6 @@ const Hadith = new mongoose.Schema(
 )
 
 mongoose.model<IUser>('User', User)
-mongoose.model<IPrayTime>('PrayTime', PrayTime)
 mongoose.model<IHadith>('Hadith', Hadith)
 mongoose.set('strictQuery', false)
 

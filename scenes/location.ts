@@ -6,7 +6,8 @@ import { HReplace } from '#helper/replacer'
 import { BotContext } from '#types/context'
 import { memoryStorage } from '#config/storage'
 import { DAILY_HADITH_KEY } from '#utils/constants'
-import { IPrayTime, IUser } from '#types/database'
+import { IUser } from '#types/database'
+import { getPrayerTimes } from '#utils/prayerTimes'
 import dayjs from '#utils/dayjs'
 
 let scene = new Scene<BotContext>('Location')
@@ -55,10 +56,8 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
       await ctx.answerCallbackQuery()
 
       const now = dayjs()
-      const today = now.get("date")
-      const currentMonth = now.get("month") + 1
       const message = HLanguage('infoPrayTime')
-      const data = await Model.PrayTime.findOne<IPrayTime>({ day: today, regionId: +inputData, month: currentMonth })
+      const data = getPrayerTimes(+inputData, now.toDate())
       let regionName = ''
 
       if (!data) return ctx.scene.exit()

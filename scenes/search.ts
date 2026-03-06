@@ -1,12 +1,11 @@
 import { Scene } from 'grammy-scenes'
-import Model from '#config/database'
 import inlineKFunction from '#keyboard/inline'
 import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
 import { BotContext } from '#types/context'
 import { memoryStorage } from '#config/storage'
 import { DAILY_HADITH_KEY } from '#utils/constants'
-import { IPrayTime } from '#types/database'
+import { getPrayerTimes } from '#utils/prayerTimes'
 import { InlineKeyboard } from 'grammy'
 import dayjs from '#utils/dayjs'
 
@@ -76,7 +75,6 @@ scene.wait('commonDays').on('callback_query:data', async (ctx) => {
   const dayInput = ctx.callbackQuery.data
   const dayOptions: string[] = HLanguage('selectDayOptions')
   const now = dayjs()
-  const currentMonth = now.get("month") + 1
   let day: number
 
   switch (dayInput) {
@@ -104,7 +102,7 @@ scene.wait('commonDays').on('callback_query:data', async (ctx) => {
       break
   }
   const message = HLanguage('infoPrayTime')
-  const data = await Model.PrayTime.findOne<IPrayTime>({ day, regionId: ctx.session.regionId, month: currentMonth })
+  const data = getPrayerTimes(ctx.session.regionId, new Date(now.get("year"), now.get("month"), day))
 
   if (!data) return ctx.scene.exit()
 

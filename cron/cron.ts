@@ -1,6 +1,4 @@
 import { resolve } from 'path'
-import axios from 'axios'
-import pdfParser from 'pdf-parse'
 import Model from '#config/database'
 import HLanguage from '#helper/language'
 import { HReplace } from '#helper/replacer'
@@ -8,74 +6,28 @@ import schedule from 'node-schedule'
 import customKFunction from '#keyboard/custom'
 import { Bot, InlineKeyboard, InputFile } from 'grammy'
 import { BotContext } from '#types/context'
-import { IPrayTime, IUser } from '#types/database'
-import { env } from '#utils/env'
+import { IUser } from '#types/database'
 import cron from 'node-cron'
 import { handleSendMessageError } from '#helper/errorHandler'
 import { getHadith } from '#helper/getHadith'
 import dayjs from '#utils/dayjs'
 import { cwd } from 'process'
-
-async function yearly() {
-  const keyboardMessage = HLanguage('region')
-  const regions = Object.keys(keyboardMessage)
-  const regionIds = Object.values(keyboardMessage)
-  const daysOfWeek = ['Якшанба', 'Душанба', 'Сешанба', 'Чоршанба', 'Пайшанба', 'Жума', 'Шанба']
-  const prayTimes = []
-
-  await Model.PrayTime.deleteMany()
-
-  for (let month = 1; month <= 12; month++) {
-    for (let region = 0; region < regions.length; region++) {
-      const pdf = await axios.get(env.TIME_API + regionIds[region] + '/' + month, {
-        responseType: 'arraybuffer',
-      })
-      const pdfData = await pdfParser(pdf.data)
-      const data = pdfData.text.split('\n')
-
-      for (let el of data) {
-        if (el.length > 20 && el.split(' ').length == 1) {
-          for (let day of daysOfWeek) {
-            if (el.includes(day)) {
-              let dayNumber = el.split(day)[0]
-              let times = el.split(day)[1].match(/.{1,5}/g) as RegExpMatchArray
-
-              prayTimes.push({
-                region: regions[region],
-                regionId: regionIds[region],
-                day: dayNumber,
-                fajr: times[0],
-                sunrise: times[1],
-                dhuhr: times[2],
-                asr: times[3],
-                maghrib: times[4],
-                isha: times[5],
-                month,
-              })
-            }
-          }
-        }
-      }
-    }
-  }
-
-  await Model.PrayTime.insertMany<IPrayTime>(prayTimes)
-}
+import { getPrayerTimes, initRegions } from '#utils/prayerTimes'
 
 async function daily(bot: Bot<BotContext>) {
-  // taking data
   const now = dayjs()
-  const today = now.get("date")
   const weekDay = now.get("day")
-  const currentMonth = now.get("month") + 1
-  const regions = await Model.PrayTime.find<IPrayTime>({ day: today, month: currentMonth })
   const file = new InputFile(resolve(cwd(), 'dist', 'public', 'JumaMuborak.jpg'))
   const hadith = (await getHadith()).replace('\n\n', '');
 
-  // sending
-  for (let region of regions) {
+  const activeRegionIds: number[] = await Model.User.distinct('regionId', { deletedAt: null, status: true })
+
+  for (let regionId of activeRegionIds) {
+    const region = getPrayerTimes(regionId, now.toDate())
+    if (!region) continue
+
     const users = await Model.User.find<IUser>({
-      regionId: region.regionId,
+      regionId,
       deletedAt: null,
       status: true,
     })
@@ -123,11 +75,12 @@ async function reminder(bot: Bot<BotContext>) {
   await schedule.gracefulShutdown()
 
   const now = dayjs()
-  const today = now.get("date")
-  const currentMonth = now.get("month") + 1
-  const regions = await Model.PrayTime.find<IPrayTime>({ day: today, month: currentMonth })
+  const activeRegionIds: number[] = await Model.User.distinct('regionId', { deletedAt: null, status: true })
 
-  for (let region of regions) {
+  for (let regionId of activeRegionIds) {
+    const region = getPrayerTimes(regionId, now.toDate())
+    if (!region) continue
+
     // times
     const fajr = region.fajr.split(':')
     const sunrise = region.sunrise.split(':')
@@ -137,9 +90,9 @@ async function reminder(bot: Bot<BotContext>) {
     const isha = region.isha.split(':')
 
     // schedule
-    schedule.scheduleJob({ hour: fajr[0], minute: fajr[1], tz: 'Asia/Tashkent' }, async () => {
+    schedule.scheduleJob({ hour: +fajr[0], minute: +fajr[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        regionId: region.regionId,
+        regionId,
         deletedAt: null,
         status: true,
         'notificationSetting.fajr': true,
@@ -163,9 +116,9 @@ async function reminder(bot: Bot<BotContext>) {
       }
     })
 
-    schedule.scheduleJob({ hour: sunrise[0], minute: sunrise[1], tz: 'Asia/Tashkent' }, async () => {
+    schedule.scheduleJob({ hour: +sunrise[0], minute: +sunrise[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        'regionId': region.regionId,
+        'regionId': regionId,
         'deletedAt': null,
         'status': true,
         'notificationSetting.sunrise': true,
@@ -182,9 +135,9 @@ async function reminder(bot: Bot<BotContext>) {
       }
     })
 
-    schedule.scheduleJob({ hour: dhuhr[0], minute: dhuhr[1], tz: 'Asia/Tashkent' }, async () => {
+    schedule.scheduleJob({ hour: +dhuhr[0], minute: +dhuhr[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        'regionId': region.regionId,
+        'regionId': regionId,
         'deletedAt': null,
         'status': true,
         'notificationSetting.dhuhr': true,
@@ -200,9 +153,9 @@ async function reminder(bot: Bot<BotContext>) {
       }
     })
 
-    schedule.scheduleJob({ hour: asr[0], minute: asr[1], tz: 'Asia/Tashkent' }, async () => {
+    schedule.scheduleJob({ hour: +asr[0], minute: +asr[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        'regionId': region.regionId,
+        'regionId': regionId,
         'deletedAt': null,
         'status': true,
         'notificationSetting.asr': true,
@@ -219,9 +172,9 @@ async function reminder(bot: Bot<BotContext>) {
       }
     })
 
-    schedule.scheduleJob({ hour: maghrib[0], minute: maghrib[1], tz: 'Asia/Tashkent' }, async () => {
+    schedule.scheduleJob({ hour: +maghrib[0], minute: +maghrib[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        regionId: region.regionId,
+        regionId,
         deletedAt: null,
         status: true,
         'notificationSetting.maghrib': true,
@@ -233,7 +186,7 @@ async function reminder(bot: Bot<BotContext>) {
 
           if (user.fasting) {
             message = HLanguage('breakFast')
-            message += `\n\nاَللَّهُمَّ لَكَ صُمْتُ وَ بِكَ آمَنْتُ وَ عَلَيْكَ تَوَكَّلْتُ وَ عَلَى رِزْقِكَ أَفْتَرْتُ، فَغْفِرْلِى مَا قَدَّمْتُ وَ مَا أَخَّرْتُ بِرَحْمَتِكَ يَا أَرْحَمَ الرَّاحِمِينَ\n\nАллоҳумма лака сумту ва бика ааманту ва аълайка таваккалту ва аълаа ризқика афтарту, фағфирлий ма қоддамту ва маа аххорту бироҳматика йаа арҳамар рооҳимийн`
+            message += `\n\nاَللَّهُمَّ لَكَ صُمْتُ وَ بِكَ آمَنْتُ وَ عَلَيْكَ تَوَكَّلْتُ وَ عَلَى رِزْقِكَ أَفْتَرْتُ، فَغْفِرْلِى مَا قَدَّمْتُ وَ مَا أَخَّرْتُ بِرَحْمَتِكَ يَا أَرْحَمَ الرَّاحِمِينَ\n\nАллоҳумма лака сумту ва бика ааманту ва аълайка таваккалту ва аълаа ризқика афтарту, фағфирлий ма қоддамту ва маа аххорту бироҳматика йаа арҳамар рооҳимийн`
           } else {
             message = HLanguage('maghribTime')
           }
@@ -245,9 +198,9 @@ async function reminder(bot: Bot<BotContext>) {
       }
     })
 
-    schedule.scheduleJob({ hour: isha[0], minute: isha[1], tz: 'Asia/Tashkent' }, async () => {
+    schedule.scheduleJob({ hour: +isha[0], minute: +isha[1], tz: 'Asia/Tashkent' }, async () => {
       const users = await Model.User.find<IUser>({
-        'regionId': region.regionId,
+        'regionId': regionId,
         'deletedAt': null,
         'status': true,
         'notificationSetting.isha': true,
@@ -287,17 +240,11 @@ async function weekly(bot: Bot<BotContext>) {
 }
 
 export async function cronStarter(bot: Bot<BotContext>) {
+  await initRegions()
+
   const scheduleOptions = {
     timezone: 'Asia/Tashkent',
   }
-
-  cron.schedule(
-    '30 0 1 1 *',
-    async () => {
-      await yearly()
-    },
-    scheduleOptions,
-  )
 
   cron.schedule(
     '0 1 * * *',

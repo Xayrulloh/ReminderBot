@@ -16,6 +16,7 @@
   "packageManager": "pnpm@9.12.2",
   "dependencies": {
     "@grammyjs/auto-retry": "1.1.1",
+    "adhan": "4.4.3",
     "axios": "1.5.0",
     "dayjs": "1.11.13",
     "discord.js": "14.13.0",
@@ -26,7 +27,6 @@
     "mongoose": "7.5.2",
     "node-cron": "3.0.2",
     "node-schedule": "2.1.1",
-    "pdf-parse": "1.1.1",
     "tsconfig-paths": "4.2.0",
     "zod": "3.22.2"
   },
@@ -35,7 +35,6 @@
     "@types/node": "20.6.4",
     "@types/node-cron": "3.0.9",
     "@types/node-schedule": "2.1.1",
-    "@types/pdf-parse": "1.1.2",
     "prettier": "3.0.3",
     "rimraf": "5.0.1",
     "tsc-watch": "6.0.4",

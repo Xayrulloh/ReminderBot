@@ -8,7 +8,8 @@ import { HReplace } from '#helper/replacer'
 import { BotContext } from '#types/context'
 import { memoryStorage } from '#config/storage'
 import { DAILY_HADITH_KEY } from '#utils/constants'
-import { IPrayTime, IUser } from '#types/database'
+import { IUser } from '#types/database'
+import { getPrayerTimes } from '#utils/prayerTimes'
 
 const scene = new Scene<BotContext>('Start')
 
@@ -102,20 +103,14 @@ scene.wait('the_end').on('callback_query:data', async (ctx) => {
   const fasting = ctx.session.keyboardMessage[0] === ctx.update.callback_query.data
 
   const now = dayjs()
-  const currentMonth = now.get("month") + 1
   const message = HLanguage('infoPrayTime')
-  const today = now.get("date")
-  const data = await Model.PrayTime.findOne<IPrayTime>({
-    day: today,
-    regionId: ctx.session.regionId,
-    month: currentMonth,
-  })
+  const data = getPrayerTimes(ctx.session.regionId, now.toDate())
   let regionName = ''
 
   if (!data) return ctx.scene.exit()
 
   for (const key in ctx.session.regions) {
-    if (ctx.session.regions[key] === data?.regionId) {
+    if (ctx.session.regions[key] === data.regionId) {
       regionName = key
       break
     }

@@ -20,19 +20,6 @@ export interface IUser extends Document {
   deletedAt: Date
 }
 
-export interface IPrayTime extends Document {
-  region: string
-  regionId: number
-  day: number
-  fajr: string
-  sunrise: string
-  dhuhr: string
-  asr: string
-  maghrib: string
-  isha: string
-  month: number
-}
-
 export interface IHadith extends Document {
   content: string
   category: string
