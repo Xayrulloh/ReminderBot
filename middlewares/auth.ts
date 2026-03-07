@@ -6,6 +6,8 @@ import { handleGroupSendMessageError } from '#helper/errorHandler'
 import type { BotContext } from '#types/context'
 import type { IGroup, IUser } from '#types/database'
 
+/** Loads the user from memory cache or DB and attaches to ctx.user.
+ *  Redirects to the Start scene if the user doesn't exist yet. */
 export async function userAuthMiddleware(ctx: BotContext, next: NextFunction) {
   if (!ctx.from) return next()
 
@@ -43,6 +45,9 @@ export async function userAuthMiddleware(ctx: BotContext, next: NextFunction) {
   return next()
 }
 
+/** Loads the group from memory cache or DB and attaches to ctx.group.
+ *  Enters GroupStart setup if unregistered. For registered groups, only
+ *  admin-initiated bot interactions (commands, mentions, replies) proceed. */
 export async function groupAuthMiddleware(ctx: BotContext, next: NextFunction) {
   if (!ctx.chat) return next()
   if (ctx.from?.is_bot) return

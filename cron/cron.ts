@@ -43,6 +43,9 @@ function appendVerse(message: string, verse: string) {
   return verse ? `${message}\n\n<b>Kunlik oyat: </b>${verse}` : message
 }
 
+/** Sends the morning prayer timetable to every active user and group.
+ *  On Fridays a "Juma Muborak" photo is sent instead of a plain text message.
+ *  A daily Quran verse is appended when available. */
 async function daily(bot: Bot<BotContext>) {
   const now = dayjs()
   const isFriday = now.get('day') === 5
@@ -101,6 +104,9 @@ async function daily(bot: Bot<BotContext>) {
   }
 }
 
+/** Cancels all existing scheduled jobs and re-creates per-prayer-time alerts
+ *  for every region. Each alert fires at the exact prayer time and notifies
+ *  users who have that specific notification enabled (e.g. notificationSetting.fajr). */
 async function reminder(bot: Bot<BotContext>) {
   await schedule.gracefulShutdown()
 
@@ -131,6 +137,8 @@ async function reminder(bot: Bot<BotContext>) {
   }
 }
 
+/** Entry point: schedules the daily 01:00 cron job and runs the first
+ *  reminder cycle immediately so prayer alerts are active right after startup. */
 export async function cronStarter(bot: Bot<BotContext>) {
   cron.schedule(
     '0 1 * * *',

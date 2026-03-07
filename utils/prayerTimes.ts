@@ -21,6 +21,8 @@ function formatTime(date: Date): string {
   return dayjs(date).format('HH:mm')
 }
 
+/** Computes prayer times for a region using the adhan library.
+ *  Uses custom fajr/isha angles (15.5°) matching islom.uz and Hanafi madhab. */
 export function getPrayerTimes(regionId: number, date: Date): PrayerTimesResult | null {
   const region = regions.find((r) => r.id === regionId)
   if (!region) return null
