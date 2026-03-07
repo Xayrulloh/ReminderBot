@@ -1,17 +1,17 @@
-import type { ErrorType } from "#types/error";
+import type { ErrorType } from '#types/error'
 
-export const DAILY_HADITH_KEY = "dailyHadith";
-export const DAILY_QURAN_KEY = "dailyQuran";
+export const DAILY_HADITH_KEY = 'dailyHadith'
+export const DAILY_QURAN_KEY = 'dailyQuran'
 
 export const ERROR_MESSAGE: Record<keyof ErrorType, string> = {
-	stage: `**Stage:** %s\n`,
-	id: `**Id:** \`%s\`\n`,
-	name: "**Name:** %s\n",
-	firstName: `**FirstName:** %s\n`,
-	lastName: `**LastName:** %s\n`,
-	username: `**Username:** @%s\n`,
-	message: `**Message:** %s\n`,
-};
+  stage: `**Stage:** %s\n`,
+  id: `**Id:** \`%s\`\n`,
+  name: '**Name:** %s\n',
+  firstName: `**FirstName:** %s\n`,
+  lastName: `**LastName:** %s\n`,
+  username: `**Username:** @%s\n`,
+  message: `**Message:** %s\n`,
+}
 
 export const FLOOD_MESSAGE: string = `
 **Stage**: %s
@@ -19,7 +19,7 @@ export const FLOOD_MESSAGE: string = `
 **FirstName:** %s
 **LastName:** %s
 **Message:** %s
-`;
+`
 
 export const FEEDBACK_MESSAGE: string = `
 **Stage**: %s
@@ -27,8 +27,8 @@ export const FEEDBACK_MESSAGE: string = `
 **FirstName:** %s
 **LastName:** %s
 **Message:** %s
-`;
+`
 
-export const PER_PAGE = 12;
-export const TZ = "Asia/Tashkent";
-export const OWNER_ID = 1151533771;
+export const PER_PAGE = 12
+export const TZ = 'Asia/Tashkent'
+export const OWNER_ID = 1151533771

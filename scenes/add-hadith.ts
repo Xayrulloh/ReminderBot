@@ -1,61 +1,58 @@
-import type { InlineKeyboard } from "grammy";
-import { Scene } from "grammy-scenes";
-import Model from "#config/database";
-import inlineKFunction from "#keyboard/inline";
-import type { BotContext } from "#types/context";
-import type { IHadith } from "#types/database";
-import { OWNER_ID } from "#utils/constants";
+import type { InlineKeyboard } from 'grammy'
+import { Scene } from 'grammy-scenes'
+import Model from '#config/database'
+import inlineKFunction from '#keyboard/inline'
+import type { BotContext } from '#types/context'
+import type { IHadith } from '#types/database'
+import { OWNER_ID } from '#utils/constants'
 
-const scene = new Scene<BotContext>("AddHadith");
+const scene = new Scene<BotContext>('AddHadith')
 
 scene.step(async (ctx) => {
-	if (OWNER_ID === ctx.from?.id) {
-		await ctx.reply("Give me the hadith");
-	} else {
-		ctx.scene.exit();
-	}
-});
+  if (OWNER_ID === ctx.from?.id) {
+    await ctx.reply('Give me the hadith')
+  } else {
+    ctx.scene.exit()
+  }
+})
 
-scene.wait("hadith").on("message:text", async (ctx) => {
-	ctx.session.hadith = ctx.message.text;
+scene.wait('hadith').on('message:text', async (ctx) => {
+  ctx.session.hadith = ctx.message.text
 
-	const categories = await Model.Hadith.distinct<string>("category");
+  const categories = await Model.Hadith.distinct<string>('category')
 
-	let buttons: InlineKeyboard | undefined;
-	if (categories.length) {
-		buttons = inlineKFunction(
-			5,
-			categories.map((c) => {
-				return { view: c, text: c };
-			}),
-		);
-	}
+  let buttons: InlineKeyboard | undefined
+  if (categories.length) {
+    buttons = inlineKFunction(
+      5,
+      categories.map((c) => {
+        return { view: c, text: c }
+      }),
+    )
+  }
 
-	await ctx.reply("Give the category of hadith", { reply_markup: buttons });
+  await ctx.reply('Give the category of hadith', { reply_markup: buttons })
 
-	ctx.scene.resume();
-});
+  ctx.scene.resume()
+})
 
-scene
-	.wait("category")
-	.on(["message:text", "callback_query:data"], async (ctx) => {
-		const message =
-			"The hadith is written, thank you. You are doing your best :)";
+scene.wait('category').on(['message:text', 'callback_query:data'], async (ctx) => {
+  const message = 'The hadith is written, thank you. You are doing your best :)'
 
-		await Model.Hadith.create<IHadith>({
-			content: ctx.session.hadith,
-			category: ctx.callbackQuery?.data || ctx.update.message?.text,
-		});
+  await Model.Hadith.create<IHadith>({
+    content: ctx.session.hadith,
+    category: ctx.callbackQuery?.data || ctx.update.message?.text,
+  })
 
-		if (ctx.callbackQuery?.data) {
-			await ctx.answerCallbackQuery();
+  if (ctx.callbackQuery?.data) {
+    await ctx.answerCallbackQuery()
 
-			await ctx.editMessageText(message);
-		} else {
-			await ctx.reply(message);
-		}
+    await ctx.editMessageText(message)
+  } else {
+    await ctx.reply(message)
+  }
 
-		ctx.scene.exit();
-	});
+  ctx.scene.exit()
+})
 
-export default scene;
+export default scene
