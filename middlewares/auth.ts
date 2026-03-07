@@ -45,6 +45,7 @@ export async function userAuthMiddleware(ctx: BotContext, next: NextFunction) {
 
 export async function groupAuthMiddleware(ctx: BotContext, next: NextFunction) {
   if (!ctx.chat) return next()
+  if (ctx.from?.is_bot) return
 
   // 1. caching to memory (read)
   const key = String(ctx.chat.id)
@@ -88,9 +89,9 @@ export async function groupAuthMiddleware(ctx: BotContext, next: NextFunction) {
       const admins = await ctx.getChatAdministrators()
 
       if (!admins.some((admin) => admin.user.id === ctx.from?.id)) {
-        await ctx.reply(t(($) => $.nonAdminPermission)).catch((e) => {
+        await ctx.reply(t(($) => $.nonAdminPermission)).catch(async (e) => {
           if (group) {
-            handleGroupSendMessageError(e, group)
+            await handleGroupSendMessageError(e, group)
           }
         })
 

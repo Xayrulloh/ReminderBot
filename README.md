@@ -50,7 +50,7 @@ and **TypeScript**.
 ```
 server.ts          — Bot entry point, middleware, command routing, webhook/polling setup
 scenes/            — grammY scene handlers (one file per feature flow)
-cron/cron.ts       — Scheduled jobs: monthly data fetch, daily reminders, prayer-time alerts
+cron/cron.ts       — Scheduled jobs: daily reminders, prayer-time alerts (computed via adhan)
 config/database.ts — Mongoose models (User, PrayTime, Hadith, Group)
 config/storage.ts  — In-memory key-value store (group cache, daily hadith)
 helper/            — Language, replacer, keyboard mapper, error handler, hadith fetcher
@@ -125,11 +125,10 @@ erDiagram
 
 ## Scheduled Jobs (Cron)
 
-| Schedule               | Job                      | Description                                                                                                       |
-| ---------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------- |
-| `30 0 1 * *` (monthly) | `monthly()`              | Fetches prayer time PDFs from the API and refreshes the entire `PrayTime` collection                              |
-| `0 1 * * *` (daily)    | `daily()` + `reminder()` | Sends morning prayer time summaries to all active users & groups; reschedules per-prayer alerts                   |
-| Per-prayer time        | `reminder()`             | Sends individual prayer-time alerts (Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha) based on each region's exact times |
+| Schedule        | Job                      | Description                                                                                                       |
+| --------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `0 1 * * *` (daily) | `daily()` + `reminder()` | Sends morning prayer time summaries to all active users & groups; reschedules per-prayer alerts               |
+| Per-prayer time | `reminder()`             | Sends individual prayer-time alerts (Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha) based on each region's exact times |
 
 ---
 

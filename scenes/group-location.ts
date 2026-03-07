@@ -34,7 +34,7 @@ scene.step(async (ctx) => {
 scene.wait('group_location_update').on('callback_query:data', async (ctx) => {
   const inputData = ctx.update.callback_query.data
 
-  if (REGION_IDS.includes(+inputData) || ['<', '>'].includes(inputData)) {
+  if (REGION_IDS.includes(+inputData) || ['<', '>', 'pageNumber'].includes(inputData)) {
     if (['<', '>', 'pageNumber'].includes(inputData)) {
       if (inputData === '<' && ctx.session.currPage !== 1) {
         await ctx.answerCallbackQuery()
@@ -62,12 +62,12 @@ scene.wait('group_location_update').on('callback_query:data', async (ctx) => {
 
       const now = dayjs()
       const data = getPrayerTimes(+inputData, now.toDate())
-      if (!data) return ctx.scene.exit()
+      if (!data || !ctx.chat) return ctx.scene.exit()
 
       const regionName = regionsData.find((r) => r.id === data.regionId)?.name ?? ''
 
       const updatedGroup = await Model.Group.findOneAndUpdate<IGroup>(
-        { groupId: ctx.chat?.id },
+        { groupId: ctx.chat.id },
         { region: regionName, regionId: +inputData },
         { new: true },
       )
@@ -75,14 +75,14 @@ scene.wait('group_location_update').on('callback_query:data', async (ctx) => {
       if (updatedGroup) {
         ctx.group = updatedGroup
 
-        memoryStorage.write(String(ctx.chat?.id), updatedGroup)
+        memoryStorage.write(String(ctx.chat.id), updatedGroup)
       }
 
       const response = t(($) => $.infoPrayTime, {
         region: data.region,
         fajr: data.fajr,
         sunrise: data.sunrise,
-        zuhr: data.dhuhr,
+        dhuhr: data.dhuhr,
         asr: data.asr,
         maghrib: data.maghrib,
         isha: data.isha,

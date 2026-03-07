@@ -1,7 +1,7 @@
 {
   "chooseRegion": "Mintaqani belgilang",
-  "infoPrayTime": "Sana: {{date}}\n{{region}} shahar namoz vaqtlari\n\n\uD83C\uDFD9 Bomdod {{fajr}}\n\uD83C\uDF05 Quyosh {{sunrise}}\n\uD83C\uDF3E Peshin {{zuhr}}\n\uD83C\uDF06 Asr {{asr}}\n\uD83C\uDF09 Shom {{maghrib}}\n\uD83C\uDF03 Xufton {{isha}}",
-  "infoPrayTimeFasting": "Sana: {{date}}\n{{region}} shahar namoz vaqtlari\n\n\uD83C\uDFD9 Bomdod (saharlik) {{fajr}}\n\uD83C\uDF05 Quyosh {{sunrise}}\n\uD83C\uDF3E Peshin {{zuhr}}\n\uD83C\uDF06 Asr {{asr}}\n\uD83C\uDF09 Shom (iftorlik) {{maghrib}}\n\uD83C\uDF03 Xufton {{isha}}",
+  "infoPrayTime": "Sana: {{date}}\n{{region}} shahar namoz vaqtlari\n\n\uD83C\uDFD9 Bomdod {{fajr}}\n\uD83C\uDF05 Quyosh {{sunrise}}\n\uD83C\uDF3E Peshin {{dhuhr}}\n\uD83C\uDF06 Asr {{asr}}\n\uD83C\uDF09 Shom {{maghrib}}\n\uD83C\uDF03 Xufton {{isha}}",
+  "infoPrayTimeFasting": "Sana: {{date}}\n{{region}} shahar namoz vaqtlari\n\n\uD83C\uDFD9 Bomdod (saharlik) {{fajr}}\n\uD83C\uDF05 Quyosh {{sunrise}}\n\uD83C\uDF3E Peshin {{dhuhr}}\n\uD83C\uDF06 Asr {{asr}}\n\uD83C\uDF09 Shom (iftorlik) {{maghrib}}\n\uD83C\uDF03 Xufton {{isha}}",
   "notifChange": "O'zgartirildi",
   "locationChange": "Sizning joylashuvingiz o'zgartirildi.",
   "agreementFasting": ["Ha", "Yo'q"],
@@ -54,7 +54,7 @@
   },
   "enter": "Kirish",
   "source": "Manba",
-  "sourceMessage": "_Namoz vaqtlari:_ [islom.uz]({{siteLink}})\n_Hadislar to'plami:_ [Riyozus solihiyn]({{sourceLink}})",
+  "sourceMessage": "_Namoz vaqtlari:_ [adhan](https://github.com/batoulapps/adhan-js)\n_Hadislar to'plami:_ [Riyozus solihiyn]({{sourceLink}})",
   "shareQuranVaTafsiri": "https://t.me/Quron_va_Tafsiri\n\nAssalomu alaykum. Ushbu kanalda siz qur'on va uning tafsirini audio tarzda eshitib o'rganishingiz mumkin. Audio format avval o'zbek tilida keyin esa arab tilida keltirilgan. O'ylaymizki bu siz uchun manfatli bo'ladi",
   "feedbackStartMessage": "Taklif yoki shikoyatingizni yozing",
   "feedbackEndMessage": "Fikr-mulohazalaringiz uchun tashakkur. Biz buni qadrlaymiz!",

@@ -31,7 +31,7 @@ function buildPrayerOpts(region: PrayerTimesResult, date: string) {
     region: region.region,
     fajr: region.fajr,
     sunrise: region.sunrise,
-    zuhr: region.dhuhr,
+    dhuhr: region.dhuhr,
     asr: region.asr,
     maghrib: region.maghrib,
     isha: region.isha,

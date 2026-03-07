@@ -6,7 +6,6 @@ const scene = new Scene<BotContext>('Source')
 
 scene.step(async (ctx) => {
   const sourceReplyMessage = t(($) => $.sourceMessage, {
-    siteLink: 'https://new.islom.uz',
     sourceLink: 'https://www.ziyouz.com/books/islomiy/hadis/Imom%20Navaviy.%20Riyozus%20solihiyn.pdf',
   })
 

@@ -75,7 +75,7 @@ export async function inlineQuery(ctx: BotContext) {
       region: region.name,
       fajr: prayerTimes.fajr,
       sunrise: prayerTimes.sunrise,
-      zuhr: prayerTimes.dhuhr,
+      dhuhr: prayerTimes.dhuhr,
       asr: prayerTimes.asr,
       maghrib: prayerTimes.maghrib,
       isha: prayerTimes.isha,

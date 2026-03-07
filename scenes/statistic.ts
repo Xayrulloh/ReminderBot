@@ -24,7 +24,7 @@ scene.step(async (ctx) => {
       } catch (e) {
         console.error(`Failed to get member count for group ${group.groupId}:`, e)
 
-        handleGroupSendMessageError(e, group)
+        await handleGroupSendMessageError(e, group)
 
         return 0
       }

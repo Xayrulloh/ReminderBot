@@ -34,7 +34,7 @@ scene.wait('amount').on('message:text', async (ctx) => {
       const messageThanks = t(($) => $.donateThanks)
 
       ctx.user.donate += amount
-      ctx.user.save()
+      await ctx.user.save()
 
       await ctx.reply(`${message + endpoint}\n\n${messageThanks}`)
     } catch (_error) {

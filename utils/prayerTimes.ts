@@ -27,13 +27,16 @@ export async function initRegions(): Promise<void> {
   try {
     const { data } = await axios.get<{ id: number; name: string; latitude: string; longitude: string }[]>(
       'https://new.islom.uz/api/v1/regions',
+      { timeout: 5000 },
     )
-    regions = data.map((r) => ({
-      id: r.id,
-      name: r.name,
-      latitude: parseFloat(r.latitude),
-      longitude: parseFloat(r.longitude),
-    }))
+    regions = data
+      .map((r) => ({
+        id: r.id,
+        name: r.name,
+        latitude: parseFloat(r.latitude),
+        longitude: parseFloat(r.longitude),
+      }))
+      .filter((r) => !Number.isNaN(r.latitude) && !Number.isNaN(r.longitude))
     console.info(`Loaded ${regions.length} regions from API`)
   } catch (_error) {
     console.warn('Failed to fetch regions from API, using static fallback')

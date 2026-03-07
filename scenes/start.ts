@@ -35,8 +35,8 @@ scene.step(async (ctx) => {
 scene.wait('fasting').on('callback_query:data', async (ctx) => {
   const inputData = ctx.update.callback_query.data
 
-  if (!REGION_IDS.includes(+inputData) && !['<', '>'].includes(inputData)) {
-    await ctx.answerCallbackQuery(t(($) => $.wrongSelection))
+  if (!REGION_IDS.includes(+inputData) && !['<', '>', 'pageNumber'].includes(inputData)) {
+    return await ctx.answerCallbackQuery(t(($) => $.wrongSelection))
   }
 
   if (['<', '>', 'pageNumber'].includes(inputData)) {
@@ -125,7 +125,7 @@ scene.wait('the_end').on('callback_query:data', async (ctx) => {
     region: data.region,
     fajr: data.fajr,
     sunrise: data.sunrise,
-    zuhr: data.dhuhr,
+    dhuhr: data.dhuhr,
     asr: data.asr,
     maghrib: data.maghrib,
     isha: data.isha,
