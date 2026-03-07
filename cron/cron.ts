@@ -1,7 +1,6 @@
 import { resolve } from 'path'
 import Model from '#config/database'
-import HLanguage from '#helper/language'
-import { HReplace } from '#helper/replacer'
+import { t } from '#config/i18n'
 import schedule from 'node-schedule'
 import customKFunction from '#keyboard/custom'
 import { Bot, InlineKeyboard, InputFile } from 'grammy'
@@ -33,23 +32,21 @@ async function daily(bot: Bot<BotContext>) {
     })
 
     for (let user of users) {
-      const info = user.fasting ? HLanguage('infoPrayTimeFasting') : HLanguage('infoPrayTime')
-      let message = HReplace(
-        info,
-        ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha', '$date'],
-        [
-          region.region,
-          region.fajr,
-          region.sunrise,
-          region.dhuhr,
-          region.asr,
-          region.maghrib,
-          region.isha,
-          now.format('DD/MM/YYYY'),
-        ],
-      )
+      const prayerOpts = {
+        region: region.region,
+        fajr: region.fajr,
+        sunrise: region.sunrise,
+        zuhr: region.dhuhr,
+        asr: region.asr,
+        maghrib: region.maghrib,
+        isha: region.isha,
+        date: now.format('DD/MM/YYYY'),
+      }
+      let message = user.fasting
+        ? t($ => $.infoPrayTimeFasting, prayerOpts)
+        : t($ => $.infoPrayTime, prayerOpts)
 
-      const keyboardText = HLanguage('mainKeyboard')
+      const keyboardText = t($ => $.mainKeyboard, { returnObjects: true })
       const buttons = customKFunction(2, ...keyboardText)
 
       if (weekDay == 5) {
@@ -75,20 +72,16 @@ async function daily(bot: Bot<BotContext>) {
     })
 
     for (let group of groups) {
-      let message = HReplace(
-        HLanguage('infoPrayTime'),
-        ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha', '$date'],
-        [
-          region.region,
-          region.fajr,
-          region.sunrise,
-          region.dhuhr,
-          region.asr,
-          region.maghrib,
-          region.isha,
-          now.format('DD/MM/YYYY'),
-        ],
-      )
+      let message = t($ => $.infoPrayTime, {
+        region: region.region,
+        fajr: region.fajr,
+        sunrise: region.sunrise,
+        zuhr: region.dhuhr,
+        asr: region.asr,
+        maghrib: region.maghrib,
+        isha: region.isha,
+        date: now.format('DD/MM/YYYY'),
+      })
 
       if (weekDay == 5) {
         await bot.api
@@ -141,7 +134,7 @@ async function reminder(bot: Bot<BotContext>) {
 
       for (const user of users) {
         await bot.api
-          .sendMessage(user.userId, user.fasting ? HLanguage('closeFast') : HLanguage('fajrTime'))
+          .sendMessage(user.userId, user.fasting ? t($ => $.closeFast) : t($ => $.fajrTime))
           .catch(async (err: any) => {
             await handleUserSendMessageError(err, user)
           })
@@ -158,7 +151,7 @@ async function reminder(bot: Bot<BotContext>) {
 
       for (const user of users) {
         await bot.api
-          .sendMessage(user.userId, user.fasting ? HLanguage('sunriseFastingTime') : HLanguage('sunriseTime'))
+          .sendMessage(user.userId, user.fasting ? t($ => $.sunriseFastingTime) : t($ => $.sunriseTime))
           .catch(async (err: any) => await handleUserSendMessageError(err, user))
       }
     })
@@ -172,7 +165,7 @@ async function reminder(bot: Bot<BotContext>) {
       })
 
       for (const user of users) {
-        await bot.api.sendMessage(user.userId, HLanguage('dhuhrTime')).catch(async (err: any) => {
+        await bot.api.sendMessage(user.userId, t($ => $.dhuhrTime)).catch(async (err: any) => {
           await handleUserSendMessageError(err, user)
         })
       }
@@ -187,7 +180,7 @@ async function reminder(bot: Bot<BotContext>) {
       })
 
       for (const user of users) {
-        await bot.api.sendMessage(user.userId, HLanguage('asrTime')).catch(async (err: any) => {
+        await bot.api.sendMessage(user.userId, t($ => $.asrTime)).catch(async (err: any) => {
           await handleUserSendMessageError(err, user)
         })
       }
@@ -203,7 +196,7 @@ async function reminder(bot: Bot<BotContext>) {
 
       for (const user of users) {
         await bot.api
-          .sendMessage(user.userId, user.fasting ? HLanguage('breakFast') : HLanguage('maghribTime'))
+          .sendMessage(user.userId, user.fasting ? t($ => $.breakFast) : t($ => $.maghribTime))
           .catch(async (err: any) => {
             await handleUserSendMessageError(err, user)
           })
@@ -219,7 +212,7 @@ async function reminder(bot: Bot<BotContext>) {
       })
 
       for (const user of users) {
-        await bot.api.sendMessage(user.userId, HLanguage('ishaTime')).catch(async (err: any) => {
+        await bot.api.sendMessage(user.userId, t($ => $.ishaTime)).catch(async (err: any) => {
           await handleUserSendMessageError(err, user)
         })
       }
@@ -233,10 +226,10 @@ async function weekly(bot: Bot<BotContext>) {
     deletedAt: null,
   })
 
-  const message = HLanguage('shareBot')
+  const message = t($ => $.shareBot)
   const keyboard = new InlineKeyboard()
-  const enterMessage = HLanguage('enter')
-  const addToGroupMessage = HLanguage('addToGroup')
+  const enterMessage = t($ => $.enter)
+  const addToGroupMessage = t($ => $.addToGroup)
 
   keyboard.url(enterMessage, 'https://t.me/' + bot.botInfo.username)
   keyboard.row()

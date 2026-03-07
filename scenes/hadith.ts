@@ -2,7 +2,7 @@ import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
 import { BotContext } from '#types/context'
 import { IHadith } from '#types/database'
-import HLanguage from '#helper/language'
+import { t } from '#config/i18n'
 import { InlineKeyboard } from 'grammy'
 import { blockQuote } from '#helper/html'
 
@@ -10,8 +10,8 @@ const scene = new Scene<BotContext>('Hadith')
 
 scene.step(async (ctx) => {
   const keyboard = new InlineKeyboard()
-  const enterMessage = HLanguage('enter')
-  const addToGroupMessage = HLanguage('addToGroup')
+  const enterMessage = t($ => $.enter)
+  const addToGroupMessage = t($ => $.addToGroup)
 
   let hadith: IHadith[] | string = await Model.Hadith.aggregate<IHadith>([{ $sample: { size: 1 } }])
 

@@ -1,8 +1,8 @@
 import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
 import inlineKFunction from '#keyboard/inline'
-import HLanguage from '#helper/language'
-import { HReplace } from '#helper/replacer'
+import { t } from '#config/i18n'
+import { regions } from '#config/regions'
 import { BotContext } from '#types/context'
 import { memoryStorage } from '#config/storage'
 import { DAILY_HADITH_KEY } from '#utils/constants'
@@ -13,20 +13,19 @@ import dayjs from '#utils/dayjs'
 const scene = new Scene<BotContext>('GroupLocation')
 
 scene.step(async (ctx) => {
-  const message = `${HLanguage('currentRegion')} <b>${ctx.group?.region}</b>\n\n ${HLanguage('chooseRegion')}`
-  const keyboardMessage = HLanguage('region')
+  const message = `${t($ => $.currentRegion)} <b>${ctx.group?.region}</b>\n\n ${t($ => $.chooseRegion)}`
   const keyboard = []
 
-  for (let region in keyboardMessage) {
-    keyboard.push({ view: region, text: keyboardMessage[region] })
+  for (let region in regions) {
+    keyboard.push({ view: region, text: String(regions[region]) })
   }
 
   const buttons = inlineKFunction(3, keyboard)
 
   ctx.session.message = message
   ctx.session.buttons = buttons
-  ctx.session.regionId = Object.values(keyboardMessage)
-  ctx.session.regions = keyboardMessage
+  ctx.session.regionId = Object.values(regions)
+  ctx.session.regions = regions
   ctx.session.currPage = 1
   ctx.session.keyboard = keyboard
 
@@ -51,13 +50,12 @@ scene.wait('group_location_update').on('callback_query:data', async (ctx) => {
 
         await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons, parse_mode: 'HTML' })
       } else {
-        await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
+        await ctx.answerCallbackQuery(t($ => $.wrongSelection))
       }
     } else {
       await ctx.answerCallbackQuery()
 
       const now = dayjs()
-      const message = HLanguage('infoPrayTime')
       const data = getPrayerTimes(+inputData, now.toDate())
       let regionName = ''
 
@@ -82,13 +80,18 @@ scene.wait('group_location_update').on('callback_query:data', async (ctx) => {
         memoryStorage.write(String(ctx.chat!.id), updatedGroup)
       }
 
-      let response = HReplace(
-        message,
-        ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha', '$date'],
-        [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha, now.format('DD/MM/YYYY')],
-      )
+      const response = t($ => $.infoPrayTime, {
+        region: data.region,
+        fajr: data.fajr,
+        sunrise: data.sunrise,
+        zuhr: data.dhuhr,
+        asr: data.asr,
+        maghrib: data.maghrib,
+        isha: data.isha,
+        date: now.format('DD/MM/YYYY'),
+      })
       const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
-      const locationMessage = HLanguage('locationChange')
+      const locationMessage = t($ => $.locationChange)
 
       await ctx.editMessageText(locationMessage + '\n\n' + response + dailyHadith, {
         parse_mode: 'HTML',
@@ -97,7 +100,7 @@ scene.wait('group_location_update').on('callback_query:data', async (ctx) => {
       ctx.scene.exit()
     }
   } else {
-    await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
+    await ctx.answerCallbackQuery(t($ => $.wrongSelection))
   }
 })
 

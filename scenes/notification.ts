@@ -1,16 +1,15 @@
 import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
-import HLanguage from '#helper/language'
+import { t } from '#config/i18n'
 import { InlineKeyboard } from 'grammy'
-import { HReplace } from '#helper/replacer'
 import { BotContext } from '#types/context'
 import { IUser } from '#types/database'
 
 const scene = new Scene<BotContext>('Notification')
 
 scene.step(async (ctx) => {
-  const message = HLanguage('setPrayerTimes')
-  const setPrayerTimesMessage = HLanguage('setPrayerTimesKeyboard')
+  const message = t($ => $.setPrayerTimes)
+  const setPrayerTimesMessage = t($ => $.setPrayerTimesKeyboard, { returnObjects: true })
 
   ctx.session.notificationSetting = ctx.user.notificationSetting
   ctx.session.setPrayerTimesMessage = setPrayerTimesMessage
@@ -24,7 +23,7 @@ scene.step(async (ctx) => {
 
 scene.wait('notification_settings').on('callback_query:data', async (ctx) => {
   if (!ctx.session.setPrayerTimesMessage[ctx.callbackQuery.data]) {
-    return ctx.answerCallbackQuery(HLanguage('wrongSelection'))
+    return ctx.answerCallbackQuery(t($ => $.wrongSelection))
   }
 
   await ctx.answerCallbackQuery()
@@ -41,7 +40,7 @@ scene.wait('notification_settings').on('callback_query:data', async (ctx) => {
       notificationSetting: ctx.session.notificationSetting,
     },
   )
-  await ctx.editMessageText(HLanguage('notifChange'))
+  await ctx.editMessageText(t($ => $.notifChange))
   return ctx.scene.exit()
 })
 
@@ -53,11 +52,7 @@ function buildSettingKeyboard(ctx: BotContext) {
     let text = ctx.session.setPrayerTimesMessage[key]
 
     if (key !== 'save') {
-      text = HReplace(
-        ctx.session.setPrayerTimesMessage[key],
-        ['$state'],
-        [ctx.session.notificationSetting[key] ? '✅' : '❌'],
-      )
+      text = text.replace('{{state}}', ctx.session.notificationSetting[key] ? '✅' : '❌')
     }
 
     keyboard.text(text, key)

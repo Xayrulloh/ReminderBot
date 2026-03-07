@@ -1,7 +1,7 @@
 import { Scene } from 'grammy-scenes'
 import inlineKFunction from '#keyboard/inline'
-import HLanguage from '#helper/language'
-import { HReplace } from '#helper/replacer'
+import { t } from '#config/i18n'
+import { regions } from '#config/regions'
 import { BotContext } from '#types/context'
 import { memoryStorage } from '#config/storage'
 import { DAILY_HADITH_KEY } from '#utils/constants'
@@ -12,21 +12,19 @@ import dayjs from '#utils/dayjs'
 let scene = new Scene<BotContext>('Search')
 
 scene.step(async (ctx) => {
-  const message = HLanguage('searchRegion')
-  // FIXME: Refactor duplication on location.ts (15-29 lines)
-  const keyboardMessage = HLanguage('region')
+  const message = t($ => $.searchRegion)
   const keyboard = []
 
-  for (let region in keyboardMessage) {
-    keyboard.push({ view: region, text: keyboardMessage[region] })
+  for (let region in regions) {
+    keyboard.push({ view: region, text: String(regions[region]) })
   }
 
   const buttons = inlineKFunction(3, keyboard)
 
   ctx.session.message = message
   ctx.session.buttons = buttons
-  ctx.session.regionId = Object.values(keyboardMessage)
-  ctx.session.regions = keyboardMessage
+  ctx.session.regionId = Object.values(regions)
+  ctx.session.regions = regions
   ctx.session.currPage = 1
   ctx.session.keyboard = keyboard
 
@@ -51,7 +49,7 @@ scene.wait('region').on('callback_query:data', async (ctx) => {
 
         await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons })
       } else {
-        await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
+        await ctx.answerCallbackQuery(t($ => $.wrongSelection))
       }
     } else {
       await ctx.answerCallbackQuery()
@@ -59,21 +57,21 @@ scene.wait('region').on('callback_query:data', async (ctx) => {
       const selectDayKeyboard = new InlineKeyboard()
       ctx.session.regionId = +inputData
 
-      for (const dayOption of HLanguage('selectDayOptions')) {
+      for (const dayOption of t($ => $.selectDayOptions, { returnObjects: true })) {
         selectDayKeyboard.text(dayOption)
       }
 
-      await ctx.editMessageText(HLanguage('selectDay'), { reply_markup: selectDayKeyboard })
+      await ctx.editMessageText(t($ => $.selectDay), { reply_markup: selectDayKeyboard })
       return ctx.scene.resume()
     }
   } else {
-    await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
+    await ctx.answerCallbackQuery(t($ => $.wrongSelection))
   }
 })
 
 scene.wait('commonDays').on('callback_query:data', async (ctx) => {
   const dayInput = ctx.callbackQuery.data
-  const dayOptions: string[] = HLanguage('selectDayOptions')
+  const dayOptions = t($ => $.selectDayOptions, { returnObjects: true })
   const now = dayjs()
   let day: number
 
@@ -101,25 +99,20 @@ scene.wait('commonDays').on('callback_query:data', async (ctx) => {
       day = Number(dayInput)
       break
   }
-  const message = HLanguage('infoPrayTime')
   const data = getPrayerTimes(ctx.session.regionId, new Date(now.get('year'), now.get('month'), day))
 
   if (!data) return ctx.scene.exit()
 
-  let response = HReplace(
-    message,
-    ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha', '$date'],
-    [
-      data.region,
-      data.fajr,
-      data.sunrise,
-      data.dhuhr,
-      data.asr,
-      data.maghrib,
-      data.isha,
-      new Date(now.get('year'), now.get('month'), day).toLocaleDateString(),
-    ],
-  )
+  const response = t($ => $.infoPrayTime, {
+    region: data.region,
+    fajr: data.fajr,
+    sunrise: data.sunrise,
+    zuhr: data.dhuhr,
+    asr: data.asr,
+    maghrib: data.maghrib,
+    isha: data.isha,
+    date: new Date(now.get('year'), now.get('month'), day).toLocaleDateString(),
+  })
 
   const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
 

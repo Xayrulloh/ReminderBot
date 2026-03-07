@@ -1,6 +1,6 @@
 import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
-import HLanguage from '#helper/language'
+import { t } from '#config/i18n'
 import { BotContext } from '#types/context'
 import { IUser, IGroup } from '#types/database'
 import { InlineKeyboard } from 'grammy'
@@ -11,11 +11,11 @@ const scene = new Scene<BotContext>('Statistic')
 scene.step(async (ctx) => {
   const users = await Model.User.find<IUser>()
   const groups = await Model.Group.find<IGroup>({ status: true })
-  const countMessage = HLanguage('usersCount')
-  let shareMessage = HLanguage('shareMessage')
+  const countMessage = t($ => $.usersCount)
+  let shareMessage = t($ => $.shareMessage)
   const keyboard = new InlineKeyboard()
-  const enterMessage = HLanguage('enter')
-  const addToGroupMessage = HLanguage('addToGroup')
+  const enterMessage = t($ => $.enter)
+  const addToGroupMessage = t($ => $.addToGroup)
 
   const memberCounts = await Promise.all(
     groups.map(async (group) => {

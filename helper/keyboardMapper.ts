@@ -1,9 +1,9 @@
-import HLanguage from '#helper/language'
+import { t } from '#config/i18n'
 
-export const keyboardMapper = (text: any) => {
-  const keyboardText = HLanguage('mainKeyboard')
+export const keyboardMapper = (text: string) => {
+  const keyboardText = t($ => $.mainKeyboard, { returnObjects: true })
 
-  const options = {
+  const options: Record<string, string> = {
     [keyboardText[0]]: 'Search',
     [keyboardText[1]]: 'Location',
     [keyboardText[2]]: 'Fasting',

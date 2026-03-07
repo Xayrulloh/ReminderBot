@@ -1,5 +1,5 @@
 import { Scene } from 'grammy-scenes'
-import HLanguage from '#helper/language'
+import { t } from '#config/i18n'
 import axios from 'axios'
 import { BotContext } from '#types/context'
 import { env } from '#utils/env'
@@ -7,7 +7,7 @@ import { env } from '#utils/env'
 const scene = new Scene<BotContext>('Donate')
 
 scene.step(async (ctx) => {
-  const message = HLanguage('donateMessage')
+  const message = t($ => $.donateMessage)
 
   ctx.session.message = message
 
@@ -27,22 +27,22 @@ scene.wait('amount').on('message:text', async (ctx) => {
       ])
 
       if (!response.data?.success) {
-        const message = HLanguage('donateError')
+        const message = t($ => $.donateError)
         await ctx.reply(message)
         ctx.scene.exit()
         return
       }
 
       const endpoint = env.PAYME_ENDPOINT + response.data?.result?.chequeid
-      const message = HLanguage('donateUrl')
-      const messageThanks = HLanguage('donateThanks')
+      const message = t($ => $.donateUrl)
+      const messageThanks = t($ => $.donateThanks)
 
       ctx.user.donate += amount
       ctx.user.save()
 
       await ctx.reply(message + endpoint + '\n\n' + messageThanks)
     } catch (error) {
-      const message = HLanguage('donateError')
+      const message = t($ => $.donateError)
       await ctx.reply(message)
     }
 

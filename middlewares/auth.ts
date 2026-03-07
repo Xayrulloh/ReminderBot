@@ -3,7 +3,7 @@ import { BotContext } from '#types/context'
 import { NextFunction, GrammyError } from 'grammy'
 import { memoryStorage } from '#config/storage'
 import { IGroup, IUser } from '#types/database'
-import HLanguage from '#helper/language'
+import { t } from '#config/i18n'
 import { handleGroupSendMessageError } from '#helper/errorHandler'
 
 export async function userAuthMiddleware(ctx: BotContext, next: NextFunction) {
@@ -88,7 +88,7 @@ export async function groupAuthMiddleware(ctx: BotContext, next: NextFunction) {
       const admins = await ctx.getChatAdministrators()
 
       if (!admins.some((admin) => admin.user.id === ctx.from!.id)) {
-        await ctx.reply(HLanguage('nonAdminPermission')).catch((e) => {
+        await ctx.reply(t($ => $.nonAdminPermission)).catch((e) => {
           if (group) {
             handleGroupSendMessageError(e, group)
           }

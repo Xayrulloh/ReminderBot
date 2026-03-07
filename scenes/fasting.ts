@@ -1,15 +1,15 @@
 import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
 import inlineKFunction from '#keyboard/inline'
-import HLanguage from '#helper/language'
+import { t } from '#config/i18n'
 import { BotContext } from '#types/context'
 import { IUser } from '#types/database'
 
 const scene = new Scene<BotContext>('Fasting')
 
 scene.step(async (ctx) => {
-  const message = HLanguage('fastingMessage')
-  const keyboardMessage = HLanguage('agreementFasting')
+  const message = t($ => $.fastingMessage)
+  const keyboardMessage = t($ => $.agreementFasting, { returnObjects: true })
   const buttons = inlineKFunction(Infinity, [
     { view: keyboardMessage[0], text: keyboardMessage[0] },
     { view: keyboardMessage[1], text: keyboardMessage[1] },
@@ -30,12 +30,12 @@ scene.wait('fasting').on('callback_query:data', async (ctx) => {
 
     await Model.User.updateOne<IUser>({ userId: ctx.user.userId }, { fasting })
 
-    const message = HLanguage('notifChange')
+    const message = t($ => $.notifChange)
 
     await ctx.editMessageText(message)
     ctx.scene.exit()
   } else {
-    await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
+    await ctx.answerCallbackQuery(t($ => $.wrongSelection))
   }
 })
 

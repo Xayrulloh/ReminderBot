@@ -1,7 +1,7 @@
 import { Bot, MemorySessionStorage, session, webhookCallback } from 'grammy'
 import { scenes } from './scenes'
 import { inlineQuery } from '#query/inline'
-import HLanguage from '#helper/language'
+import { t } from '#config/i18n'
 import { cronStarter } from './cron/cron'
 import customKFunction from './keyboard/custom'
 import Fastify from 'fastify'
@@ -79,8 +79,8 @@ privateChatBot.command(
 )
 
 privateChatBot.command('start', async (ctx) => {
-  const welcomeText = HLanguage('welcome')
-  const keyboardText = HLanguage('mainKeyboard')
+  const welcomeText = t(($) => $.welcome)
+  const keyboardText = t(($) => $.mainKeyboard, { returnObjects: true })
   const buttons = customKFunction(2, ...keyboardText)
 
   if (!ctx.user.status) {
@@ -129,7 +129,7 @@ privateChatBot.on('message:text', async (ctx) => {
 
 // Group chat commands
 groupChatBot.command('start', async (ctx) => {
-  const registeredText = HLanguage('botRegistered')
+  const registeredText = t(($) => $.botRegistered)
 
   if (!ctx.group?.status) {
     const updatedGroup = await Model.Group.findOneAndUpdate<IGroup>(

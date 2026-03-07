@@ -3,7 +3,7 @@
 ![Telegram Bot](https://img.shields.io/badge/Telegram%20Bot-ReminderBot-blue)
 ![Version](https://img.shields.io/badge/Version-4.0.0-orange)
 ![License](https://img.shields.io/badge/License-MIT-green)
-![Node](https://img.shields.io/badge/Node.js-20.x-brightgreen)
+![Node](https://img.shields.io/badge/Node.js-24.x-brightgreen)
 
 ReminderBot is a feature-rich Telegram bot that reminds users of daily Islamic prayer times. It works in both **private chats** and **group chats**, configurable notifications, inline queries, daily hadiths, Quran references, fasting reminders, regional prayer time search, statistics tracking, and more. Built with **Node.js**, **grammY**, **MongoDB**, and **TypeScript**.
 
@@ -188,7 +188,6 @@ cp .env.example .env
 | `NODE_ENV` | `dev` or `prod` |
 | `TOKEN` | Telegram Bot API token from [@BotFather](https://t.me/BotFather) |
 | `MONGO_URL` | MongoDB connection string |
-| `TIME_API` | Prayer time PDF API base URL |
 | `PAYME_URL` / `PAYME_ENDPOINT` / `CARD` | Payment integration (optional) |
 | `DISCORD_WEBHOOK_URL` | Discord webhook for logging |
 | `DISCORD_LOGS_THREAD_ID` | Discord thread ID for general logs |
@@ -224,7 +223,7 @@ pnpm start
 
 | Layer | Technology |
 |---|---|
-| Runtime | Node.js 20.x |
+| Runtime | Node.js 24.x |
 | Language | TypeScript 5.x |
 | Bot Framework | [grammY](https://grammy.dev/) + grammy-scenes |
 | Database | MongoDB via Mongoose |
@@ -232,7 +231,7 @@ pnpm start
 | HTTP Server | Fastify (webhook mode) |
 | Logging | Discord Webhooks (discord.js) |
 | Validation | Zod |
-| Package Manager | pnpm 9.x |
+| Package Manager | pnpm 10.x |
 
 ---
 

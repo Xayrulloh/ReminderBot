@@ -1,5 +1,5 @@
 import { Scene } from 'grammy-scenes'
-import HLanguage from '#helper/language'
+import { t } from '#config/i18n'
 import { BotContext } from '#types/context'
 import { EmbedBuilder, WebhookClient } from 'discord.js'
 import { env } from '#utils/env'
@@ -10,13 +10,13 @@ import customKFunction from '#keyboard/custom'
 const scene = new Scene<BotContext>('Feedback')
 
 scene.step(async (ctx) => {
-  const message = HLanguage('feedbackStartMessage')
+  const message = t($ => $.feedbackStartMessage)
 
   await ctx.reply(message)
 })
 
 scene.wait('feedbackStart').on('message:text', async (ctx) => {
-  const message = HLanguage('feedbackEndMessage')
+  const message = t($ => $.feedbackEndMessage)
 
   const discordClient = new WebhookClient({
     url: env.DISCORD_WEBHOOK_URL,
@@ -42,7 +42,7 @@ scene.wait('feedbackStart').on('message:text', async (ctx) => {
     embeds: [embed],
   })
 
-  const keyboardText = HLanguage('mainKeyboard')
+  const keyboardText = t($ => $.mainKeyboard, { returnObjects: true })
   const buttons = customKFunction(2, ...keyboardText)
 
   await ctx.reply(message, {
