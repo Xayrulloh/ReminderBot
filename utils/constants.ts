@@ -1,4 +1,4 @@
-import { ErrorType } from '#types/error'
+import type { ErrorType } from '#types/error'
 
 export const DAILY_HADITH_KEY = 'dailyHadith'
 export const DAILY_QURAN_KEY = 'dailyQuran'

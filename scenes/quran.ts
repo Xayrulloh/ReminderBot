@@ -1,20 +1,20 @@
-import { Scene } from 'grammy-scenes'
-import { BotContext } from '#types/context'
-import HLanguage from '#helper/language'
 import { InlineKeyboard } from 'grammy'
+import { Scene } from 'grammy-scenes'
+import { t } from '#config/i18n'
+import type { BotContext } from '#types/context'
 import { env } from '#utils/env'
 
 const scene = new Scene<BotContext>('Quran')
 
 scene.step(async (ctx) => {
-  const message = HLanguage("share_qu'ron_va_tafsiri")
+  const message = t(($) => $.shareQuranVaTafsiri)
   const keyboard = new InlineKeyboard()
-  const enterMessage = HLanguage('enter')
-  const addToGroupMessage = HLanguage('addToGroup')
+  const enterMessage = t(($) => $.enter)
+  const addToGroupMessage = t(($) => $.addToGroup)
 
   keyboard.url(enterMessage, env.QURON_VA_TAFSIRI_URL)
   keyboard.row()
-  keyboard.url(addToGroupMessage, 'https://t.me/' + ctx.me.username + '?startgroup=' + ctx.me.username)
+  keyboard.url(addToGroupMessage, `https://t.me/${ctx.me.username}?startgroup=${ctx.me.username}`)
 
   await ctx.reply(message, { reply_markup: keyboard })
 

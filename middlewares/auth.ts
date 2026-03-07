@@ -1,11 +1,13 @@
+import { GrammyError, type NextFunction } from 'grammy'
 import Model from '#config/database'
-import { BotContext } from '#types/context'
-import { NextFunction, GrammyError } from 'grammy'
+import { t } from '#config/i18n'
 import { memoryStorage } from '#config/storage'
-import { IGroup, IUser } from '#types/database'
-import HLanguage from '#helper/language'
 import { handleGroupSendMessageError } from '#helper/errorHandler'
+import type { BotContext } from '#types/context'
+import type { IGroup, IUser } from '#types/database'
 
+/** Loads the user from memory cache or DB and attaches to ctx.user.
+ *  Redirects to the Start scene if the user doesn't exist yet. */
 export async function userAuthMiddleware(ctx: BotContext, next: NextFunction) {
   if (!ctx.from) return next()
 
@@ -13,7 +15,7 @@ export async function userAuthMiddleware(ctx: BotContext, next: NextFunction) {
 
   // Caching to memory
   const key = String(ctx.from?.id)
-  let user = memoryStorage.read(key)
+  let user = memoryStorage.read(key) as IUser | undefined
 
   if (user) {
     ctx.user = user
@@ -24,7 +26,7 @@ export async function userAuthMiddleware(ctx: BotContext, next: NextFunction) {
   // finding user from db
   const userId = ctx.from?.id
 
-  user = await Model.User.findOne<IUser>({ userId })
+  user = (await Model.User.findOne<IUser>({ userId })) ?? undefined
 
   if (!user) {
     const isStartSceneActive = ctx.session.scenes?.stack?.some((stack) => stack.scene === 'Start')
@@ -43,18 +45,22 @@ export async function userAuthMiddleware(ctx: BotContext, next: NextFunction) {
   return next()
 }
 
+/** Loads the group from memory cache or DB and attaches to ctx.group.
+ *  Enters GroupStart setup if unregistered. For registered groups, only
+ *  admin-initiated bot interactions (commands, mentions, replies) proceed. */
 export async function groupAuthMiddleware(ctx: BotContext, next: NextFunction) {
   if (!ctx.chat) return next()
+  if (ctx.from?.is_bot) return
 
   // 1. caching to memory (read)
   const key = String(ctx.chat.id)
-  let group = memoryStorage.read(key)
+  let group = memoryStorage.read(key) as IGroup | undefined
 
   // 2. if not in memory, try db
   if (!group) {
     const groupId = ctx.chat.id
 
-    group = await Model.Group.findOne<IGroup>({ groupId })
+    group = (await Model.Group.findOne<IGroup>({ groupId })) ?? undefined
 
     if (group) {
       memoryStorage.write(key, group)
@@ -87,10 +93,10 @@ export async function groupAuthMiddleware(ctx: BotContext, next: NextFunction) {
     try {
       const admins = await ctx.getChatAdministrators()
 
-      if (!admins.some((admin) => admin.user.id === ctx.from!.id)) {
-        await ctx.reply(HLanguage('nonAdminPermission')).catch((e) => {
+      if (!admins.some((admin) => admin.user.id === ctx.from?.id)) {
+        await ctx.reply(t(($) => $.nonAdminPermission)).catch(async (e) => {
           if (group) {
-            handleGroupSendMessageError(e, group)
+            await handleGroupSendMessageError(e, group)
           }
         })
 

@@ -1,23 +1,23 @@
+import { format } from 'node:util'
+import { autoRetry } from '@grammyjs/auto-retry'
+import { EmbedBuilder, WebhookClient } from 'discord.js'
+import Fastify from 'fastify'
 import { Bot, MemorySessionStorage, session, webhookCallback } from 'grammy'
-import { scenes } from './scenes'
+import Model from '#config/database'
+import { t } from '#config/i18n'
+import { memoryStorage } from '#config/storage'
+import { errorHandler, handleGroupSendMessageError } from '#helper/errorHandler'
+import { keyboardMapper } from '#helper/keyboardMapper'
+import { groupAuthMiddleware, userAuthMiddleware } from '#middlewares/auth'
 import { inlineQuery } from '#query/inline'
-import HLanguage from '#helper/language'
+import type { BotContext } from '#types/context'
+import type { IGroup } from '#types/database'
+import { FLOOD_MESSAGE } from '#utils/constants'
+import { Color } from '#utils/enums'
+import { env } from '#utils/env'
 import { cronStarter } from './cron/cron'
 import customKFunction from './keyboard/custom'
-import Fastify from 'fastify'
-import { userAuthMiddleware, groupAuthMiddleware } from '#middlewares/auth'
-import { keyboardMapper } from '#helper/keyboardMapper'
-import { BotContext } from '#types/context'
-import { env } from '#utils/env'
-import { Color } from '#utils/enums'
-import { errorHandler, handleGroupSendMessageError } from '#helper/errorHandler'
-import { autoRetry } from '@grammyjs/auto-retry'
-import Model from '#config/database'
-import { WebhookClient, EmbedBuilder } from 'discord.js'
-import { format } from 'node:util'
-import { FLOOD_MESSAGE } from '#utils/constants'
-import { memoryStorage } from '#config/storage'
-import { IGroup } from '#types/database'
+import { scenes } from './scenes'
 
 const bot = new Bot<BotContext>(env.TOKEN)
 
@@ -32,7 +32,7 @@ bot.api.config.use(
 // middleware
 bot.use(
   session({
-    initial: () => ({}),
+    initial: () => ({}) as BotContext['session'],
     storage: new MemorySessionStorage(env.SESSION_TTL),
   }),
 )
@@ -79,8 +79,8 @@ privateChatBot.command(
 )
 
 privateChatBot.command('start', async (ctx) => {
-  const welcomeText = HLanguage('welcome')
-  const keyboardText = HLanguage('mainKeyboard')
+  const welcomeText = t(($) => $.welcome)
+  const keyboardText = t(($) => $.mainKeyboard, { returnObjects: true })
   const buttons = customKFunction(2, ...keyboardText)
 
   if (!ctx.user.status) {
@@ -105,7 +105,7 @@ privateChatBot.on('message:text', async (ctx) => {
       url: env.DISCORD_WEBHOOK_URL,
     })
 
-    let embed = new EmbedBuilder()
+    const embed = new EmbedBuilder()
       .setColor('Blue')
       .setTitle(`**ID:** ${ctx.from.id}`)
       .setDescription(
@@ -129,7 +129,7 @@ privateChatBot.on('message:text', async (ctx) => {
 
 // Group chat commands
 groupChatBot.command('start', async (ctx) => {
-  const registeredText = HLanguage('botRegistered')
+  const registeredText = t(($) => $.botRegistered)
 
   if (!ctx.group?.status) {
     const updatedGroup = await Model.Group.findOneAndUpdate<IGroup>(
@@ -141,12 +141,16 @@ groupChatBot.command('start', async (ctx) => {
     if (updatedGroup) {
       ctx.group = updatedGroup
 
-      memoryStorage.write(String(ctx.chat!.id), updatedGroup)
+      memoryStorage.write(String(ctx.chat?.id), updatedGroup)
     }
   }
 
   await ctx.reply(registeredText).catch((e) => {
-    handleGroupSendMessageError(e, ctx.group!)
+    if (ctx.group) {
+      handleGroupSendMessageError(e, ctx.group)
+    } else {
+      console.error(e)
+    }
   })
 })
 
@@ -186,7 +190,10 @@ if (env.WEBHOOK_ENABLED) {
         { command: 'search', description: 'Qidirish' },
         { command: 'location', description: 'Joylashuvni o`zgartirish' },
         { command: 'fasting', description: 'Ro`za' },
-        { command: 'notification', description: 'Ogohlantirishni o`zgartirish' },
+        {
+          command: 'notification',
+          description: 'Ogohlantirishni o`zgartirish',
+        },
         { command: 'statistic', description: 'Statistika' },
         { command: 'source', description: 'Manba' },
         { command: 'hadith', description: 'Hadis' },
@@ -221,7 +228,10 @@ if (env.WEBHOOK_ENABLED) {
             { command: 'search', description: 'Qidirish' },
             { command: 'location', description: 'Joylashuvni o`zgartirish' },
             { command: 'fasting', description: 'Ro`za' },
-            { command: 'notification', description: 'Ogohlantirishni o`zgartirish' },
+            {
+              command: 'notification',
+              description: 'Ogohlantirishni o`zgartirish',
+            },
             { command: 'statistic', description: 'Statistika' },
             { command: 'source', description: 'Manba' },
             { command: 'hadith', description: 'Hadis' },

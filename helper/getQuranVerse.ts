@@ -1,6 +1,6 @@
 import Model from '#config/database'
 import { memoryStorage } from '#config/storage'
-import { IQuran } from '#types/database'
+import type { IQuran } from '#types/database'
 import { DAILY_QURAN_KEY } from '#utils/constants'
 import { blockQuote } from './html'
 

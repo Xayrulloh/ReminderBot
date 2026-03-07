@@ -1,19 +1,20 @@
-import { InlineKeyboard } from 'grammy'
-import Model from '#config/database'
-import HLanguage from '#helper/language'
-import { HReplace } from '#helper/replacer'
-import { BotContext } from '#types/context'
-import { InlineQueryResult, InputMessageContent } from '@grammyjs/types'
-import crypto from 'crypto'
+import crypto from 'node:crypto'
+import type { InlineQueryResult, InputMessageContent } from '@grammyjs/types'
 import fuzzy from 'fuzzy'
+import { InlineKeyboard } from 'grammy'
+import { t } from '#config/i18n'
+import regionsData from '#config/regions.json'
 import { memoryStorage } from '#config/storage'
+import type { BotContext } from '#types/context'
 import { DAILY_HADITH_KEY } from '#utils/constants'
-import { IPrayTime } from '#types/database'
 import dayjs from '#utils/dayjs'
+import { getPrayerTimes } from '#utils/prayerTimes'
 
+/** Handles inline queries: fuzzy-matches input against region names and
+ *  returns up to 3 prayer time results with a daily hadith appended. */
 export async function inlineQuery(ctx: BotContext) {
   const inlineQueryMessage = ctx.inlineQuery?.query
-  const tryAgain: string = HLanguage('tryAgain')
+  const tryAgain: string = t(($) => $.tryAgain)
   const inputMessageContent: InputMessageContent = {
     parse_mode: 'HTML',
     message_text: '',
@@ -26,86 +27,63 @@ export async function inlineQuery(ctx: BotContext) {
     input_message_content: inputMessageContent,
   }
 
-  // if not inline query
   if (!inlineQueryMessage) {
-    responseObj.title = HLanguage('startSearch')
-    responseObj.description = HLanguage('searchPlace')
-    inputMessageContent.message_text = HLanguage('hintMessage')
+    responseObj.title = t(($) => $.startSearch)
+    responseObj.description = t(($) => $.searchPlace)
+    inputMessageContent.message_text = t(($) => $.hintMessage)
 
     return await ctx.answerInlineQuery([responseObj])
   }
 
-  // if exist inline query
-  const allRegions = HLanguage('region')
-  const search = fuzzy.filter(inlineQueryMessage, Object.keys(allRegions))
+  const matches = fuzzy.filter(inlineQueryMessage, regionsData, { extract: (r) => r.name }).slice(0, 3)
 
-  // but not result
-  if (!search.length) {
-    responseObj.title = HLanguage('notFound')
-    let description: string = HLanguage('notFoundDescription')
-    let message_text: string = HLanguage('notFoundContent')
-
-    responseObj.description = HReplace(description, ['$inlineQueryText'], [inlineQueryMessage])
-    inputMessageContent.message_text = HReplace(message_text, ['$inlineQueryText'], [inlineQueryMessage])
+  if (!matches.length) {
+    responseObj.title = t(($) => $.notFound)
+    responseObj.description = t(($) => $.notFoundDescription, {
+      inlineQueryText: inlineQueryMessage,
+    })
+    inputMessageContent.message_text = t(($) => $.notFoundContent, {
+      inlineQueryText: inlineQueryMessage,
+    })
 
     return await ctx.answerInlineQuery([responseObj])
   }
-
-  // if result is exist
-  let regionIds = []
-
-  for (const result of search) {
-    for (const key in allRegions) {
-      if (key == result.string) regionIds.push(allRegions[key])
-    }
-  }
-
-  regionIds = [...new Set(regionIds)].slice(0, 3)
 
   const now = dayjs()
-  const today = now.get('date')
-  const currentMonth = now.get('month') + 1
-  const regionTranslations: Record<string, number> = HLanguage('region')
-  const regions = await Model.PrayTime.find<IPrayTime>({ day: today, regionId: regionIds, month: currentMonth })
-  const message = HLanguage('infoPrayTime')
-  const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
-  const response: InlineQueryResult[] = []
+  const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? ''
   const keyboard = new InlineKeyboard()
-  const enterMessage = HLanguage('enter')
-  const addToGroupMessage = HLanguage('addToGroup')
-
-  keyboard.url(enterMessage, 'https://t.me/' + ctx.me.username)
-  keyboard.row()
-  keyboard.url(addToGroupMessage, 'https://t.me/' + ctx.me.username + '?startgroup=' + ctx.me.username)
-
-  for (const region of regions) {
-    let regionName = ''
-
-    for (const key in regionTranslations) {
-      if (region.regionId === regionTranslations[key]) {
-        regionName = key
-      }
-    }
-
-    const content = HReplace(
-      message,
-      ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha', '$date'],
-      [
-        regionName,
-        region.fajr,
-        region.sunrise,
-        region.dhuhr,
-        region.asr,
-        region.maghrib,
-        region.isha,
-        now.format('DD/MM/YYYY'),
-      ],
+    .url(
+      t(($) => $.enter),
+      `https://t.me/${ctx.me.username}`,
     )
+    .row()
+    .url(
+      t(($) => $.addToGroup),
+      `https://t.me/${ctx.me.username}?startgroup=${ctx.me.username}`,
+    )
+
+  const response: InlineQueryResult[] = []
+
+  for (const match of matches) {
+    const region = match.original
+    const prayerTimes = getPrayerTimes(region.id, now.toDate())
+    if (!prayerTimes) continue
+
+    const content = t(($) => $.infoPrayTime, {
+      region: region.name,
+      fajr: prayerTimes.fajr,
+      sunrise: prayerTimes.sunrise,
+      dhuhr: prayerTimes.dhuhr,
+      asr: prayerTimes.asr,
+      maghrib: prayerTimes.maghrib,
+      isha: prayerTimes.isha,
+      date: now.format('DD/MM/YYYY'),
+    })
 
     response.push({
       type: 'article',
       id: crypto.randomUUID(),
-      title: regionName,
+      title: region.name,
       description: content,
       input_message_content: {
         message_text: content + dailyHadith,

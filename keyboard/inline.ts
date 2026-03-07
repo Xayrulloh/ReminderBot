@@ -1,5 +1,5 @@
-import { PER_PAGE } from '#utils/constants'
 import { InlineKeyboard } from 'grammy'
+import { PER_PAGE } from '#utils/constants'
 
 type InternalButton = {
   view: string
@@ -7,13 +7,13 @@ type InternalButton = {
 }
 
 export default function inlineKFunction(num: number, buttons: InternalButton[], page = 1) {
-  let keyboard = new InlineKeyboard()
+  const keyboard = new InlineKeyboard()
 
   if (buttons.length >= 15) {
     const displayButtons = buttons.slice((page - 1) * PER_PAGE, PER_PAGE * page)
 
     displayButtons.forEach((el, index) => {
-      if (index % num == 0) {
+      if (index % num === 0) {
         keyboard.row()
       }
       keyboard.text(el.view, el.text)
@@ -26,7 +26,7 @@ export default function inlineKFunction(num: number, buttons: InternalButton[], 
     keyboard.text('>', '>')
   } else {
     buttons.forEach((el, index) => {
-      if (index % num == 0) {
+      if (index % num === 0) {
         keyboard.row()
       }
       keyboard.text(el.view, el.text)
