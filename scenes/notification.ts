@@ -5,38 +5,52 @@ import { t } from "#config/i18n";
 import type { BotContext } from "#types/context";
 import type { IUser } from "#types/database";
 
+const PRAYER_KEYS: (keyof IUser["notificationSetting"])[] = [
+	"fajr",
+	"sunrise",
+	"dhuhr",
+	"asr",
+	"maghrib",
+	"isha",
+];
+
 const scene = new Scene<BotContext>("Notification");
 
 scene.step(async (ctx) => {
-	const message = t(($) => $.setPrayerTimes);
-	const setPrayerTimesMessage = t(($) => $.setPrayerTimesKeyboard, {
-		returnObjects: true,
-	});
-
 	ctx.session.notificationSetting = ctx.user.notificationSetting;
-	ctx.session.setPrayerTimesMessage = setPrayerTimesMessage;
-	ctx.session.message = message;
-	ctx.session.prayerTimes = Object.keys(setPrayerTimesMessage);
 
-	const settingKeyboard = buildSettingKeyboard(ctx);
+	const settingKeyboard = buildSettingKeyboard(ctx.session.notificationSetting);
 
-	await ctx.reply(message, { reply_markup: settingKeyboard });
+	await ctx.reply(
+		t(($) => $.setPrayerTimes),
+		{
+			reply_markup: settingKeyboard,
+		},
+	);
 });
 
 scene.wait("notification_settings").on("callback_query:data", async (ctx) => {
-	if (!ctx.session.setPrayerTimesMessage[ctx.callbackQuery.data]) {
+	const data = ctx.callbackQuery.data;
+	const validKeys = [...PRAYER_KEYS, "save"] as string[];
+
+	if (!validKeys.includes(data)) {
 		return ctx.answerCallbackQuery(t(($) => $.wrongSelection));
 	}
 
 	await ctx.answerCallbackQuery();
 
-	if (ctx.callbackQuery.data !== "save") {
-		ctx.session.notificationSetting[ctx.callbackQuery.data] =
-			!ctx.session.notificationSetting[ctx.callbackQuery.data];
-		const settingKeyboard = buildSettingKeyboard(ctx);
-		return ctx.editMessageText(ctx.session.message, {
-			reply_markup: settingKeyboard,
-		});
+	if (data !== "save") {
+		ctx.session.notificationSetting[data] =
+			!ctx.session.notificationSetting[data];
+		const settingKeyboard = buildSettingKeyboard(
+			ctx.session.notificationSetting,
+		);
+		return ctx.editMessageText(
+			t(($) => $.setPrayerTimes),
+			{
+				reply_markup: settingKeyboard,
+			},
+		);
 	}
 
 	await Model.User.updateOne<IUser>(
@@ -49,26 +63,23 @@ scene.wait("notification_settings").on("callback_query:data", async (ctx) => {
 	return ctx.scene.exit();
 });
 
-function buildSettingKeyboard(ctx: BotContext) {
+function buildSettingKeyboard(notificationSetting: Record<string, boolean>) {
 	const keyboard = new InlineKeyboard();
+	const labels = t(($) => $.setPrayerTimesKeyboard, {
+		returnObjects: true,
+	});
 
-	for (const index in ctx.session.prayerTimes) {
-		const key = ctx.session.prayerTimes[index];
-		let text = ctx.session.setPrayerTimesMessage[key];
+	for (let i = 0; i < PRAYER_KEYS.length; i++) {
+		const key = PRAYER_KEYS[i];
+		const icon = notificationSetting[key] ? "✅" : "❌";
+		keyboard.text(labels[key] + icon, key);
 
-		if (key !== "save") {
-			text = text.replace(
-				"{{state}}",
-				ctx.session.notificationSetting[key] ? "✅" : "❌",
-			);
-		}
-
-		keyboard.text(text, key);
-
-		if (parseInt(index, 10) % 2) {
+		if (i % 2) {
 			keyboard.row();
 		}
 	}
+
+	keyboard.text(labels.save, "save");
 
 	return keyboard;
 }

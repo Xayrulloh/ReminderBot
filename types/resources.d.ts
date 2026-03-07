@@ -57,13 +57,13 @@ interface Resources {
 		selectDayOptions: ["Bugun", "Boshqa kun"];
 		setPrayerTimes: "Xabarnoma kelishini hohlagan vaqtlaringizni belgilang va saqlang";
 		setPrayerTimesKeyboard: {
-			asr: "🌆 Asr {{state}}";
-			dhuhr: "🌾 Peshin {{state}}";
-			fajr: "🏙 Bomdod {{state}}";
-			isha: "🌃 Xufton {{state}}";
-			maghrib: "🌉 Shom {{state}}";
+			asr: "🌆 Asr";
+			dhuhr: "🌾 Peshin";
+			fajr: "🏙 Bomdod";
+			isha: "🌃 Xufton";
+			maghrib: "🌉 Shom";
 			save: "✅ Saqlash";
-			sunrise: "🌅 Quyosh {{state}}";
+			sunrise: "🌅 Quyosh";
 		};
 		shareBot: "https://t.me/namoz5vbot\n\nAssalomu alaykum. Aziz foydalanuvchi, agarda ushbu botni foydali deb hisoblasangiz, iltimos o'z yaqinlaringiz bilan ulashishni hamda Telegram guruhlariga qo'shishni unutmang.\n\n Biz bilan birga bo'lganingizdan juda mamnunmiz 😊";
 		shareMessage: "Ushbu botni yaqinlaringizga ham ulashing va namoz o'z vaqtida o'qilishiga sababchi bo'ling";

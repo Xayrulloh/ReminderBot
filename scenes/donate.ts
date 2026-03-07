@@ -7,11 +7,7 @@ import { env } from "#utils/env";
 const scene = new Scene<BotContext>("Donate");
 
 scene.step(async (ctx) => {
-	const message = t(($) => $.donateMessage);
-
-	ctx.session.message = message;
-
-	await ctx.reply(message);
+	await ctx.reply(t(($) => $.donateMessage));
 });
 
 scene.wait("amount").on("message:text", async (ctx) => {
@@ -48,7 +44,7 @@ scene.wait("amount").on("message:text", async (ctx) => {
 
 		ctx.scene.exit();
 	} else {
-		await ctx.reply(ctx.session.message);
+		await ctx.reply(t(($) => $.donateMessage));
 	}
 });
 

@@ -9,60 +9,56 @@ import { DAILY_HADITH_KEY } from "#utils/constants";
 import dayjs from "#utils/dayjs";
 import { getPrayerTimes } from "#utils/prayerTimes";
 
+const REGION_IDS = regionsData.map((r) => r.id);
+const REGION_KEYBOARD = regionsData.map((r) => ({
+	view: r.name,
+	text: String(r.id),
+}));
+
 const scene = new Scene<BotContext>("Search");
 
 scene.step(async (ctx) => {
-	const message = t(($) => $.searchRegion);
-	const keyboard = regionsData.map((r) => ({
-		view: r.name,
-		text: String(r.id),
-	}));
+	const buttons = inlineKFunction(3, REGION_KEYBOARD);
 
-	const buttons = inlineKFunction(3, keyboard);
-
-	ctx.session.message = message;
-	ctx.session.buttons = buttons;
-	ctx.session.regionIds = regionsData.map((r) => r.id);
 	ctx.session.currPage = 1;
-	ctx.session.keyboard = keyboard;
 
-	await ctx.reply(message, { reply_markup: buttons });
+	await ctx.reply(t(($) => $.searchRegion), { reply_markup: buttons });
 });
 
 scene.wait("region").on("callback_query:data", async (ctx) => {
 	const inputData = ctx.update.callback_query.data;
 
 	if (
-		ctx.session.regionIds.includes(+inputData) ||
+		REGION_IDS.includes(+inputData) ||
 		["<", ">"].includes(inputData)
 	) {
 		if (["<", ">", "pageNumber"].includes(inputData)) {
 			if (inputData === "<" && ctx.session.currPage !== 1) {
 				await ctx.answerCallbackQuery();
 
-				ctx.session.buttons = inlineKFunction(
+				const buttons = inlineKFunction(
 					3,
-					ctx.session.keyboard,
+					REGION_KEYBOARD,
 					--ctx.session.currPage,
 				);
 
-				await ctx.editMessageText(ctx.session.message, {
-					reply_markup: ctx.session.buttons,
+				await ctx.editMessageText(t(($) => $.searchRegion), {
+					reply_markup: buttons,
 				});
 			} else if (
 				inputData === ">" &&
-				ctx.session.currPage * 12 <= ctx.session.regionIds.length
+				ctx.session.currPage * 12 <= REGION_IDS.length
 			) {
 				await ctx.answerCallbackQuery();
 
-				ctx.session.buttons = inlineKFunction(
+				const buttons = inlineKFunction(
 					3,
-					ctx.session.keyboard,
+					REGION_KEYBOARD,
 					++ctx.session.currPage,
 				);
 
-				await ctx.editMessageText(ctx.session.message, {
-					reply_markup: ctx.session.buttons,
+				await ctx.editMessageText(t(($) => $.searchRegion), {
+					reply_markup: buttons,
 				});
 			} else {
 				await ctx.answerCallbackQuery(t(($) => $.wrongSelection));

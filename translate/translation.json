@@ -45,12 +45,12 @@
 	"welcome": "Xush kelibsiz",
 	"setPrayerTimes": "Xabarnoma kelishini hohlagan vaqtlaringizni belgilang va saqlang",
 	"setPrayerTimesKeyboard": {
-		"fajr": "\uD83C\uDFD9 Bomdod {{state}}",
-		"sunrise": "\uD83C\uDF05 Quyosh {{state}}",
-		"dhuhr": "\uD83C\uDF3E Peshin {{state}}",
-		"asr": "\uD83C\uDF06 Asr {{state}}",
-		"maghrib": "\uD83C\uDF09 Shom {{state}}",
-		"isha": "\uD83C\uDF03 Xufton {{state}}",
+		"fajr": "\uD83C\uDFD9 Bomdod",
+		"sunrise": "\uD83C\uDF05 Quyosh",
+		"dhuhr": "\uD83C\uDF3E Peshin",
+		"asr": "\uD83C\uDF06 Asr",
+		"maghrib": "\uD83C\uDF09 Shom",
+		"isha": "\uD83C\uDF03 Xufton",
 		"save": "\u2705 Saqlash"
 	},
 	"enter": "Kirish",

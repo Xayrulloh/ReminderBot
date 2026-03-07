@@ -1,19 +1,12 @@
-import type { Context, InlineKeyboard, SessionFlavor } from "grammy";
+import type { Context, SessionFlavor } from "grammy";
 import type { ScenesFlavor, ScenesSessionData } from "grammy-scenes";
 import type { IGroup, IUser } from "#types/database";
 
 interface AppSessionData {
-	message: string;
-	buttons: InlineKeyboard;
-	regionIds: number[];
-	selectedRegionId: number;
 	currPage: number;
-	keyboard: { view: string; text: string }[];
-	keyboardMessage: string[];
+	selectedRegionId: number;
 	hadith: string;
 	notificationSetting: Record<string, boolean>;
-	setPrayerTimesMessage: Record<string, string>;
-	prayerTimes: string[];
 	isIndividual: boolean;
 	toWhom: string;
 }

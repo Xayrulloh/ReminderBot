@@ -11,25 +11,21 @@ import { DAILY_HADITH_KEY } from "#utils/constants";
 import dayjs from "#utils/dayjs";
 import { getPrayerTimes } from "#utils/prayerTimes";
 
+const REGION_IDS = regionsData.map((r) => r.id);
+const REGION_KEYBOARD = regionsData.map((r) => ({
+	view: r.name,
+	text: String(r.id),
+}));
+
 const scene = new Scene<BotContext>("Start");
 
 // region
 scene.step(async (ctx) => {
-	const message = t(($) => $.chooseRegion);
-	const keyboard = regionsData.map((r) => ({
-		view: r.name,
-		text: String(r.id),
-	}));
+	const buttons = inlineKFunction(3, REGION_KEYBOARD);
 
-	const buttons = inlineKFunction(3, keyboard);
-
-	ctx.session.regionIds = regionsData.map((r) => r.id);
-	ctx.session.message = message;
-	ctx.session.buttons = buttons;
 	ctx.session.currPage = 1;
-	ctx.session.keyboard = keyboard;
 
-	await ctx.reply(message, { reply_markup: buttons });
+	await ctx.reply(t(($) => $.chooseRegion), { reply_markup: buttons });
 });
 
 // fasting
@@ -37,7 +33,7 @@ scene.wait("fasting").on("callback_query:data", async (ctx) => {
 	const inputData = ctx.update.callback_query.data;
 
 	if (
-		!ctx.session.regionIds.includes(+inputData) &&
+		!REGION_IDS.includes(+inputData) &&
 		!["<", ">"].includes(inputData)
 	) {
 		await ctx.answerCallbackQuery(t(($) => $.wrongSelection));
@@ -47,30 +43,30 @@ scene.wait("fasting").on("callback_query:data", async (ctx) => {
 		if (inputData === "<" && ctx.session.currPage !== 1) {
 			await ctx.answerCallbackQuery();
 
-			ctx.session.buttons = inlineKFunction(
+			const buttons = inlineKFunction(
 				3,
-				ctx.session.keyboard,
+				REGION_KEYBOARD,
 				--ctx.session.currPage,
 			);
 
-			await ctx.editMessageText(ctx.session.message, {
-				reply_markup: ctx.session.buttons,
+			await ctx.editMessageText(t(($) => $.chooseRegion), {
+				reply_markup: buttons,
 				parse_mode: "HTML",
 			});
 		} else if (
 			inputData === ">" &&
-			ctx.session.currPage * 12 <= ctx.session.regionIds.length
+			ctx.session.currPage * 12 <= REGION_IDS.length
 		) {
 			await ctx.answerCallbackQuery();
 
-			ctx.session.buttons = inlineKFunction(
+			const buttons = inlineKFunction(
 				3,
-				ctx.session.keyboard,
+				REGION_KEYBOARD,
 				++ctx.session.currPage,
 			);
 
-			await ctx.editMessageText(ctx.session.message, {
-				reply_markup: ctx.session.buttons,
+			await ctx.editMessageText(t(($) => $.chooseRegion), {
+				reply_markup: buttons,
 				parse_mode: "HTML",
 			});
 		} else {
@@ -81,7 +77,6 @@ scene.wait("fasting").on("callback_query:data", async (ctx) => {
 
 		ctx.session.selectedRegionId = +ctx.update.callback_query.data;
 
-		const message = t(($) => $.fastingMessage);
 		const keyboardMessage = t(($) => $.agreementFasting, {
 			returnObjects: true,
 		});
@@ -90,25 +85,26 @@ scene.wait("fasting").on("callback_query:data", async (ctx) => {
 			{ view: keyboardMessage[1], text: keyboardMessage[1] },
 		]);
 
-		ctx.session.keyboardMessage = keyboardMessage;
-		ctx.session.message = message;
-		ctx.session.buttons = buttons;
-
-		await ctx.editMessageText(message, { reply_markup: buttons });
+		await ctx.editMessageText(t(($) => $.fastingMessage), {
+			reply_markup: buttons,
+		});
 		ctx.scene.resume();
 	}
 });
 
 // the end
 scene.wait("the_end").on("callback_query:data", async (ctx) => {
-	if (!ctx.session.keyboardMessage.includes(ctx.update.callback_query.data)) {
+	const keyboardMessage = t(($) => $.agreementFasting, {
+		returnObjects: true,
+	});
+
+	if (!(keyboardMessage as string[]).includes(ctx.update.callback_query.data)) {
 		return ctx.answerCallbackQuery(t(($) => $.wrongSelection));
 	}
 
 	await ctx.answerCallbackQuery();
 
-	const fasting =
-		ctx.session.keyboardMessage[0] === ctx.update.callback_query.data;
+	const fasting = keyboardMessage[0] === ctx.update.callback_query.data;
 
 	const now = dayjs();
 	const data = getPrayerTimes(ctx.session.selectedRegionId, now.toDate());
