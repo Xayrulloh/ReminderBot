@@ -1,14 +1,6 @@
 import { CalculationMethod, Coordinates, Madhab, PrayerTimes } from 'adhan'
-import axios from 'axios'
-import fallbackRegions from '#config/regions.json'
-import dayjs from '#utils/dayjs'
-
-interface Region {
-  id: number
-  name: string
-  latitude: number
-  longitude: number
-}
+import regions from '#config/regions.json'
+import dayjs from './dayjs'
 
 export interface PrayerTimesResult {
   region: string
@@ -19,29 +11,6 @@ export interface PrayerTimesResult {
   asr: string
   maghrib: string
   isha: string
-}
-
-let regions: Region[] = []
-
-export async function initRegions(): Promise<void> {
-  try {
-    const { data } = await axios.get<{ id: number; name: string; latitude: string; longitude: string }[]>(
-      'https://new.islom.uz/api/v1/regions',
-      { timeout: 5000 },
-    )
-    regions = data
-      .map((r) => ({
-        id: r.id,
-        name: r.name,
-        latitude: parseFloat(r.latitude),
-        longitude: parseFloat(r.longitude),
-      }))
-      .filter((r) => !Number.isNaN(r.latitude) && !Number.isNaN(r.longitude))
-    console.info(`Loaded ${regions.length} regions from API`)
-  } catch (_error) {
-    console.warn('Failed to fetch regions from API, using static fallback')
-    regions = fallbackRegions
-  }
 }
 
 export function getRegionIds(): number[] {
@@ -57,7 +26,9 @@ export function getPrayerTimes(regionId: number, date: Date): PrayerTimesResult 
   if (!region) return null
 
   const coordinates = new Coordinates(region.latitude, region.longitude)
-  const params = CalculationMethod.MuslimWorldLeague()
+  const params = CalculationMethod.Other()
+  params.fajrAngle = 15.5
+  params.ishaAngle = 15.5
   params.madhab = Madhab.Hanafi
 
   const prayerTimes = new PrayerTimes(coordinates, date, params)
@@ -69,7 +40,9 @@ export function getPrayerTimes(regionId: number, date: Date): PrayerTimesResult 
     sunrise: formatTime(prayerTimes.sunrise),
     dhuhr: formatTime(prayerTimes.dhuhr),
     asr: formatTime(prayerTimes.asr),
-    maghrib: formatTime(prayerTimes.maghrib),
+    // +4 min ihtiyat (precautionary buffer) — adhan computes astronomical sunset,
+    // but Hanafi practice requires the full solar disk to disappear below the horizon
+    maghrib: formatTime(new Date(prayerTimes.maghrib.getTime() + 4 * 60_000)),
     isha: formatTime(prayerTimes.isha),
   }
 }

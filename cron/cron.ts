@@ -11,7 +11,7 @@ import customKFunction from '#keyboard/custom'
 import type { BotContext } from '#types/context'
 import type { IGroup, IUser } from '#types/database'
 import dayjs from '#utils/dayjs'
-import { type PrayerTimesResult, getPrayerTimes, initRegions, getRegionIds } from '#utils/prayerTimes'
+import { type PrayerTimesResult, getPrayerTimes, getRegionIds } from '#utils/prayerTimes'
 
 const ACTIVE_USER_FILTER = { deletedAt: null, status: true }
 
@@ -132,8 +132,6 @@ async function reminder(bot: Bot<BotContext>) {
 }
 
 export async function cronStarter(bot: Bot<BotContext>) {
-  await initRegions()
-
   cron.schedule(
     '0 1 * * *',
     async () => {

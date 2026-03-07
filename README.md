@@ -125,10 +125,10 @@ erDiagram
 
 ## Scheduled Jobs (Cron)
 
-| Schedule        | Job                      | Description                                                                                                       |
-| --------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------- |
-| `0 1 * * *` (daily) | `daily()` + `reminder()` | Sends morning prayer time summaries to all active users & groups; reschedules per-prayer alerts               |
-| Per-prayer time | `reminder()`             | Sends individual prayer-time alerts (Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha) based on each region's exact times |
+| Schedule            | Job                      | Description                                                                                                       |
+| ------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `0 1 * * *` (daily) | `daily()` + `reminder()` | Sends morning prayer time summaries to all active users & groups; reschedules per-prayer alerts                   |
+| Per-prayer time     | `reminder()`             | Sends individual prayer-time alerts (Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha) based on each region's exact times |
 
 ---
 
