@@ -25,7 +25,6 @@ export async function inlineQuery(ctx: BotContext) {
 		input_message_content: inputMessageContent,
 	};
 
-	// if not inline query
 	if (!inlineQueryMessage) {
 		responseObj.title = t(($) => $.startSearch);
 		responseObj.description = t(($) => $.searchPlace);
@@ -34,14 +33,11 @@ export async function inlineQuery(ctx: BotContext) {
 		return await ctx.answerInlineQuery([responseObj]);
 	}
 
-	// if exist inline query
-	const search = fuzzy.filter(
-		inlineQueryMessage,
-		regionsData.map((r) => r.name),
-	);
+	const matches = fuzzy
+		.filter(inlineQueryMessage, regionsData, { extract: (r) => r.name })
+		.slice(0, 3);
 
-	// but not result
-	if (!search.length) {
+	if (!matches.length) {
 		responseObj.title = t(($) => $.notFound);
 		responseObj.description = t(($) => $.notFoundDescription, {
 			inlineQueryText: inlineQueryMessage,
@@ -53,51 +49,41 @@ export async function inlineQuery(ctx: BotContext) {
 		return await ctx.answerInlineQuery([responseObj]);
 	}
 
-	// if result is exist
-	const regionIds = [
-		...new Set(
-			search
-				.map((result) => regionsData.find((r) => r.name === result.string)?.id)
-				.filter((id): id is number => id !== undefined),
-		),
-	].slice(0, 3);
-
 	const now = dayjs();
-	const prayerRegions = regionIds
-		.map((id) => getPrayerTimes(id, now.toDate()))
-		.filter((r): r is NonNullable<typeof r> => r !== null);
-	const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String();
+	const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? "";
+	const keyboard = new InlineKeyboard()
+		.url(
+			t(($) => $.enter),
+			`https://t.me/${ctx.me.username}`,
+		)
+		.row()
+		.url(
+			t(($) => $.addToGroup),
+			`https://t.me/${ctx.me.username}?startgroup=${ctx.me.username}`,
+		);
+
 	const response: InlineQueryResult[] = [];
-	const keyboard = new InlineKeyboard();
-	const enterMessage = t(($) => $.enter);
-	const addToGroupMessage = t(($) => $.addToGroup);
 
-	keyboard.url(enterMessage, `https://t.me/${ctx.me.username}`);
-	keyboard.row();
-	keyboard.url(
-		addToGroupMessage,
-		`https://t.me/${ctx.me.username}?startgroup=${ctx.me.username}`,
-	);
-
-	for (const region of prayerRegions) {
-		const regionName =
-			regionsData.find((r) => r.id === region.regionId)?.name ?? "";
+	for (const match of matches) {
+		const region = match.original;
+		const prayerTimes = getPrayerTimes(region.id, now.toDate());
+		if (!prayerTimes) continue;
 
 		const content = t(($) => $.infoPrayTime, {
-			region: regionName,
-			fajr: region.fajr,
-			sunrise: region.sunrise,
-			zuhr: region.dhuhr,
-			asr: region.asr,
-			maghrib: region.maghrib,
-			isha: region.isha,
+			region: region.name,
+			fajr: prayerTimes.fajr,
+			sunrise: prayerTimes.sunrise,
+			zuhr: prayerTimes.dhuhr,
+			asr: prayerTimes.asr,
+			maghrib: prayerTimes.maghrib,
+			isha: prayerTimes.isha,
 			date: now.format("DD/MM/YYYY"),
 		});
 
 		response.push({
 			type: "article",
 			id: crypto.randomUUID(),
-			title: regionName,
+			title: region.name,
 			description: content,
 			input_message_content: {
 				message_text: content + dailyHadith,
