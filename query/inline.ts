@@ -10,6 +10,10 @@ import { DAILY_HADITH_KEY } from '#utils/constants'
 import dayjs from '#utils/dayjs'
 import { getPrayerTimes } from '#utils/prayerTimes'
 
+// Handles inline queries: fuzzy-matches the user's input against region names
+// and returns up to 3 prayer time results with a daily hadith appended.
+// Shows a search hint when the query is empty, or a "not found" message
+// when no regions match.
 export async function inlineQuery(ctx: BotContext) {
   const inlineQueryMessage = ctx.inlineQuery?.query
   const tryAgain: string = t(($) => $.tryAgain)
