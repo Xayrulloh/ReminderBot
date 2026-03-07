@@ -1,68 +1,76 @@
-import { Scene } from 'grammy-scenes'
-import Model from '#config/database'
-import { t } from '#config/i18n'
-import { InlineKeyboard } from 'grammy'
-import { BotContext } from '#types/context'
-import { IUser } from '#types/database'
+import { InlineKeyboard } from "grammy";
+import { Scene } from "grammy-scenes";
+import Model from "#config/database";
+import { t } from "#config/i18n";
+import type { BotContext } from "#types/context";
+import type { IUser } from "#types/database";
 
-const scene = new Scene<BotContext>('Notification')
+const scene = new Scene<BotContext>("Notification");
 
 scene.step(async (ctx) => {
-  const message = t($ => $.setPrayerTimes)
-  const setPrayerTimesMessage = t($ => $.setPrayerTimesKeyboard, { returnObjects: true })
+	const message = t(($) => $.setPrayerTimes);
+	const setPrayerTimesMessage = t(($) => $.setPrayerTimesKeyboard, {
+		returnObjects: true,
+	});
 
-  ctx.session.notificationSetting = ctx.user.notificationSetting
-  ctx.session.setPrayerTimesMessage = setPrayerTimesMessage
-  ctx.session.message = message
-  ctx.session.prayerTimes = Object.keys(setPrayerTimesMessage)
+	ctx.session.notificationSetting = ctx.user.notificationSetting;
+	ctx.session.setPrayerTimesMessage = setPrayerTimesMessage;
+	ctx.session.message = message;
+	ctx.session.prayerTimes = Object.keys(setPrayerTimesMessage);
 
-  const settingKeyboard = buildSettingKeyboard(ctx)
+	const settingKeyboard = buildSettingKeyboard(ctx);
 
-  await ctx.reply(message, { reply_markup: settingKeyboard })
-})
+	await ctx.reply(message, { reply_markup: settingKeyboard });
+});
 
-scene.wait('notification_settings').on('callback_query:data', async (ctx) => {
-  if (!ctx.session.setPrayerTimesMessage[ctx.callbackQuery.data]) {
-    return ctx.answerCallbackQuery(t($ => $.wrongSelection))
-  }
+scene.wait("notification_settings").on("callback_query:data", async (ctx) => {
+	if (!ctx.session.setPrayerTimesMessage[ctx.callbackQuery.data]) {
+		return ctx.answerCallbackQuery(t(($) => $.wrongSelection));
+	}
 
-  await ctx.answerCallbackQuery()
+	await ctx.answerCallbackQuery();
 
-  if (ctx.callbackQuery.data !== 'save') {
-    ctx.session.notificationSetting[ctx.callbackQuery.data] = !ctx.session.notificationSetting[ctx.callbackQuery.data]
-    const settingKeyboard = buildSettingKeyboard(ctx)
-    return ctx.editMessageText(ctx.session.message, { reply_markup: settingKeyboard })
-  }
+	if (ctx.callbackQuery.data !== "save") {
+		ctx.session.notificationSetting[ctx.callbackQuery.data] =
+			!ctx.session.notificationSetting[ctx.callbackQuery.data];
+		const settingKeyboard = buildSettingKeyboard(ctx);
+		return ctx.editMessageText(ctx.session.message, {
+			reply_markup: settingKeyboard,
+		});
+	}
 
-  await Model.User.updateOne<IUser>(
-    { userId: ctx.user.userId },
-    {
-      notificationSetting: ctx.session.notificationSetting,
-    },
-  )
-  await ctx.editMessageText(t($ => $.notifChange))
-  return ctx.scene.exit()
-})
+	await Model.User.updateOne<IUser>(
+		{ userId: ctx.user.userId },
+		{
+			notificationSetting: ctx.session.notificationSetting,
+		},
+	);
+	await ctx.editMessageText(t(($) => $.notifChange));
+	return ctx.scene.exit();
+});
 
 function buildSettingKeyboard(ctx: BotContext) {
-  const keyboard = new InlineKeyboard()
+	const keyboard = new InlineKeyboard();
 
-  for (const index in ctx.session.prayerTimes) {
-    const key = ctx.session.prayerTimes[index]
-    let text = ctx.session.setPrayerTimesMessage[key]
+	for (const index in ctx.session.prayerTimes) {
+		const key = ctx.session.prayerTimes[index];
+		let text = ctx.session.setPrayerTimesMessage[key];
 
-    if (key !== 'save') {
-      text = text.replace('{{state}}', ctx.session.notificationSetting[key] ? '✅' : '❌')
-    }
+		if (key !== "save") {
+			text = text.replace(
+				"{{state}}",
+				ctx.session.notificationSetting[key] ? "✅" : "❌",
+			);
+		}
 
-    keyboard.text(text, key)
+		keyboard.text(text, key);
 
-    if (parseInt(index) % 2) {
-      keyboard.row()
-    }
-  }
+		if (parseInt(index, 10) % 2) {
+			keyboard.row();
+		}
+	}
 
-  return keyboard
+	return keyboard;
 }
 
-export default scene
+export default scene;

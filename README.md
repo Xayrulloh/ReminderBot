@@ -1,17 +1,20 @@
 # ReminderBot — Telegram Prayer Time [Reminder Bot](https://t.me/namoz5vbot)
 
 ![Telegram Bot](https://img.shields.io/badge/Telegram%20Bot-ReminderBot-blue)
-![Version](https://img.shields.io/badge/Version-4.0.0-orange)
-![License](https://img.shields.io/badge/License-MIT-green)
+![Version](https://img.shields.io/badge/Version-4.0.0-orange) ![License](https://img.shields.io/badge/License-MIT-green)
 ![Node](https://img.shields.io/badge/Node.js-24.x-brightgreen)
 
-ReminderBot is a feature-rich Telegram bot that reminds users of daily Islamic prayer times. It works in both **private chats** and **group chats**, configurable notifications, inline queries, daily hadiths, Quran references, fasting reminders, regional prayer time search, statistics tracking, and more. Built with **Node.js**, **grammY**, **MongoDB**, and **TypeScript**.
+ReminderBot is a feature-rich Telegram bot that reminds users of daily Islamic prayer times. It works in both **private
+chats** and **group chats**, configurable notifications, inline queries, daily hadiths, Quran references, fasting
+reminders, regional prayer time search, statistics tracking, and more. Built with **Node.js**, **grammY**, **MongoDB**,
+and **TypeScript**.
 
 ---
 
 ## Key Features
 
 ### 🧑 Private Chat
+
 - **Region-based prayer times** — users select their region on first start.
 - **Fasting mode** — customized messages for Suhoor (Fajr) and Iftar (Maghrib).
 - **Configurable prayer notifications** — individually toggle alerts for Fajr, Sunrise, Dhuhr, Asr, Maghrib, and Isha.
@@ -29,12 +32,16 @@ ReminderBot is a feature-rich Telegram bot that reminds users of daily Islamic p
 - **Weekly share reminder** — users receive a weekly message encouraging them to share or add the bot to groups.
 
 ### 👥 Group Chat
+
 - **Group registration** — when the bot is added to a group, it automatically starts the region-selection flow.
-- **Group region setup** (`GroupStart` scene) — admin selects the group's region via paginated inline keyboard; prayer times are shown immediately after selection.
+- **Group region setup** (`GroupStart` scene) — admin selects the group's region via paginated inline keyboard; prayer
+  times are shown immediately after selection.
 - **Group location update** (`GroupLocation` scene) — change the group's region at any time using `/location`.
-- **Daily group reminders** — groups receive the same daily prayer time message as private users (without fasting-specific content).
+- **Daily group reminders** — groups receive the same daily prayer time message as private users (without
+  fasting-specific content).
 - **Friday Juma image** — groups also receive the Juma Mubarak photo on Fridays.
-- **Auto-deactivation** — when the bot is removed from a group, the group is automatically marked inactive and stops receiving messages.
+- **Auto-deactivation** — when the bot is removed from a group, the group is automatically marked inactive and stops
+  receiving messages.
 - **In-memory group cache** — group data is cached in memory for fast access without repeated DB queries.
 
 ---
@@ -119,35 +126,37 @@ erDiagram
 
 ## Scheduled Jobs (Cron)
 
-| Schedule | Job | Description |
-|---|---|---|
-| `30 0 1 * *` (monthly) | `monthly()` | Fetches prayer time PDFs from the API and refreshes the entire `PrayTime` collection |
-| `0 1 * * *` (daily) | `daily()` + `reminder()` | Sends morning prayer time summaries to all active users & groups; reschedules per-prayer alerts |
-| Per-prayer time | `reminder()` | Sends individual prayer-time alerts (Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha) based on each region's exact times |
-| `0 13 * * 1` (weekly, Monday) | `weekly()` | Sends a share/invite message to all active users and groups |
+| Schedule                      | Job                      | Description                                                                                                       |
+| ----------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `30 0 1 * *` (monthly)        | `monthly()`              | Fetches prayer time PDFs from the API and refreshes the entire `PrayTime` collection                              |
+| `0 1 * * *` (daily)           | `daily()` + `reminder()` | Sends morning prayer time summaries to all active users & groups; reschedules per-prayer alerts                   |
+| Per-prayer time               | `reminder()`             | Sends individual prayer-time alerts (Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha) based on each region's exact times |
+| `0 13 * * 1` (weekly, Monday) | `weekly()`               | Sends a share/invite message to all active users and groups                                                       |
 
 ---
 
 ## Bot Commands
 
 ### Private Chat
-| Command | Description |
-|---|---|
-| `/start` | Register and set up region & fasting preference |
-| `/location` | Change your region |
-| `/notification` | Toggle per-prayer notifications |
-| `/fasting` | Toggle fasting mode |
-| `/search` | Search prayer times by region name |
-| `/hadith` | Browse hadiths |
-| `/quran` | Access Quran & Tafsir |
-| `/source` | View prayer time data source |
-| `/statistic` | View bot statistics |
-| `/feedback` | Send feedback to the team |
+
+| Command         | Description                                     |
+| --------------- | ----------------------------------------------- |
+| `/start`        | Register and set up region & fasting preference |
+| `/location`     | Change your region                              |
+| `/notification` | Toggle per-prayer notifications                 |
+| `/fasting`      | Toggle fasting mode                             |
+| `/search`       | Search prayer times by region name              |
+| `/hadith`       | Browse hadiths                                  |
+| `/quran`        | Access Quran & Tafsir                           |
+| `/source`       | View prayer time data source                    |
+| `/statistic`    | View bot statistics                             |
+| `/feedback`     | Send feedback to the team                       |
 
 ### Group Chat
-| Command | Description |
-|---|---|
-| `/start` | Activate the bot in the group |
+
+| Command     | Description                           |
+| ----------- | ------------------------------------- |
+| `/start`    | Activate the bot in the group         |
 | `/location` | Change the group's prayer time region |
 
 ---
@@ -183,22 +192,22 @@ Copy `.env.example` to `.env` and fill in the values:
 cp .env.example .env
 ```
 
-| Variable | Description |
-|---|---|
-| `NODE_ENV` | `dev` or `prod` |
-| `TOKEN` | Telegram Bot API token from [@BotFather](https://t.me/BotFather) |
-| `MONGO_URL` | MongoDB connection string |
-| `PAYME_URL` / `PAYME_ENDPOINT` / `CARD` | Payment integration (optional) |
-| `DISCORD_WEBHOOK_URL` | Discord webhook for logging |
-| `DISCORD_LOGS_THREAD_ID` | Discord thread ID for general logs |
-| `DISCORD_FLOOD_THREAD_ID` | Discord thread ID for flood/unknown messages |
-| `DISCORD_FEEDBACK_THREAD_ID` | Discord thread ID for user feedback |
-| `SESSION_TTL` | Session TTL in milliseconds |
-| `WEBHOOK_PORT` | Port for the Fastify webhook server |
-| `WEBHOOK_URL` | Public HTTPS URL for the webhook |
-| `WEBHOOK_ENABLED` | `true` to use webhook mode, `false` for long-polling |
-| `LIMIT` | Rate limit (requests per second) |
-| `QURON_VA_TAFSIRI_URL` | Quran & Tafsir API URL |
+| Variable                                | Description                                                      |
+| --------------------------------------- | ---------------------------------------------------------------- |
+| `NODE_ENV`                              | `dev` or `prod`                                                  |
+| `TOKEN`                                 | Telegram Bot API token from [@BotFather](https://t.me/BotFather) |
+| `MONGO_URL`                             | MongoDB connection string                                        |
+| `PAYME_URL` / `PAYME_ENDPOINT` / `CARD` | Payment integration (optional)                                   |
+| `DISCORD_WEBHOOK_URL`                   | Discord webhook for logging                                      |
+| `DISCORD_LOGS_THREAD_ID`                | Discord thread ID for general logs                               |
+| `DISCORD_FLOOD_THREAD_ID`               | Discord thread ID for flood/unknown messages                     |
+| `DISCORD_FEEDBACK_THREAD_ID`            | Discord thread ID for user feedback                              |
+| `SESSION_TTL`                           | Session TTL in milliseconds                                      |
+| `WEBHOOK_PORT`                          | Port for the Fastify webhook server                              |
+| `WEBHOOK_URL`                           | Public HTTPS URL for the webhook                                 |
+| `WEBHOOK_ENABLED`                       | `true` to use webhook mode, `false` for long-polling             |
+| `LIMIT`                                 | Rate limit (requests per second)                                 |
+| `QURON_VA_TAFSIRI_URL`                  | Quran & Tafsir API URL                                           |
 
 ---
 
@@ -221,17 +230,17 @@ pnpm start
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Runtime | Node.js 24.x |
-| Language | TypeScript 5.x |
-| Bot Framework | [grammY](https://grammy.dev/) + grammy-scenes |
-| Database | MongoDB via Mongoose |
-| Scheduler | node-cron + node-schedule |
-| HTTP Server | Fastify (webhook mode) |
-| Logging | Discord Webhooks (discord.js) |
-| Validation | Zod |
-| Package Manager | pnpm 10.x |
+| Layer           | Technology                                    |
+| --------------- | --------------------------------------------- |
+| Runtime         | Node.js 24.x                                  |
+| Language        | TypeScript 5.x                                |
+| Bot Framework   | [grammY](https://grammy.dev/) + grammy-scenes |
+| Database        | MongoDB via Mongoose                          |
+| Scheduler       | node-cron + node-schedule                     |
+| HTTP Server     | Fastify (webhook mode)                        |
+| Logging         | Discord Webhooks (discord.js)                 |
+| Validation      | Zod                                           |
+| Package Manager | pnpm 10.x                                     |
 
 ---
 
@@ -241,4 +250,5 @@ This project is licensed under the MIT License — see the [LICENSE.txt](LICENSE
 
 ---
 
-> **Security Note:** Never commit your `.env` file or share your bot token publicly. Keep all secrets out of version control.
+> **Security Note:** Never commit your `.env` file or share your bot token publicly. Keep all secrets out of version
+> control.

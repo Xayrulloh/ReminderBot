@@ -1,10 +1,10 @@
-import utc from 'dayjs/plugin/utc'
-import timezone from 'dayjs/plugin/timezone'
-import dayjs from 'dayjs'
-import { TZ } from '#utils/constants'
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+import { TZ } from "#utils/constants";
 
-dayjs.extend(utc)
-dayjs.extend(timezone)
-dayjs.tz.setDefault(TZ)
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault(TZ);
 
-export default dayjs.tz
+export default dayjs.tz;

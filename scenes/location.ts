@@ -1,100 +1,118 @@
-import { Scene } from 'grammy-scenes'
-import Model from '#config/database'
-import inlineKFunction from '#keyboard/inline'
-import { t } from '#config/i18n'
-import { regions } from '#config/regions'
-import { BotContext } from '#types/context'
-import { memoryStorage } from '#config/storage'
-import { DAILY_HADITH_KEY } from '#utils/constants'
-import { IUser } from '#types/database'
-import { getPrayerTimes } from '#utils/prayerTimes'
-import dayjs from '#utils/dayjs'
+import { Scene } from "grammy-scenes";
+import Model from "#config/database";
+import { t } from "#config/i18n";
+import regionsData from "#config/regions.json";
+import { memoryStorage } from "#config/storage";
+import inlineKFunction from "#keyboard/inline";
+import type { BotContext } from "#types/context";
+import type { IUser } from "#types/database";
+import { DAILY_HADITH_KEY } from "#utils/constants";
+import dayjs from "#utils/dayjs";
+import { getPrayerTimes } from "#utils/prayerTimes";
 
-let scene = new Scene<BotContext>('Location')
+const scene = new Scene<BotContext>("Location");
 
 scene.step(async (ctx) => {
-  const message = `${t($ => $.currentRegion)} <b>${ctx.user.region}</b>\n\n ${t($ => $.chooseRegion)}`
-  const keyboard = []
+	const message = `${t(($) => $.currentRegion)} <b>${ctx.user.region}</b>\n\n ${t(($) => $.chooseRegion)}`;
+	const keyboard = regionsData.map((r) => ({
+		view: r.name,
+		text: String(r.id),
+	}));
 
-  for (let region in regions) {
-    keyboard.push({ view: region, text: String(regions[region]) })
-  }
+	const buttons = inlineKFunction(3, keyboard);
 
-  const buttons = inlineKFunction(3, keyboard)
+	ctx.session.message = message;
+	ctx.session.buttons = buttons;
+	ctx.session.regionIds = regionsData.map((r) => r.id);
+	ctx.session.currPage = 1;
+	ctx.session.keyboard = keyboard;
 
-  ctx.session.message = message
-  ctx.session.buttons = buttons
-  ctx.session.regionId = Object.values(regions)
-  ctx.session.regions = regions
-  ctx.session.currPage = 1
-  ctx.session.keyboard = keyboard
+	await ctx.reply(message, { reply_markup: buttons, parse_mode: "HTML" });
+});
 
-  await ctx.reply(message, { reply_markup: buttons, parse_mode: 'HTML' })
-})
+scene.wait("location").on("callback_query:data", async (ctx) => {
+	const inputData = ctx.update.callback_query.data;
 
-scene.wait('location').on('callback_query:data', async (ctx) => {
-  const inputData = ctx.update.callback_query.data
+	if (
+		ctx.session.regionIds.includes(+inputData) ||
+		["<", ">"].includes(inputData)
+	) {
+		if (["<", ">", "pageNumber"].includes(inputData)) {
+			if (inputData === "<" && ctx.session.currPage !== 1) {
+				await ctx.answerCallbackQuery();
 
-  if (ctx.session.regionId.includes(+inputData) || ['<', '>'].includes(inputData)) {
-    if (['<', '>', 'pageNumber'].includes(inputData)) {
-      if (inputData == '<' && ctx.session.currPage != 1) {
-        await ctx.answerCallbackQuery()
+				ctx.session.buttons = inlineKFunction(
+					3,
+					ctx.session.keyboard,
+					--ctx.session.currPage,
+				);
 
-        ctx.session.buttons = inlineKFunction(3, ctx.session.keyboard, --ctx.session.currPage)
+				await ctx.editMessageText(ctx.session.message, {
+					reply_markup: ctx.session.buttons,
+					parse_mode: "HTML",
+				});
+			} else if (
+				inputData === ">" &&
+				ctx.session.currPage * 12 <= ctx.session.regionIds.length
+			) {
+				await ctx.answerCallbackQuery();
 
-        await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons, parse_mode: 'HTML' })
-      } else if (inputData == '>' && ctx.session.currPage * 12 <= ctx.session.regionId.length) {
-        await ctx.answerCallbackQuery()
+				ctx.session.buttons = inlineKFunction(
+					3,
+					ctx.session.keyboard,
+					++ctx.session.currPage,
+				);
 
-        ctx.session.buttons = inlineKFunction(3, ctx.session.keyboard, ++ctx.session.currPage)
+				await ctx.editMessageText(ctx.session.message, {
+					reply_markup: ctx.session.buttons,
+					parse_mode: "HTML",
+				});
+			} else {
+				await ctx.answerCallbackQuery(t(($) => $.wrongSelection));
+			}
+		} else {
+			await ctx.answerCallbackQuery();
 
-        await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons, parse_mode: 'HTML' })
-      } else {
-        await ctx.answerCallbackQuery(t($ => $.wrongSelection))
-      }
-    } else {
-      await ctx.answerCallbackQuery()
+			const now = dayjs();
+			const data = getPrayerTimes(+inputData, now.toDate());
+			if (!data) return ctx.scene.exit();
 
-      const now = dayjs()
-      const data = getPrayerTimes(+inputData, now.toDate())
-      let regionName = ''
+			const regionName =
+				regionsData.find((r) => r.id === data.regionId)?.name ?? "";
 
-      if (!data) return ctx.scene.exit()
+			await Model.User.updateOne<IUser>(
+				{ userId: ctx.user.userId },
+				{ region: regionName, regionId: +inputData },
+			);
 
-      for (const key in ctx.session.regions) {
-        if (ctx.session.regions[key] === data.regionId) {
-          regionName = key
-          break
-        }
-      }
+			ctx.user.region = regionName;
+			ctx.user.regionId = +inputData;
 
-      await Model.User.updateOne<IUser>({ userId: ctx.user.userId }, { region: regionName, regionId: +inputData })
+			const response = t(($) => $.infoPrayTime, {
+				region: data.region,
+				fajr: data.fajr,
+				sunrise: data.sunrise,
+				zuhr: data.dhuhr,
+				asr: data.asr,
+				maghrib: data.maghrib,
+				isha: data.isha,
+				date: now.format("DD/MM/YYYY"),
+			});
+			const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String();
+			const locationMessage = t(($) => $.locationChange);
 
-      ctx.user.region = regionName
-      ctx.user.regionId = +inputData
+			await ctx.editMessageText(
+				`${locationMessage}\n\n${response}${dailyHadith}`,
+				{
+					parse_mode: "HTML",
+				},
+			);
 
-      const response = t($ => $.infoPrayTime, {
-        region: data.region,
-        fajr: data.fajr,
-        sunrise: data.sunrise,
-        zuhr: data.dhuhr,
-        asr: data.asr,
-        maghrib: data.maghrib,
-        isha: data.isha,
-        date: now.format('DD/MM/YYYY'),
-      })
-      const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
-      const locationMessage = t($ => $.locationChange)
+			ctx.scene.exit();
+		}
+	} else {
+		await ctx.answerCallbackQuery(t(($) => $.wrongSelection));
+	}
+});
 
-      await ctx.editMessageText(locationMessage + '\n\n' + response + dailyHadith, {
-        parse_mode: 'HTML',
-      })
-
-      ctx.scene.exit()
-    }
-  } else {
-    await ctx.answerCallbackQuery(t($ => $.wrongSelection))
-  }
-})
-
-export default scene
+export default scene;
