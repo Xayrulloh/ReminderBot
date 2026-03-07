@@ -29,7 +29,6 @@ and **TypeScript**.
 - **Statistics** — view bot usage and engagement stats.
 - **Source** — view the data source used for prayer times.
 - **Inline query** — query prayer times from any chat without opening the bot.
-- **Weekly share reminder** — users receive a weekly message encouraging them to share or add the bot to groups.
 
 ### 👥 Group Chat
 
@@ -51,7 +50,7 @@ and **TypeScript**.
 ```
 server.ts          — Bot entry point, middleware, command routing, webhook/polling setup
 scenes/            — grammY scene handlers (one file per feature flow)
-cron/cron.ts       — Scheduled jobs: monthly data fetch, daily reminders, prayer-time alerts, weekly share
+cron/cron.ts       — Scheduled jobs: monthly data fetch, daily reminders, prayer-time alerts
 config/database.ts — Mongoose models (User, PrayTime, Hadith, Group)
 config/storage.ts  — In-memory key-value store (group cache, daily hadith)
 helper/            — Language, replacer, keyboard mapper, error handler, hadith fetcher
@@ -131,7 +130,6 @@ erDiagram
 | `30 0 1 * *` (monthly)        | `monthly()`              | Fetches prayer time PDFs from the API and refreshes the entire `PrayTime` collection                              |
 | `0 1 * * *` (daily)           | `daily()` + `reminder()` | Sends morning prayer time summaries to all active users & groups; reschedules per-prayer alerts                   |
 | Per-prayer time               | `reminder()`             | Sends individual prayer-time alerts (Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha) based on each region's exact times |
-| `0 13 * * 1` (weekly, Monday) | `weekly()`               | Sends a share/invite message to all active users and groups                                                       |
 
 ---
 

@@ -14,7 +14,10 @@ scene.step(async (ctx) => {
 		{ view: keyboardMessage[1], text: keyboardMessage[1] },
 	]);
 
-	await ctx.reply(t(($) => $.fastingMessage), { reply_markup: buttons });
+	await ctx.reply(
+		t(($) => $.fastingMessage),
+		{ reply_markup: buttons },
+	);
 });
 
 scene.wait("fasting").on("callback_query:data", async (ctx) => {

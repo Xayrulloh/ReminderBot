@@ -22,16 +22,16 @@ scene.step(async (ctx) => {
 
 	ctx.session.currPage = 1;
 
-	await ctx.reply(t(($) => $.searchRegion), { reply_markup: buttons });
+	await ctx.reply(
+		t(($) => $.searchRegion),
+		{ reply_markup: buttons },
+	);
 });
 
 scene.wait("region").on("callback_query:data", async (ctx) => {
 	const inputData = ctx.update.callback_query.data;
 
-	if (
-		REGION_IDS.includes(+inputData) ||
-		["<", ">"].includes(inputData)
-	) {
+	if (REGION_IDS.includes(+inputData) || ["<", ">"].includes(inputData)) {
 		if (["<", ">", "pageNumber"].includes(inputData)) {
 			if (inputData === "<" && ctx.session.currPage !== 1) {
 				await ctx.answerCallbackQuery();
@@ -42,9 +42,12 @@ scene.wait("region").on("callback_query:data", async (ctx) => {
 					--ctx.session.currPage,
 				);
 
-				await ctx.editMessageText(t(($) => $.searchRegion), {
-					reply_markup: buttons,
-				});
+				await ctx.editMessageText(
+					t(($) => $.searchRegion),
+					{
+						reply_markup: buttons,
+					},
+				);
 			} else if (
 				inputData === ">" &&
 				ctx.session.currPage * 12 <= REGION_IDS.length
@@ -57,9 +60,12 @@ scene.wait("region").on("callback_query:data", async (ctx) => {
 					++ctx.session.currPage,
 				);
 
-				await ctx.editMessageText(t(($) => $.searchRegion), {
-					reply_markup: buttons,
-				});
+				await ctx.editMessageText(
+					t(($) => $.searchRegion),
+					{
+						reply_markup: buttons,
+					},
+				);
 			} else {
 				await ctx.answerCallbackQuery(t(($) => $.wrongSelection));
 			}

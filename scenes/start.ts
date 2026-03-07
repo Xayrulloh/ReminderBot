@@ -25,17 +25,17 @@ scene.step(async (ctx) => {
 
 	ctx.session.currPage = 1;
 
-	await ctx.reply(t(($) => $.chooseRegion), { reply_markup: buttons });
+	await ctx.reply(
+		t(($) => $.chooseRegion),
+		{ reply_markup: buttons },
+	);
 });
 
 // fasting
 scene.wait("fasting").on("callback_query:data", async (ctx) => {
 	const inputData = ctx.update.callback_query.data;
 
-	if (
-		!REGION_IDS.includes(+inputData) &&
-		!["<", ">"].includes(inputData)
-	) {
+	if (!REGION_IDS.includes(+inputData) && !["<", ">"].includes(inputData)) {
 		await ctx.answerCallbackQuery(t(($) => $.wrongSelection));
 	}
 
@@ -49,10 +49,13 @@ scene.wait("fasting").on("callback_query:data", async (ctx) => {
 				--ctx.session.currPage,
 			);
 
-			await ctx.editMessageText(t(($) => $.chooseRegion), {
-				reply_markup: buttons,
-				parse_mode: "HTML",
-			});
+			await ctx.editMessageText(
+				t(($) => $.chooseRegion),
+				{
+					reply_markup: buttons,
+					parse_mode: "HTML",
+				},
+			);
 		} else if (
 			inputData === ">" &&
 			ctx.session.currPage * 12 <= REGION_IDS.length
@@ -65,10 +68,13 @@ scene.wait("fasting").on("callback_query:data", async (ctx) => {
 				++ctx.session.currPage,
 			);
 
-			await ctx.editMessageText(t(($) => $.chooseRegion), {
-				reply_markup: buttons,
-				parse_mode: "HTML",
-			});
+			await ctx.editMessageText(
+				t(($) => $.chooseRegion),
+				{
+					reply_markup: buttons,
+					parse_mode: "HTML",
+				},
+			);
 		} else {
 			await ctx.answerCallbackQuery(t(($) => $.wrongSelection));
 		}
@@ -85,9 +91,12 @@ scene.wait("fasting").on("callback_query:data", async (ctx) => {
 			{ view: keyboardMessage[1], text: keyboardMessage[1] },
 		]);
 
-		await ctx.editMessageText(t(($) => $.fastingMessage), {
-			reply_markup: buttons,
-		});
+		await ctx.editMessageText(
+			t(($) => $.fastingMessage),
+			{
+				reply_markup: buttons,
+			},
+		);
 		ctx.scene.resume();
 	}
 });

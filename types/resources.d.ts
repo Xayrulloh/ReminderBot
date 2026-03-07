@@ -65,7 +65,6 @@ interface Resources {
 			save: "✅ Saqlash";
 			sunrise: "🌅 Quyosh";
 		};
-		shareBot: "https://t.me/namoz5vbot\n\nAssalomu alaykum. Aziz foydalanuvchi, agarda ushbu botni foydali deb hisoblasangiz, iltimos o'z yaqinlaringiz bilan ulashishni hamda Telegram guruhlariga qo'shishni unutmang.\n\n Biz bilan birga bo'lganingizdan juda mamnunmiz 😊";
 		shareMessage: "Ushbu botni yaqinlaringizga ham ulashing va namoz o'z vaqtida o'qilishiga sababchi bo'ling";
 		shareQuranVaTafsiri: "https://t.me/Quron_va_Tafsiri\n\nAssalomu alaykum. Ushbu kanalda siz qur'on va uning tafsirini audio tarzda eshitib o'rganishingiz mumkin. Audio format avval o'zbek tilida keyin esa arab tilida keltirilgan. O'ylaymizki bu siz uchun manfatli bo'ladi";
 		source: "Manba";

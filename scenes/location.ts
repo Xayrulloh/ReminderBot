@@ -34,10 +34,7 @@ scene.step(async (ctx) => {
 scene.wait("location").on("callback_query:data", async (ctx) => {
 	const inputData = ctx.update.callback_query.data;
 
-	if (
-		REGION_IDS.includes(+inputData) ||
-		["<", ">"].includes(inputData)
-	) {
+	if (REGION_IDS.includes(+inputData) || ["<", ">"].includes(inputData)) {
 		if (["<", ">", "pageNumber"].includes(inputData)) {
 			if (inputData === "<" && ctx.session.currPage !== 1) {
 				await ctx.answerCallbackQuery();

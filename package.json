@@ -10,7 +10,7 @@
 		"build": "pnpm run prebuild && tsc && pnpm run copy-public",
 		"start": "TS_NODE_BASEURL=./dist node -r tsconfig-paths/register dist/server.js",
 		"start:dev": "TS_NODE_BASEURL=./dist tsc-watch --outDir ./dist --onSuccess \"node --env-file=.env -r tsconfig-paths/register dist/server.js\"",
-		"i18n:generate": "i18next-resources-for-ts interface -i ./translate -o ./types/resources.d.ts",
+		"i18n:generate": "i18next-resources-for-ts interface -i ./translate -o ./types/resources.d.ts && pnpm check:fix types/resources.d.ts",
 		"check:fix": "biome check --write",
 		"check": "biome check"
 	},

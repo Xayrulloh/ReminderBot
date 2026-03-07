@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 import { cwd } from "node:process";
-import { type Bot, InlineKeyboard, InputFile } from "grammy";
+import { type Bot, InputFile } from "grammy";
 import cron from "node-cron";
 import schedule from "node-schedule";
 import Model from "#config/database";
@@ -286,43 +286,6 @@ async function reminder(bot: Bot<BotContext>) {
 	}
 }
 
-async function weekly(bot: Bot<BotContext>) {
-	const users = await Model.User.find<IUser>({
-		status: true,
-		deletedAt: null,
-	});
-
-	const message = t(($) => $.shareBot);
-	const keyboard = new InlineKeyboard();
-	const enterMessage = t(($) => $.enter);
-	const addToGroupMessage = t(($) => $.addToGroup);
-
-	keyboard.url(enterMessage, `https://t.me/${bot.botInfo.username}`);
-	keyboard.row();
-	keyboard.url(
-		addToGroupMessage,
-		`https://t.me/${bot.botInfo.username}?startgroup=${bot.botInfo.username}`,
-	);
-
-	for (const user of users) {
-		await bot.api
-			.sendMessage(user.userId, message, { reply_markup: keyboard })
-			.catch(async (e) => await handleUserSendMessageError(e, user));
-	}
-
-	const groups = await Model.Group.find<IGroup>({
-		status: true,
-	});
-
-	for (const group of groups) {
-		await bot.api
-			.sendMessage(group.groupId, message, { reply_markup: keyboard })
-			.catch(async (e) => {
-				await handleGroupSendMessageError(e, group);
-			});
-	}
-}
-
 export async function cronStarter(bot: Bot<BotContext>) {
 	await initRegions();
 
@@ -335,14 +298,6 @@ export async function cronStarter(bot: Bot<BotContext>) {
 		async () => {
 			await daily(bot);
 			await reminder(bot);
-		},
-		scheduleOptions,
-	);
-
-	cron.schedule(
-		"0 13 * * 1",
-		async () => {
-			await weekly(bot);
 		},
 		scheduleOptions,
 	);
