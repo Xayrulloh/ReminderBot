@@ -6,11 +6,11 @@ import { memoryStorage } from '#config/storage'
 import inlineKFunction from '#keyboard/inline'
 import type { BotContext } from '#types/context'
 import type { IGroup } from '#types/database'
-import { DAILY_HADITH_KEY } from '#utils/constants'
+import { DAILY_QURAN_KEY } from '#utils/constants'
 import dayjs from '#utils/dayjs'
-import { getPrayerTimes } from '#utils/prayerTimes'
+import { getPrayerTimes, getRegionIds } from '#utils/prayerTimes'
 
-const REGION_IDS = regionsData.map((r) => r.id)
+const regionsById = getRegionIds()
 const REGION_KEYBOARD = regionsData.map((r) => ({
   view: r.name,
   text: String(r.id),
@@ -32,7 +32,7 @@ scene.step(async (ctx) => {
 scene.wait('group_location').on('callback_query:data', async (ctx) => {
   const inputData = ctx.update.callback_query.data
 
-  if (REGION_IDS.includes(+inputData) || ['<', '>', 'pageNumber'].includes(inputData)) {
+  if (regionsById.has(+inputData) || ['<', '>', 'pageNumber'].includes(inputData)) {
     if (['<', '>', 'pageNumber'].includes(inputData)) {
       if (inputData === '<' && ctx.session.currPage !== 1) {
         await ctx.answerCallbackQuery()
@@ -46,7 +46,7 @@ scene.wait('group_location').on('callback_query:data', async (ctx) => {
             parse_mode: 'HTML',
           },
         )
-      } else if (inputData === '>' && ctx.session.currPage * 12 <= REGION_IDS.length) {
+      } else if (inputData === '>' && ctx.session.currPage * 12 < regionsById.size) {
         await ctx.answerCallbackQuery()
 
         const buttons = inlineKFunction(3, REGION_KEYBOARD, ++ctx.session.currPage)
@@ -99,10 +99,10 @@ scene.wait('group_location').on('callback_query:data', async (ctx) => {
         isha: data.isha,
         date: now.format('DD/MM/YYYY'),
       })
-      const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
+      const dailyQuran = memoryStorage.read(DAILY_QURAN_KEY) ?? String()
 
       await ctx.deleteMessage()
-      await ctx.reply(response + dailyHadith, {
+      await ctx.reply(response + dailyQuran, {
         parse_mode: 'HTML',
       })
 

@@ -6,7 +6,7 @@ import { t } from '#config/i18n'
 import regionsData from '#config/regions.json'
 import { memoryStorage } from '#config/storage'
 import type { BotContext } from '#types/context'
-import { DAILY_HADITH_KEY } from '#utils/constants'
+import { DAILY_QURAN_KEY } from '#utils/constants'
 import dayjs from '#utils/dayjs'
 import { getPrayerTimes } from '#utils/prayerTimes'
 
@@ -50,7 +50,7 @@ export async function inlineQuery(ctx: BotContext) {
   }
 
   const now = dayjs()
-  const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? ''
+  const dailyQuran = memoryStorage.read(DAILY_QURAN_KEY) ?? ''
   const keyboard = new InlineKeyboard()
     .url(
       t(($) => $.enter),
@@ -86,7 +86,7 @@ export async function inlineQuery(ctx: BotContext) {
       title: region.name,
       description: content,
       input_message_content: {
-        message_text: content + dailyHadith,
+        message_text: content + dailyQuran,
         parse_mode: 'HTML',
       },
       reply_markup: keyboard,
