@@ -52,7 +52,7 @@ scene.wait('fasting').on('callback_query:data', async (ctx) => {
           parse_mode: 'HTML',
         },
       )
-    } else if (inputData === '>' && ctx.session.currPage * 12 <= regionsById.size) {
+    } else if (inputData === '>' && ctx.session.currPage * 12 < regionsById.size) {
       await ctx.answerCallbackQuery()
 
       const buttons = inlineKFunction(3, REGION_KEYBOARD, ++ctx.session.currPage)
