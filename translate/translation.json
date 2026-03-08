@@ -4,10 +4,7 @@
   "infoPrayTimeFasting": "Sana: {{date}}\n{{region}} shahar namoz vaqtlari\n\n🏙 Bomdod (saharlik) {{fajr}}\n🌅 Quyosh {{sunrise}}\n🏞 Peshin {{dhuhr}}\n🌆 Asr {{asr}}\n🌉 Shom (iftorlik) {{maghrib}}\n🌃 Xufton {{isha}}",
   "notifChange": "O'zgartirildi",
   "locationChange": "Sizning joylashuvingiz o'zgartirildi.",
-  "agreementFasting": [
-    "Ha",
-    "Yo'q"
-  ],
+  "agreementFasting": ["Ha", "Yo'q"],
   "fastingMessage": "Ro'za tutyapsizmi?",
   "mainKeyboard": [
     "🔍 Qidirish",
@@ -63,10 +60,7 @@
   "feedbackEndMessage": "Fikr-mulohazalaringiz uchun tashakkur. Biz buni qadrlaymiz!",
   "currentRegion": "Hozirgi mintaqa: ",
   "selectDay": "Kerakli kunni belgilang:",
-  "selectDayOptions": [
-    "Bugun",
-    "Boshqa kun"
-  ],
+  "selectDayOptions": ["Bugun", "Boshqa kun"],
   "announcementToWhom": "Xabarni kimga jo'natish kerak",
   "announcementOptions": [
     {

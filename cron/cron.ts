@@ -11,18 +11,30 @@ import customKFunction from '#keyboard/custom'
 import type { BotContext } from '#types/context'
 import type { IGroup, IUser } from '#types/database'
 import dayjs from '#utils/dayjs'
-import { type PrayerTimesResult, getPrayerTimes, getRegionIds } from '#utils/prayerTimes'
+import { getPrayerTimes, getRegionIds, type PrayerTimesResult } from '#utils/prayerTimes'
 
 const ACTIVE_USER_FILTER = { deletedAt: null, status: true }
 
 type PrayerName = 'fajr' | 'sunrise' | 'dhuhr' | 'asr' | 'maghrib' | 'isha'
 
-const PRAYER_NOTIFICATIONS: { name: PrayerName; getMessage: (user: IUser) => string }[] = [
-  { name: 'fajr', getMessage: (user) => (user.fasting ? t(($) => $.closeFast) : t(($) => $.fajrTime)) },
-  { name: 'sunrise', getMessage: (user) => (user.fasting ? t(($) => $.sunriseFastingTime) : t(($) => $.sunriseTime)) },
+const PRAYER_NOTIFICATIONS: {
+  name: PrayerName
+  getMessage: (user: IUser) => string
+}[] = [
+  {
+    name: 'fajr',
+    getMessage: (user) => (user.fasting ? t(($) => $.closeFast) : t(($) => $.fajrTime)),
+  },
+  {
+    name: 'sunrise',
+    getMessage: (user) => (user.fasting ? t(($) => $.sunriseFastingTime) : t(($) => $.sunriseTime)),
+  },
   { name: 'dhuhr', getMessage: () => t(($) => $.dhuhrTime) },
   { name: 'asr', getMessage: () => t(($) => $.asrTime) },
-  { name: 'maghrib', getMessage: (user) => (user.fasting ? t(($) => $.breakFast) : t(($) => $.maghribTime)) },
+  {
+    name: 'maghrib',
+    getMessage: (user) => (user.fasting ? t(($) => $.breakFast) : t(($) => $.maghribTime)),
+  },
   { name: 'isha', getMessage: () => t(($) => $.ishaTime) },
 ]
 
@@ -40,7 +52,7 @@ function buildPrayerOpts(region: PrayerTimesResult, date: string) {
 }
 
 function appendVerse(message: string, verse: string) {
-  return verse ? `${message}\n\n<b>Kunlik oyat: </b>${verse}` : message
+  return verse ? `${message}\n\n${verse}` : message
 }
 
 /** Sends the morning prayer timetable to every active user and group.
@@ -68,7 +80,10 @@ async function daily(bot: Bot<BotContext>) {
 
     const prayerOpts = buildPrayerOpts(region, date)
 
-    const users = await Model.User.find<IUser>({ regionId, ...ACTIVE_USER_FILTER })
+    const users = await Model.User.find<IUser>({
+      regionId,
+      ...ACTIVE_USER_FILTER,
+    })
 
     for (const user of users) {
       const message = user.fasting ? t(($) => $.infoPrayTimeFasting, prayerOpts) : t(($) => $.infoPrayTime, prayerOpts)
@@ -76,7 +91,10 @@ async function daily(bot: Bot<BotContext>) {
 
       if (isFriday) {
         await bot.api
-          .sendPhoto(user.userId, file, { caption: `\n\n${fullMessage}`, parse_mode: 'HTML' })
+          .sendPhoto(user.userId, file, {
+            caption: `\n\n${fullMessage}`,
+            parse_mode: 'HTML',
+          })
           .catch(async (e) => await handleUserSendMessageError(e, user))
       } else {
         await bot.api
@@ -88,7 +106,10 @@ async function daily(bot: Bot<BotContext>) {
       }
     }
 
-    const groups = await Model.Group.find<IGroup>({ regionId: region.regionId, status: true })
+    const groups = await Model.Group.find<IGroup>({
+      regionId: region.regionId,
+      status: true,
+    })
     const groupMessage = appendVerse(
       t(($) => $.infoPrayTime, prayerOpts),
       verse,
@@ -97,7 +118,10 @@ async function daily(bot: Bot<BotContext>) {
     for (const group of groups) {
       if (isFriday) {
         await bot.api
-          .sendPhoto(group.groupId, file, { caption: `\n\n${groupMessage}`, parse_mode: 'HTML' })
+          .sendPhoto(group.groupId, file, {
+            caption: `\n\n${groupMessage}`,
+            parse_mode: 'HTML',
+          })
           .catch(async (e) => await handleGroupSendMessageError(e, group))
       } else {
         await bot.api

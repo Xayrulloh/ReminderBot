@@ -12,11 +12,11 @@ export async function getQuranVerse(): Promise<string> {
     const verse = verses[0]
 
     if (verse) {
-      const header = `(<b>${verse.surah}:${verse.ayah}</b>)`
+      const header = `<b>Kunlik oyat</b> (<b>${verse.surah}:${verse.ayah}</b>)`
       const arabic = blockQuote(verse.origin)
       const translation = blockQuote(verse.uzbek)
 
-      text = `\n\n${header}\n${arabic}${translation}`
+      text = `\n\n${header}\n${arabic}\n<b>Tarjima:</b>\n${translation}`
       memoryStorage.write(DAILY_QURAN_KEY, text)
     }
   } catch (error) {
