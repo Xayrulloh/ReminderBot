@@ -194,7 +194,7 @@ cp .env.example .env
 | `MONGO_URL`                             | MongoDB connection string                                        |
 | `PAYME_URL` / `PAYME_ENDPOINT` / `CARD` | Payment integration (optional)                                   |
 | `DISCORD_WEBHOOK_URL`                   | Discord webhook for logging                                      |
-| `DISCORD_LOGS_THREAD_ID`               | Discord thread ID for general logs                               |
+| `DISCORD_LOGS_THREAD_ID`                | Discord thread ID for general logs                               |
 | `DISCORD_FLOOD_THREAD_ID`               | Discord thread ID for flood/unknown messages                     |
 | `DISCORD_FEEDBACK_THREAD_ID`            | Discord thread ID for user feedback                              |
 | `SESSION_TTL`                           | Session TTL in milliseconds                                      |
@@ -224,20 +224,20 @@ pnpm start
 
 ## Tech Stack
 
-| Layer           | Technology                                                       |
-| --------------- | ---------------------------------------------------------------- |
-| Runtime         | Node.js 24.x                                                    |
-| Language        | TypeScript 5.x                                                  |
-| Bot Framework   | [grammY](https://grammy.dev/) + grammy-scenes                   |
-| Database        | MongoDB via Mongoose                                             |
+| Layer           | Technology                                                                     |
+| --------------- | ------------------------------------------------------------------------------ |
+| Runtime         | Node.js 24.x                                                                   |
+| Language        | TypeScript 5.x                                                                 |
+| Bot Framework   | [grammY](https://grammy.dev/) + grammy-scenes                                  |
+| Database        | MongoDB via Mongoose                                                           |
 | Prayer Times    | [adhan](https://github.com/batoulapps/adhan-js) (coordinate-based computation) |
-| i18n            | i18next                                                          |
-| Scheduler       | node-cron + node-schedule                                        |
-| HTTP Server     | Fastify (webhook mode)                                           |
-| Logging         | Discord Webhooks (discord.js)                                    |
-| Validation      | Zod                                                              |
-| Linter          | Biome                                                            |
-| Package Manager | pnpm 10.x                                                       |
+| i18n            | i18next                                                                        |
+| Scheduler       | node-cron + node-schedule                                                      |
+| HTTP Server     | Fastify (webhook mode)                                                         |
+| Logging         | Discord Webhooks (discord.js)                                                  |
+| Validation      | Zod                                                                            |
+| Linter          | Biome                                                                          |
+| Package Manager | pnpm 10.x                                                                      |
 
 ---
 

@@ -30,7 +30,7 @@ export const result = schema.safeParse(process.env)
 if (!result.success) {
   console.error(result.error.issues)
   console.error(Color.Red, 'Some Environment variables are missing. Exiting...')
-  process.exit()
+  process.exit(1)
 }
 
 export const env: Env = result.data

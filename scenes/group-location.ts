@@ -36,6 +36,10 @@ scene.wait('group_location_update').on('callback_query:data', async (ctx) => {
 
   if (regionsById.has(+inputData) || ['<', '>', 'pageNumber'].includes(inputData)) {
     if (['<', '>', 'pageNumber'].includes(inputData)) {
+      if (inputData === 'pageNumber') {
+        return await ctx.answerCallbackQuery()
+      }
+
       if (inputData === '<' && ctx.session.currPage !== 1) {
         await ctx.answerCallbackQuery()
 
