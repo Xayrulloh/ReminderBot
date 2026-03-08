@@ -13,8 +13,8 @@ export interface PrayerTimesResult {
   isha: string
 }
 
-export function getRegionIds(): number[] {
-  return regions.map((r) => r.id)
+export function getRegionIds(): Set<number> {
+  return new Set(regions.map((r) => r.id))
 }
 
 function formatTime(date: Date): string {
@@ -25,6 +25,7 @@ function formatTime(date: Date): string {
  *  Uses custom fajr/isha angles (15.5°) matching islom.uz and Hanafi madhab. */
 export function getPrayerTimes(regionId: number, date: Date): PrayerTimesResult | null {
   const region = regions.find((r) => r.id === regionId)
+
   if (!region) return null
 
   const coordinates = new Coordinates(region.latitude, region.longitude)
