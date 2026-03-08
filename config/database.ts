@@ -152,7 +152,7 @@ mongoose
   })
   .catch((reason) => {
     console.error(Color.Red, 'Error with database connection', reason)
-    process.exit()
+    process.exit(1)
   })
 
 export default mongoose.models

@@ -36,6 +36,10 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
 
   if (REGION_IDS.includes(+inputData) || ['<', '>', 'pageNumber'].includes(inputData)) {
     if (['<', '>', 'pageNumber'].includes(inputData)) {
+      if (inputData === 'pageNumber') {
+        return await ctx.answerCallbackQuery()
+      }
+
       if (inputData === '<' && ctx.session.currPage !== 1) {
         await ctx.answerCallbackQuery()
 

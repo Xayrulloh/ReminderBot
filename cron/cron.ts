@@ -56,7 +56,11 @@ async function daily(bot: Bot<BotContext>) {
   const keyboardText = t(($) => $.mainKeyboard, { returnObjects: true })
   const buttons = customKFunction(2, ...keyboardText)
 
-  const activeRegionIds: number[] = await Model.User.distinct('regionId', ACTIVE_USER_FILTER)
+  const [userRegionIds, groupRegionIds] = await Promise.all([
+    Model.User.distinct('regionId', ACTIVE_USER_FILTER),
+    Model.Group.distinct('regionId', { status: true }),
+  ])
+  const activeRegionIds: number[] = [...new Set([...userRegionIds, ...groupRegionIds])]
 
   for (const regionId of activeRegionIds) {
     const region = getPrayerTimes(regionId, now.toDate())
