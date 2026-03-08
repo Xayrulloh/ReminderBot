@@ -1,115 +1,104 @@
-import { resolve } from 'path'
-import axios from 'axios'
-import pdfParser from 'pdf-parse'
-import Model from '#config/database'
-import HLanguage from '#helper/language'
-import { HReplace } from '#helper/replacer'
-import schedule from 'node-schedule'
-import customKFunction from '#keyboard/custom'
-import { Bot, InlineKeyboard, InputFile } from 'grammy'
-import { BotContext } from '#types/context'
-import { IPrayTime, IUser, IGroup } from '#types/database'
-import { env } from '#utils/env'
+import { resolve } from 'node:path'
+import { cwd } from 'node:process'
+import { type Bot, InputFile } from 'grammy'
 import cron from 'node-cron'
+import schedule from 'node-schedule'
+import Model from '#config/database'
+import { t } from '#config/i18n'
 import { handleGroupSendMessageError, handleUserSendMessageError } from '#helper/errorHandler'
 import { getQuranVerse } from '#helper/getQuranVerse'
+import customKFunction from '#keyboard/custom'
+import type { BotContext } from '#types/context'
+import type { IGroup, IUser } from '#types/database'
 import dayjs from '#utils/dayjs'
-import { cwd } from 'process'
+import { getPrayerTimes, getRegionIds, type PrayerTimesResult } from '#utils/prayerTimes'
 
-async function monthly() {
-  const keyboardMessage = HLanguage('region')
-  const regions = Object.keys(keyboardMessage)
-  const regionIds = Object.values(keyboardMessage)
-  const daysOfWeek = ['Якшанба', 'Душанба', 'Сешанба', 'Чоршанба', 'Пайшанба', 'Жума', 'Шанба']
-  const prayTimes = []
+const ACTIVE_USER_FILTER = { deletedAt: null, status: true }
 
-  const now = dayjs()
-  const currentMonth = now.get('month') + 1
+type PrayerName = 'fajr' | 'sunrise' | 'dhuhr' | 'asr' | 'maghrib' | 'isha'
 
-  for (let region = 0; region < regions.length; region++) {
-    const pdf = await axios.get(env.TIME_API + regionIds[region] + '/' + currentMonth, {
-      responseType: 'arraybuffer',
-    })
-    const pdfData = await pdfParser(pdf.data)
-    const data = pdfData.text.split('\n')
+const PRAYER_NOTIFICATIONS: {
+  name: PrayerName
+  getMessage: (user: IUser) => string
+}[] = [
+  {
+    name: 'fajr',
+    getMessage: (user) => (user.fasting ? t(($) => $.closeFast) : t(($) => $.fajrTime)),
+  },
+  {
+    name: 'sunrise',
+    getMessage: (user) => (user.fasting ? t(($) => $.sunriseFastingTime) : t(($) => $.sunriseTime)),
+  },
+  { name: 'dhuhr', getMessage: () => t(($) => $.dhuhrTime) },
+  { name: 'asr', getMessage: () => t(($) => $.asrTime) },
+  {
+    name: 'maghrib',
+    getMessage: (user) => (user.fasting ? t(($) => $.breakFast) : t(($) => $.maghribTime)),
+  },
+  { name: 'isha', getMessage: () => t(($) => $.ishaTime) },
+]
 
-    for (let el of data) {
-      if (el.length > 20 && el.split(' ').length == 1) {
-        for (let day of daysOfWeek) {
-          if (el.includes(day)) {
-            let dayNumber = el.split(day)[0]
-            let times = el.split(day)[1].match(/.{1,5}/g) as RegExpMatchArray
-
-            prayTimes.push({
-              region: regions[region],
-              regionId: regionIds[region],
-              day: dayNumber,
-              fajr: times[0],
-              sunrise: times[1],
-              dhuhr: times[2],
-              asr: times[3],
-              maghrib: times[4],
-              isha: times[5],
-              month: currentMonth,
-            })
-          }
-        }
-      }
-    }
+function buildPrayerOpts(region: PrayerTimesResult, date: string) {
+  return {
+    region: region.region,
+    fajr: region.fajr,
+    sunrise: region.sunrise,
+    dhuhr: region.dhuhr,
+    asr: region.asr,
+    maghrib: region.maghrib,
+    isha: region.isha,
+    date,
   }
-
-  await Model.PrayTime.deleteMany()
-  await Model.PrayTime.insertMany<IPrayTime>(prayTimes)
 }
 
+function appendVerse(message: string, verse: string) {
+  return verse ? `${message}\n\n${verse}` : message
+}
+
+/** Sends the morning prayer timetable to every active user and group.
+ *  On Fridays a "Juma Muborak" photo is sent instead of a plain text message.
+ *  A daily Quran verse is appended when available. */
 async function daily(bot: Bot<BotContext>) {
-  // taking data
   const now = dayjs()
-  const today = now.get('date')
-  const weekDay = now.get('day')
-  const currentMonth = now.get('month') + 1
-  const regions = await Model.PrayTime.find<IPrayTime>({ day: today, month: currentMonth })
+  const isFriday = now.get('day') === 5
   const file = new InputFile(resolve(cwd(), 'dist', 'public', 'JumaMuborak.jpg'))
   const verse = (await getQuranVerse()).trim()
+  const date = now.format('DD/MM/YYYY')
 
-  // sending
-  for (let region of regions) {
+  const keyboardText = t(($) => $.mainKeyboard, { returnObjects: true })
+  const buttons = customKFunction(2, ...keyboardText)
+
+  const [userRegionIds, groupRegionIds] = await Promise.all([
+    Model.User.distinct('regionId', ACTIVE_USER_FILTER),
+    Model.Group.distinct('regionId', { status: true }),
+  ])
+  const activeRegionIds: number[] = [...new Set([...userRegionIds, ...groupRegionIds])]
+
+  for (const regionId of activeRegionIds) {
+    const region = getPrayerTimes(regionId, now.toDate())
+    if (!region) continue
+
+    const prayerOpts = buildPrayerOpts(region, date)
+
     const users = await Model.User.find<IUser>({
-      regionId: region.regionId,
-      deletedAt: null,
-      status: true,
+      regionId,
+      ...ACTIVE_USER_FILTER,
     })
 
-    for (let user of users) {
-      const info = user.fasting ? HLanguage('infoPrayTimeFasting') : HLanguage('infoPrayTime')
-      let message = HReplace(
-        info,
-        ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha', '$date'],
-        [
-          region.region,
-          region.fajr,
-          region.sunrise,
-          region.dhuhr,
-          region.asr,
-          region.maghrib,
-          region.isha,
-          now.format('DD/MM/YYYY'),
-        ],
-      )
+    for (const user of users) {
+      const message = user.fasting ? t(($) => $.infoPrayTimeFasting, prayerOpts) : t(($) => $.infoPrayTime, prayerOpts)
+      const fullMessage = appendVerse(message, verse)
 
-      const keyboardText = HLanguage('mainKeyboard')
-      const buttons = customKFunction(2, ...keyboardText)
-
-      if (weekDay == 5) {
+      if (isFriday) {
         await bot.api
           .sendPhoto(user.userId, file, {
-            caption: `\n\n${message} ${verse ? `\n\n<b>Kunlik oyat: </b>${verse}` : ''}`,
+            caption: `\n\n${fullMessage}`,
             parse_mode: 'HTML',
           })
           .catch(async (e) => await handleUserSendMessageError(e, user))
       } else {
         await bot.api
-          .sendMessage(user.userId, message + (verse ? `\n\n<b>Kunlik oyat: </b>${verse}` : ''), {
+          .sendMessage(user.userId, fullMessage, {
             reply_markup: { keyboard: buttons.build(), resize_keyboard: true },
             parse_mode: 'HTML',
           })
@@ -121,219 +110,71 @@ async function daily(bot: Bot<BotContext>) {
       regionId: region.regionId,
       status: true,
     })
+    const groupMessage = appendVerse(
+      t(($) => $.infoPrayTime, prayerOpts),
+      verse,
+    )
 
-    for (let group of groups) {
-      let message = HReplace(
-        HLanguage('infoPrayTime'),
-        ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha', '$date'],
-        [
-          region.region,
-          region.fajr,
-          region.sunrise,
-          region.dhuhr,
-          region.asr,
-          region.maghrib,
-          region.isha,
-          now.format('DD/MM/YYYY'),
-        ],
-      )
-
-      if (weekDay == 5) {
+    for (const group of groups) {
+      if (isFriday) {
         await bot.api
           .sendPhoto(group.groupId, file, {
-            caption: `\n\n${message} ${verse ? `\n\n<b>Kunlik oyat: </b>${verse}` : ''}`,
+            caption: `\n\n${groupMessage}`,
             parse_mode: 'HTML',
           })
-          .catch(async (e) => {
-            await handleGroupSendMessageError(e, group)
-          })
+          .catch(async (e) => await handleGroupSendMessageError(e, group))
       } else {
         await bot.api
-          .sendMessage(group.groupId, message + (verse ? `\n\n<b>Kunlik oyat: </b>${verse}` : ''), {
-            parse_mode: 'HTML',
-          })
-          .catch(async (e) => {
-            await handleGroupSendMessageError(e, group)
-          })
+          .sendMessage(group.groupId, groupMessage, { parse_mode: 'HTML' })
+          .catch(async (e) => await handleGroupSendMessageError(e, group))
       }
     }
   }
 }
 
+/** Cancels all existing scheduled jobs and re-creates per-prayer-time alerts
+ *  for every region. Each alert fires at the exact prayer time and notifies
+ *  users who have that specific notification enabled (e.g. notificationSetting.fajr). */
 async function reminder(bot: Bot<BotContext>) {
   await schedule.gracefulShutdown()
 
   const now = dayjs()
-  const today = now.get('date')
-  const currentMonth = now.get('month') + 1
-  const regions = await Model.PrayTime.find<IPrayTime>({ day: today, month: currentMonth })
+  const allRegionIds = getRegionIds()
 
-  for (let region of regions) {
-    // times
-    const fajr = region.fajr.split(':')
-    const sunrise = region.sunrise.split(':')
-    const dhuhr = region.dhuhr.split(':')
-    const asr = region.asr.split(':')
-    const maghrib = region.maghrib.split(':')
-    const isha = region.isha.split(':')
+  for (const regionId of allRegionIds) {
+    const region = getPrayerTimes(regionId, now.toDate())
+    if (!region) continue
 
-    // schedule
-    schedule.scheduleJob({ hour: fajr[0], minute: fajr[1], tz: 'Asia/Tashkent' }, async () => {
-      const users = await Model.User.find<IUser>({
-        'regionId': region.regionId,
-        'deletedAt': null,
-        'status': true,
-        'notificationSetting.fajr': true,
-      })
+    for (const { name, getMessage } of PRAYER_NOTIFICATIONS) {
+      const [hour, minute] = region[name].split(':').map(Number)
 
-      for (const user of users) {
-        await bot.api
-          .sendMessage(user.userId, user.fasting ? HLanguage('closeFast') : HLanguage('fajrTime'))
-          .catch(async (err: any) => {
-            await handleUserSendMessageError(err, user)
-          })
-      }
-    })
-
-    schedule.scheduleJob({ hour: sunrise[0], minute: sunrise[1], tz: 'Asia/Tashkent' }, async () => {
-      const users = await Model.User.find<IUser>({
-        'regionId': region.regionId,
-        'deletedAt': null,
-        'status': true,
-        'notificationSetting.sunrise': true,
-      })
-
-      for (const user of users) {
-        await bot.api
-          .sendMessage(user.userId, user.fasting ? HLanguage('sunriseFastingTime') : HLanguage('sunriseTime'))
-          .catch(async (err: any) => await handleUserSendMessageError(err, user))
-      }
-    })
-
-    schedule.scheduleJob({ hour: dhuhr[0], minute: dhuhr[1], tz: 'Asia/Tashkent' }, async () => {
-      const users = await Model.User.find<IUser>({
-        'regionId': region.regionId,
-        'deletedAt': null,
-        'status': true,
-        'notificationSetting.dhuhr': true,
-      })
-
-      for (const user of users) {
-        await bot.api.sendMessage(user.userId, HLanguage('dhuhrTime')).catch(async (err: any) => {
-          await handleUserSendMessageError(err, user)
+      schedule.scheduleJob({ hour, minute, tz: 'Asia/Tashkent' }, async () => {
+        const users = await Model.User.find<IUser>({
+          regionId,
+          ...ACTIVE_USER_FILTER,
+          [`notificationSetting.${name}`]: true,
         })
-      }
-    })
 
-    schedule.scheduleJob({ hour: asr[0], minute: asr[1], tz: 'Asia/Tashkent' }, async () => {
-      const users = await Model.User.find<IUser>({
-        'regionId': region.regionId,
-        'deletedAt': null,
-        'status': true,
-        'notificationSetting.asr': true,
+        for (const user of users) {
+          await bot.api
+            .sendMessage(user.userId, getMessage(user))
+            .catch(async (err) => await handleUserSendMessageError(err, user))
+        }
       })
-
-      for (const user of users) {
-        await bot.api.sendMessage(user.userId, HLanguage('asrTime')).catch(async (err: any) => {
-          await handleUserSendMessageError(err, user)
-        })
-      }
-    })
-
-    schedule.scheduleJob({ hour: maghrib[0], minute: maghrib[1], tz: 'Asia/Tashkent' }, async () => {
-      const users = await Model.User.find<IUser>({
-        'regionId': region.regionId,
-        'deletedAt': null,
-        'status': true,
-        'notificationSetting.maghrib': true,
-      })
-
-      for (const user of users) {
-        await bot.api
-          .sendMessage(user.userId, user.fasting ? HLanguage('breakFast') : HLanguage('maghribTime'))
-          .catch(async (err: any) => {
-            await handleUserSendMessageError(err, user)
-          })
-      }
-    })
-
-    schedule.scheduleJob({ hour: isha[0], minute: isha[1], tz: 'Asia/Tashkent' }, async () => {
-      const users = await Model.User.find<IUser>({
-        'regionId': region.regionId,
-        'deletedAt': null,
-        'status': true,
-        'notificationSetting.isha': true,
-      })
-
-      for (const user of users) {
-        await bot.api.sendMessage(user.userId, HLanguage('ishaTime')).catch(async (err: any) => {
-          await handleUserSendMessageError(err, user)
-        })
-      }
-    })
+    }
   }
 }
 
-async function weekly(bot: Bot<BotContext>) {
-  const users = await Model.User.find<IUser>({
-    status: true,
-    deletedAt: null,
-  })
-
-  const message = HLanguage('shareBot')
-  const keyboard = new InlineKeyboard()
-  const enterMessage = HLanguage('enter')
-  const addToGroupMessage = HLanguage('addToGroup')
-
-  keyboard.url(enterMessage, 'https://t.me/' + bot.botInfo.username)
-  keyboard.row()
-  keyboard.url(addToGroupMessage, 'https://t.me/' + bot.botInfo.username + '?startgroup=' + bot.botInfo.username)
-
-  for (const user of users) {
-    await bot.api
-      .sendMessage(user.userId, message, { reply_markup: keyboard })
-      .catch(async (e) => await handleUserSendMessageError(e, user))
-  }
-
-  const groups = await Model.Group.find<IGroup>({
-    status: true,
-  })
-
-  for (const group of groups) {
-    await bot.api.sendMessage(group.groupId, message, { reply_markup: keyboard }).catch(async (e) => {
-      await handleGroupSendMessageError(e, group)
-    })
-  }
-}
-
+/** Entry point: schedules the daily 01:00 cron job and runs the first
+ *  reminder cycle immediately so prayer alerts are active right after startup. */
 export async function cronStarter(bot: Bot<BotContext>) {
-  const scheduleOptions = {
-    timezone: 'Asia/Tashkent',
-  }
-
-  cron.schedule(
-    '30 0 1 * *',
-    async () => {
-      await monthly()
-    },
-    scheduleOptions,
-  )
-
   cron.schedule(
     '0 1 * * *',
     async () => {
       await daily(bot)
       await reminder(bot)
     },
-    scheduleOptions,
-  )
-
-  cron.schedule(
-    '0 13 * * 1',
-    async () => {
-      await weekly(bot)
-    },
-    scheduleOptions,
+    { timezone: 'Asia/Tashkent' },
   )
 
   await reminder(bot)

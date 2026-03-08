@@ -1,9 +1,9 @@
+import type { InlineKeyboard } from 'grammy'
 import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
 import inlineKFunction from '#keyboard/inline'
-import { BotContext } from '#types/context'
-import { InlineKeyboard } from 'grammy'
-import { IHadith } from '#types/database'
+import type { BotContext } from '#types/context'
+import type { IHadith } from '#types/database'
 import { OWNER_ID } from '#utils/constants'
 
 const scene = new Scene<BotContext>('AddHadith')

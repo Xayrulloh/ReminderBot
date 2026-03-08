@@ -1,12 +1,12 @@
-import { BotError, GrammyError } from 'grammy'
-import { EmbedBuilder, WebhookClient } from 'discord.js'
-import { env } from '#utils/env'
-import Model from '#config/database'
-import { IGroup, IUser } from '#types/database'
 import { format } from 'node:util'
-import { ErrorType } from '#types/error'
-import { ERROR_MESSAGE } from '#utils/constants'
+import { EmbedBuilder, WebhookClient } from 'discord.js'
+import type { BotError, GrammyError } from 'grammy'
+import Model from '#config/database'
 import { memoryStorage } from '#config/storage'
+import type { IGroup, IUser } from '#types/database'
+import type { ErrorType } from '#types/error'
+import { ERROR_MESSAGE } from '#utils/constants'
+import { env } from '#utils/env'
 
 export async function errorHandler(err: BotError) {
   const error: ErrorType = {
@@ -19,7 +19,7 @@ export async function errorHandler(err: BotError) {
     username: err.ctx?.from?.username,
   }
 
-  let description = Object.entries(error).reduce((desc, [key, value]) => {
+  const description = Object.entries(error).reduce((desc, [key, value]) => {
     if (value) {
       desc += format(ERROR_MESSAGE[key as keyof ErrorType], value)
     }
@@ -27,7 +27,11 @@ export async function errorHandler(err: BotError) {
     return desc
   }, '')
 
-  let embed = new EmbedBuilder().setColor('Red').setTitle(err.name).setDescription(description).setTimestamp(new Date())
+  const embed = new EmbedBuilder()
+    .setColor('Red')
+    .setTitle(err.name)
+    .setDescription(description)
+    .setTimestamp(new Date())
 
   const discordClient = new WebhookClient({
     url: env.DISCORD_WEBHOOK_URL,

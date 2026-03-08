@@ -1,28 +1,28 @@
-import { Scene } from 'grammy-scenes'
-import HLanguage from '#helper/language'
-import { BotContext } from '#types/context'
-import { EmbedBuilder, WebhookClient } from 'discord.js'
-import { env } from '#utils/env'
 import { format } from 'node:util'
-import { FEEDBACK_MESSAGE } from '#utils/constants'
+import { EmbedBuilder, WebhookClient } from 'discord.js'
+import { Scene } from 'grammy-scenes'
+import { t } from '#config/i18n'
 import customKFunction from '#keyboard/custom'
+import type { BotContext } from '#types/context'
+import { FEEDBACK_MESSAGE } from '#utils/constants'
+import { env } from '#utils/env'
 
 const scene = new Scene<BotContext>('Feedback')
 
 scene.step(async (ctx) => {
-  const message = HLanguage('feedbackStartMessage')
+  const message = t(($) => $.feedbackStartMessage)
 
   await ctx.reply(message)
 })
 
 scene.wait('feedbackStart').on('message:text', async (ctx) => {
-  const message = HLanguage('feedbackEndMessage')
+  const message = t(($) => $.feedbackEndMessage)
 
   const discordClient = new WebhookClient({
     url: env.DISCORD_WEBHOOK_URL,
   })
 
-  let embed = new EmbedBuilder()
+  const embed = new EmbedBuilder()
     .setColor('Green')
     .setTitle(`**ID:** ${ctx.from.id}`)
     .setDescription(
@@ -42,7 +42,7 @@ scene.wait('feedbackStart').on('message:text', async (ctx) => {
     embeds: [embed],
   })
 
-  const keyboardText = HLanguage('mainKeyboard')
+  const keyboardText = t(($) => $.mainKeyboard, { returnObjects: true })
   const buttons = customKFunction(2, ...keyboardText)
 
   await ctx.reply(message, {

@@ -1,18 +1,19 @@
 import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
-import { BotContext } from '#types/context'
-import { IGroup, IUser } from '#types/database'
+import { t } from '#config/i18n'
 import { handleGroupSendMessageError, handleUserSendMessageError } from '#helper/errorHandler'
-import HLanguage from '#helper/language'
 import inlineKFunction from '#keyboard/inline'
+import type { BotContext } from '#types/context'
+import type { IGroup, IUser } from '#types/database'
 import { OWNER_ID } from '#utils/constants'
 
 const scene = new Scene<BotContext>('Announcement')
 
 scene.step(async (ctx) => {
   if (OWNER_ID === ctx.from?.id) {
-    const message = HLanguage('announcementToWhom')
-    const keyboard = inlineKFunction(2, HLanguage('announcementOptions'))
+    const message = t(($) => $.announcementToWhom)
+    const options = t(($) => $.announcementOptions, { returnObjects: true })
+    const keyboard = inlineKFunction(2, options)
 
     await ctx.reply(message, { reply_markup: keyboard, parse_mode: 'HTML' })
   } else {
@@ -39,7 +40,7 @@ scene.wait('individual_or_all').on('callback_query:data', async (ctx) => {
 
 scene.wait('send-all_or_take-message').on('message:text', async (ctx) => {
   if (ctx.session.isIndividual) {
-    if (isNaN(+ctx.message.text)) {
+    if (Number.isNaN(+ctx.message.text)) {
       await ctx.reply("Iltimos, qaysi userga jo'natish kerakligini yozing")
 
       return

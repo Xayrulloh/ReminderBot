@@ -1,6 +1,6 @@
-import utc from 'dayjs/plugin/utc'
-import timezone from 'dayjs/plugin/timezone'
 import dayjs from 'dayjs'
+import timezone from 'dayjs/plugin/timezone'
+import utc from 'dayjs/plugin/utc'
 import { TZ } from '#utils/constants'
 
 dayjs.extend(utc)

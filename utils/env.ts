@@ -1,4 +1,4 @@
-import * as process from 'process'
+import * as process from 'node:process'
 import * as z from 'zod'
 import { Color } from '#utils/enums'
 
@@ -6,7 +6,6 @@ export const schema = z.object({
   NODE_ENV: z.enum(['local', 'dev', 'prod']),
   TOKEN: z.string().regex(/^(\d+):(.*)$/),
   MONGO_URL: z.string(),
-  TIME_API: z.string().url(),
   PAYME_URL: z.string().url().optional(),
   PAYME_ENDPOINT: z.string().optional(),
   CARD: z
@@ -31,7 +30,7 @@ export const result = schema.safeParse(process.env)
 if (!result.success) {
   console.error(result.error.issues)
   console.error(Color.Red, 'Some Environment variables are missing. Exiting...')
-  process.exit()
+  process.exit(1)
 }
 
 export const env: Env = result.data

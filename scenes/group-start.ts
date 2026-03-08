@@ -1,85 +1,84 @@
 import { Scene } from 'grammy-scenes'
 import Model from '#config/database'
-import inlineKFunction from '#keyboard/inline'
-import HLanguage from '#helper/language'
-import { HReplace } from '#helper/replacer'
-import { BotContext } from '#types/context'
+import { t } from '#config/i18n'
+import regionsData from '#config/regions.json'
 import { memoryStorage } from '#config/storage'
-import { DAILY_HADITH_KEY } from '#utils/constants'
-import { IPrayTime, IGroup } from '#types/database'
+import inlineKFunction from '#keyboard/inline'
+import type { BotContext } from '#types/context'
+import type { IGroup } from '#types/database'
+import { DAILY_QURAN_KEY } from '#utils/constants'
 import dayjs from '#utils/dayjs'
+import { getPrayerTimes, getRegionIds } from '#utils/prayerTimes'
+
+const regionsById = getRegionIds()
+const REGION_KEYBOARD = regionsData.map((r) => ({
+  view: r.name,
+  text: String(r.id),
+}))
 
 const scene = new Scene<BotContext>('GroupStart')
 
 scene.step(async (ctx) => {
-  const message = HLanguage('chooseRegion')
-  const keyboardMessage = HLanguage('region')
-  const keyboard = []
+  const buttons = inlineKFunction(3, REGION_KEYBOARD)
 
-  for (let region in keyboardMessage) {
-    keyboard.push({ view: region, text: keyboardMessage[region] })
-  }
-
-  const buttons = inlineKFunction(3, keyboard)
-
-  ctx.session.message = message
-  ctx.session.buttons = buttons
-  ctx.session.regionId = Object.values(keyboardMessage)
-  ctx.session.regions = keyboardMessage
   ctx.session.currPage = 1
-  ctx.session.keyboard = keyboard
 
-  await ctx.reply(message, { reply_markup: buttons })
+  await ctx.reply(
+    t(($) => $.chooseRegion),
+    { reply_markup: buttons },
+  )
 })
 
 scene.wait('group_location').on('callback_query:data', async (ctx) => {
   const inputData = ctx.update.callback_query.data
 
-  if (ctx.session.regionId.includes(+inputData) || ['<', '>'].includes(inputData)) {
+  if (regionsById.has(+inputData) || ['<', '>', 'pageNumber'].includes(inputData)) {
     if (['<', '>', 'pageNumber'].includes(inputData)) {
-      if (inputData == '<' && ctx.session.currPage != 1) {
+      if (inputData === '<' && ctx.session.currPage !== 1) {
         await ctx.answerCallbackQuery()
 
-        ctx.session.buttons = inlineKFunction(3, ctx.session.keyboard, --ctx.session.currPage)
+        const buttons = inlineKFunction(3, REGION_KEYBOARD, --ctx.session.currPage)
 
-        await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons, parse_mode: 'HTML' })
-      } else if (inputData == '>' && ctx.session.currPage * 12 <= ctx.session.regionId.length) {
+        await ctx.editMessageText(
+          t(($) => $.chooseRegion),
+          {
+            reply_markup: buttons,
+            parse_mode: 'HTML',
+          },
+        )
+      } else if (inputData === '>' && ctx.session.currPage * 12 < regionsById.size) {
         await ctx.answerCallbackQuery()
 
-        ctx.session.buttons = inlineKFunction(3, ctx.session.keyboard, ++ctx.session.currPage)
+        const buttons = inlineKFunction(3, REGION_KEYBOARD, ++ctx.session.currPage)
 
-        await ctx.editMessageText(ctx.session.message, { reply_markup: ctx.session.buttons, parse_mode: 'HTML' })
+        await ctx.editMessageText(
+          t(($) => $.chooseRegion),
+          {
+            reply_markup: buttons,
+            parse_mode: 'HTML',
+          },
+        )
       } else {
-        await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
+        await ctx.answerCallbackQuery(t(($) => $.wrongSelection))
       }
     } else {
       await ctx.answerCallbackQuery()
 
       const now = dayjs()
-      const today = now.get('date')
-      const currentMonth = now.get('month') + 1
-      const message = HLanguage('infoPrayTime')
-      const data = await Model.PrayTime.findOne<IPrayTime>({ day: today, regionId: +inputData, month: currentMonth })
-      let regionName = ''
+      const data = getPrayerTimes(+inputData, now.toDate())
+      if (!data || !ctx.chat) return ctx.scene.exit()
 
-      if (!data) return ctx.scene.exit()
-
-      for (const key in ctx.session.regions) {
-        if (ctx.session.regions[key] === data.regionId) {
-          regionName = key
-          break
-        }
-      }
+      const regionName = regionsData.find((r) => r.id === data.regionId)?.name ?? ''
 
       const updatedGroup = await Model.Group.findOneAndUpdate<IGroup>(
-        { groupId: ctx.chat!.id },
+        { groupId: ctx.chat.id },
         {
-          groupId: ctx.chat!.id,
-          groupName: 'title' in ctx.chat! ? ctx.chat.title : 'Unknown Group',
+          groupId: ctx.chat.id,
+          groupName: 'title' in ctx.chat ? ctx.chat.title : 'Unknown Group',
           region: regionName,
           regionId: data.regionId,
           status: true,
-          type: ctx.chat!.type,
+          type: ctx.chat?.type,
         },
         { upsert: true, new: true, setDefaultsOnInsert: true },
       )
@@ -87,25 +86,30 @@ scene.wait('group_location').on('callback_query:data', async (ctx) => {
       if (updatedGroup) {
         ctx.group = updatedGroup
 
-        memoryStorage.write(String(ctx.chat!.id), updatedGroup)
+        memoryStorage.write(String(ctx.chat?.id), updatedGroup)
       }
 
-      let response = HReplace(
-        message,
-        ['$region', '$fajr', '$sunrise', '$zuhr', '$asr', '$maghrib', '$isha', '$date'],
-        [data.region, data.fajr, data.sunrise, data.dhuhr, data.asr, data.maghrib, data.isha, now.format('DD/MM/YYYY')],
-      )
-      const dailyHadith = memoryStorage.read(DAILY_HADITH_KEY) ?? String()
+      const response = t(($) => $.infoPrayTime, {
+        region: data.region,
+        fajr: data.fajr,
+        sunrise: data.sunrise,
+        dhuhr: data.dhuhr,
+        asr: data.asr,
+        maghrib: data.maghrib,
+        isha: data.isha,
+        date: now.format('DD/MM/YYYY'),
+      })
+      const dailyQuran = memoryStorage.read(DAILY_QURAN_KEY) ?? String()
 
       await ctx.deleteMessage()
-      await ctx.reply(response + dailyHadith, {
+      await ctx.reply(response + dailyQuran, {
         parse_mode: 'HTML',
       })
 
       ctx.scene.exit()
     }
   } else {
-    await ctx.answerCallbackQuery(HLanguage('wrongSelection'))
+    await ctx.answerCallbackQuery(t(($) => $.wrongSelection))
   }
 })
 

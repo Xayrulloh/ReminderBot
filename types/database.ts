@@ -1,4 +1,4 @@
-import { Document } from 'mongoose'
+import type { Document } from 'mongoose'
 
 export interface IUser extends Document {
   userId: number
@@ -18,19 +18,6 @@ export interface IUser extends Document {
     isha: boolean
   }
   deletedAt: Date
-}
-
-export interface IPrayTime extends Document {
-  region: string
-  regionId: number
-  day: number
-  fajr: string
-  sunrise: string
-  dhuhr: string
-  asr: string
-  maghrib: string
-  isha: string
-  month: number
 }
 
 export interface IHadith extends Document {
