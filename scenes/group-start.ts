@@ -65,7 +65,7 @@ scene.wait('group_location').on('callback_query:data', async (ctx) => {
       await ctx.answerCallbackQuery()
 
       const now = dayjs()
-      const data = getPrayerTimes(+inputData, now.toDate())
+      const data = getPrayerTimes(+inputData, now)
       if (!data || !ctx.chat) return ctx.scene.exit()
 
       const regionName = regionsData.find((r) => r.id === data.regionId)?.name ?? ''

@@ -112,7 +112,7 @@ scene.wait('commonDays').on('callback_query:data', async (ctx) => {
       day = Number(dayInput)
       break
   }
-  const data = getPrayerTimes(ctx.session.selectedRegionId, new Date(now.get('year'), now.get('month'), day))
+  const data = getPrayerTimes(ctx.session.selectedRegionId, now.date(day))
 
   if (!data) return ctx.scene.exit()
 

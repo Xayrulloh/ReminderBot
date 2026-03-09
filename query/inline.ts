@@ -66,7 +66,7 @@ export async function inlineQuery(ctx: BotContext) {
 
   for (const match of matches) {
     const region = match.original
-    const prayerTimes = getPrayerTimes(region.id, now.toDate())
+    const prayerTimes = getPrayerTimes(region.id, now)
     if (!prayerTimes) continue
 
     const content = t(($) => $.infoPrayTime, {
