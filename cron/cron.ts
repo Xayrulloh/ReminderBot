@@ -75,7 +75,7 @@ async function daily(bot: Bot<BotContext>) {
   const activeRegionIds: number[] = [...new Set([...userRegionIds, ...groupRegionIds])]
 
   for (const regionId of activeRegionIds) {
-    const region = getPrayerTimes(regionId, now.toDate())
+    const region = getPrayerTimes(regionId, now)
     if (!region) continue
 
     const prayerOpts = buildPrayerOpts(region, date)
@@ -142,7 +142,7 @@ async function reminder(bot: Bot<BotContext>) {
   const allRegionIds = getRegionIds()
 
   for (const regionId of allRegionIds) {
-    const region = getPrayerTimes(regionId, now.toDate())
+    const region = getPrayerTimes(regionId, now)
     if (!region) continue
 
     for (const { name, getMessage } of PRAYER_NOTIFICATIONS) {
