@@ -105,7 +105,7 @@ scene.wait('the_end').on('callback_query:data', async (ctx) => {
   const fasting = keyboardMessage[0] === ctx.update.callback_query.data
 
   const now = dayjs()
-  const data = getPrayerTimes(ctx.session.selectedRegionId, now.toDate())
+  const data = getPrayerTimes(ctx.session.selectedRegionId, now)
   if (!data) return ctx.scene.exit()
 
   const regionName = regionsData.find((r) => r.id === data.regionId)?.name ?? ''

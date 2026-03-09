@@ -1,6 +1,7 @@
 import { CalculationMethod, Coordinates, Madhab, PrayerTimes } from 'adhan'
 import regions from '#config/regions.json'
 import dayjs from './dayjs'
+import { ConfigType as DayJsInput } from 'dayjs'
 
 export interface PrayerTimesResult {
   region: string
@@ -23,7 +24,7 @@ function formatTime(date: Date): string {
 
 /** Computes prayer times for a region using the adhan library.
  *  Uses custom fajr/isha angles (15.5°) matching islom.uz and Hanafi madhab. */
-export function getPrayerTimes(regionId: number, date: Date): PrayerTimesResult | null {
+export function getPrayerTimes(regionId: number, date: DayJsInput): PrayerTimesResult | null {
   const region = regions.find((r) => r.id === regionId)
 
   if (!region) return null
@@ -34,7 +35,12 @@ export function getPrayerTimes(regionId: number, date: Date): PrayerTimesResult 
   params.ishaAngle = 15.5
   params.madhab = Madhab.Hanafi
 
-  const prayerTimes = new PrayerTimes(coordinates, date, params)
+  // adhan extracts date via getFullYear/getMonth/getDate (server-local timezone).
+  // When the server runs in UTC, 01:00 Tashkent = 20:00 UTC (previous day),
+  // so adhan would calculate yesterday's prayer times. Fix by converting to UTC
+  // while keeping local time.
+  const correctedDate = dayjs(date).utc(true).toDate()
+  const prayerTimes = new PrayerTimes(coordinates, correctedDate, params)
 
   return {
     region: region.name,
