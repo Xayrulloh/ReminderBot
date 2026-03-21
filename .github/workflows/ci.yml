@@ -1,0 +1,121 @@
+name: Build, publish and deploy
+
+on:
+  push:
+    branches: [develop, main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_TAG: ${{ github.ref_name == 'main' && 'stable' || 'latest' }}
+  ENV_SLUG: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+
+jobs:
+  build:
+    name: Build & push Docker image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract metadata (labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+
+  deploy:
+    name: Deploy via SSH
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy container
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          CONTAINER_NAME: reminderbot-${{ github.ref_name }}
+          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          NODE_ENV: ${{ env.ENV_SLUG }}
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          script: |
+            set -eo pipefail
+
+            echo "Pulling image: ${{ env.IMAGE }}..."
+            docker pull "${{ env.IMAGE }}"
+
+            echo "Stopping container: ${{ env.CONTAINER_NAME }} (if running)..."
+            docker stop "${{ env.CONTAINER_NAME }}" 2>/dev/null || true
+
+            echo "Removing container: ${{ env.CONTAINER_NAME }} (if exists)..."
+            docker rm "${{ env.CONTAINER_NAME }}" 2>/dev/null || true
+
+            export INFISICAL_TOKEN=$(infisical login \
+              --method=universal-auth \
+              --client-id=${{ secrets.INFISICAL_CLIENT_ID }} \
+              --client-secret=${{ secrets.INFISICAL_CLIENT_SECRET }} \
+              --plain \
+              --silent \
+            )
+
+            echo "Starting container: ${{ env.CONTAINER_NAME }}..."
+            docker run \
+              --restart on-failure \
+              --detach \
+              --network host \
+              --name "${{ env.CONTAINER_NAME }}" \
+              --env INFISICAL_TOKEN="$INFISICAL_TOKEN" \
+              --env NODE_ENV="${{ env.NODE_ENV }}" \
+              "${{ env.IMAGE }}"
+
+            echo "Verifying container started..."
+            sleep 3
+            if docker inspect -f '{{.State.Running}}' "${{ env.CONTAINER_NAME }}" 2>/dev/null | grep -q "^true$"; then
+              echo "Container ${{ env.CONTAINER_NAME }} is running."
+            else
+              echo "Container ${{ env.CONTAINER_NAME }} failed to start!" >&2
+              docker logs "${{ env.CONTAINER_NAME }}" --tail 20 >&2
+              exit 1
+            fi
+
+            echo "Cleaning up dangling images..."
+            docker image prune -f

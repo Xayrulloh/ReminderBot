@@ -110,7 +110,7 @@ scene.wait('the_end').on('callback_query:data', async (ctx) => {
 
   const regionName = regionsData.find((r) => r.id === data.regionId)?.name ?? ''
 
-  await Model.User.create<IUser>({
+  await Model.User.create({
     userId: ctx.from.id,
     userName: ctx.from.username || 'unknown',
     name: ctx.from.first_name || 'name',

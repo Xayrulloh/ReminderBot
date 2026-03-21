@@ -28,7 +28,7 @@ scene.wait('fasting').on('callback_query:data', async (ctx) => {
 
     const fasting = keyboardMessage[0] === ctx.update.callback_query.data
 
-    await Model.User.updateOne<IUser>({ userId: ctx.user.userId }, { fasting })
+    await Model.User.updateOne({ userId: ctx.user.userId }, { fasting })
 
     await ctx.editMessageText(t(($) => $.notifChange))
     ctx.scene.exit()
