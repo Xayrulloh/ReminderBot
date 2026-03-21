@@ -11,7 +11,7 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: xayrulloh/reminderbot
   IMAGE_TAG: ${{ github.ref_name == 'main' && 'stable' || 'latest' }}
   ENV_SLUG: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
 
