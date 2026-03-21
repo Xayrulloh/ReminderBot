@@ -29,7 +29,6 @@ reviews:
   path_filters:
     - "!dist/**"
     - "!node_modules/**"
-    - "!pnpm-lock.yaml"
 
   path_instructions:
     - path: "**/*.ts"
