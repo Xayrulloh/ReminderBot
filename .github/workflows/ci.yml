@@ -1,24 +1,19 @@
-name: Build, publish and deploy (reusable)
+name: Build, publish and deploy
 
 on:
-  workflow_call:
-    inputs:
-      image_tag:
-        required: true
-        type: string
-        description: "Docker image tag (e.g. latest, stable)"
-      env_slug:
-        required: true
-        type: string
-        description: "Infisical environment slug (dev, prod)"
-      node_env:
-        required: true
-        type: string
-        description: "NODE_ENV value passed to the container"
+  push:
+    branches: [develop, main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: true
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  IMAGE_TAG: ${{ github.ref_name == 'main' && 'stable' || 'latest' }}
+  ENV_SLUG: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
 
 jobs:
   build:
@@ -55,7 +50,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/xayrulloh/reminderbot:${{ inputs.image_tag }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -70,21 +65,14 @@ jobs:
   deploy:
     name: Deploy via SSH
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: build
     steps:
-      - uses: Infisical/secrets-action@v1.0.7
-        with:
-          client-id: ${{ secrets.INFISICAL_CLIENT_ID }}
-          client-secret: ${{ secrets.INFISICAL_CLIENT_SECRET }}
-          env-slug: ${{ inputs.env_slug }}
-          project-slug: 'example-project-y-k6-k'
-
       - name: Deploy container
         uses: appleboy/ssh-action@v1.0.3
         env:
           CONTAINER_NAME: reminderbot-${{ github.ref_name }}
-          IMAGE: ghcr.io/xayrulloh/reminderbot:${{ inputs.image_tag }}
-          NODE_ENV: ${{ inputs.node_env }}
+          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          NODE_ENV: ${{ env.ENV_SLUG }}
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
