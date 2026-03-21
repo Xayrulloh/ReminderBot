@@ -43,7 +43,7 @@ scene.wait('notification_settings').on('callback_query:data', async (ctx) => {
     )
   }
 
-  await Model.User.updateOne<IUser>(
+  await Model.User.updateOne(
     { userId: ctx.user.userId },
     {
       notificationSetting: ctx.session.notificationSetting,
