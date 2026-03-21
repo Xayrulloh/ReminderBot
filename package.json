@@ -42,7 +42,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "2.4.8",
 		"@grammyjs/types": "3.25.0",
-		"@types/node": "25.5.0",
+		"@types/node": "24.9.2",
 		"@types/node-schedule": "2.1.8",
 		"i18next-resources-for-ts": "2.0.2",
 		"prettier": "3.8.1",
