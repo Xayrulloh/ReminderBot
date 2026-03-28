@@ -39,7 +39,7 @@ scene.wait('hadith').on('message:text', async (ctx) => {
 scene.wait('category').on(['message:text', 'callback_query:data'], async (ctx) => {
   const message = 'The hadith is written, thank you. You are doing your best :)'
 
-  await Model.Hadith.create<IHadith>({
+  await Model.Hadith.create({
     content: ctx.session.hadith,
     category: ctx.callbackQuery?.data || ctx.update.message?.text,
   })

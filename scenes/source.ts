@@ -11,7 +11,7 @@ scene.step(async (ctx) => {
 
   await ctx.reply(`*Manbalar*:\n\n${sourceReplyMessage}`, {
     parse_mode: 'Markdown',
-    disable_web_page_preview: true,
+    link_preview_options: { is_disabled: true },
   })
   ctx.scene.exit()
 })

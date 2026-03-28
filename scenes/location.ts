@@ -70,7 +70,7 @@ scene.wait('location').on('callback_query:data', async (ctx) => {
 
       const regionName = regionsData.find((r) => r.id === data.regionId)?.name ?? ''
 
-      await Model.User.updateOne<IUser>({ userId: ctx.user.userId }, { region: regionName, regionId: +inputData })
+      await Model.User.updateOne({ userId: ctx.user.userId }, { region: regionName, regionId: +inputData })
 
       ctx.user.region = regionName
       ctx.user.regionId = +inputData

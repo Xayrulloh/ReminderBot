@@ -15,10 +15,10 @@ export const schema = z.object({
   DISCORD_WEBHOOK_URL: z.string().url(),
   DISCORD_LOGS_THREAD_ID: z.string().regex(/^[0-9]+$/),
   DISCORD_FLOOD_THREAD_ID: z.string().regex(/^[0-9]+$/),
-  SESSION_TTL: z.number({ coerce: true }),
+  SESSION_TTL: z.coerce.number(),
   WEBHOOK_URL: z.string().url().optional(),
   WEBHOOK_ENABLED: z.enum(['true', 'false']).transform((v) => JSON.parse(v)),
-  WEBHOOK_PORT: z.number({ coerce: true }),
+  WEBHOOK_PORT: z.coerce.number(),
   QURON_VA_TAFSIRI_URL: z.string().url(),
   DISCORD_FEEDBACK_THREAD_ID: z.string().regex(/^[0-9]+$/),
 })

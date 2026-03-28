@@ -16,7 +16,7 @@ export async function getQuranVerse(): Promise<string> {
       const arabic = blockQuote(verse.origin)
       const translation = blockQuote(verse.uzbek)
 
-      text = `\n\n${header}\n${arabic}\n<b>Tarjima:</b>\n${translation}`
+      text = `\n\n${header}\n${arabic}\n\n<b>Tarjima:</b>\n${translation}`
       memoryStorage.write(DAILY_QURAN_KEY, text)
     }
   } catch (error) {
