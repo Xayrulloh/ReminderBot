@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+language: en-US
+
+reviews:
+  profile: assertive
+  request_changes_workflow: true
+  high_level_summary: true
+  collapse_walkthrough: false
+  review_status: true
+  estimate_code_review_effort: true
+  assess_linked_issues: true
+  related_issues: true
+  related_prs: true
+  suggested_labels: true
+  suggested_reviewers: true
+
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    drafts: false
+    base_branches:
+      - main
+      - develop
+    ignore_title_keywords:
+      - WIP
+      - DO NOT MERGE
+
+  path_filters:
+    - "!dist/**"
+    - "!node_modules/**"
+
+  path_instructions:
+    - path: "**/*.ts"
+      instructions: |
+        - Enforce strict TypeScript — no implicit `any`, prefer explicit return types on exported functions.
+        - Check for proper error handling; bot errors should go through the Discord webhook logger.
+        - Flag any hardcoded secrets, tokens, or credentials.
+    - path: "scenes/**"
+      instructions: |
+        - Each scene should have a clear entry and exit point.
+        - Verify that `ctx.scene.exit()` is called on all terminal branches to avoid hanging sessions.
+    - path: "cron/**"
+      instructions: |
+        - Ensure scheduled jobs handle errors gracefully and do not crash the process.
+        - Verify timezone is explicitly set to Asia/Tashkent on all cron/schedule calls.
+    - path: "config/**"
+      instructions: |
+        - Database models must use `{ versionKey: false }`.
+        - All schema fields should have explicit `required` or `default` values.
+    - path: "utils/env.ts"
+      instructions: |
+        - Every new env variable must be validated with Zod and documented in `.env.example`.
+
+  tools:
+    biome:
+      enabled: true
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  web_search:
+    enabled: true
+  learnings:
+    scope: local
+  pull_requests:
+    scope: local
