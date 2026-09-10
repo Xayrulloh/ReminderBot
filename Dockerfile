@@ -12,6 +12,7 @@ ARG PNPM_VERSION=10.32.1
 ################################################################################
 # Use node image for base image for all stages.
 FROM node:${NODE_VERSION}-alpine as base
+ARG PNPM_VERSION
 
 # Set working directory for all build stages.
 WORKDIR /usr/src/app
@@ -73,4 +74,5 @@ COPY --from=deps /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/dist ./dist
 
 # Run the application.
-CMD ["sh", "-c", "infisical run -e $NODE_ENV --projectId 74138f50-f83d-44b4-ae9e-9e9479fbe9a5 -- pnpm start"]
+EXPOSE 8080
+CMD ["sh", "-c", "infisical run -e $INFISICAL_ENV --projectId $INFISICAL_PROJECT_ID -- pnpm start"]

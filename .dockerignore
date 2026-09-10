@@ -32,3 +32,11 @@
 **/dist
 LICENSE
 README.md
+
+# Credentials and local tooling must never enter the build context.
+**/.env.*
+**/.direnv
+**/.agents
+**/.codex
+**/*.tsbuildinfo
+.github
