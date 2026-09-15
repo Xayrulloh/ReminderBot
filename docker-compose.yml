@@ -1,0 +1,51 @@
+# Stack uses the version 3 Compose format for Swarm rolling updates.
+version: '3.8'
+
+services:
+  reminder-bot:
+    image: ${IMAGE_REPOSITORY:?Set IMAGE_REPOSITORY to ghcr.io/owner/repo}:${IMAGE_TAG:-stable}
+    init: true
+    stop_grace_period: 30s
+    environment:
+      NODE_ENV: prod
+      INFISICAL_API_URL: ${INFISICAL_API_URL:-https://app.infisical.com}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:?INFISICAL_PROJECT_ID is required}
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:?INFISICAL_TOKEN is required}
+    networks:
+      - dokploy-network
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', '--max-time', '4', 'http://localhost:8080/health']
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+    # Requires Dokploy Stack mode. Start-first briefly overlaps old and new tasks.
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        monitor: 90s
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 5s
+        failure_action: pause
+        monitor: 60s
+        order: start-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+
+networks:
+  dokploy-network:
+    external: true

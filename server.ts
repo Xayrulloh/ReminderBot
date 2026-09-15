@@ -175,9 +175,10 @@ void cronStarter(bot)
 if (env.WEBHOOK_ENABLED) {
   const server = Fastify()
 
+  server.get('/health', async () => ({ status: 'ok' }))
   server.post(`/${env.TOKEN}`, webhookCallback(bot, 'fastify'))
   server.setErrorHandler(errorHandler)
-  server.listen({ port: env.WEBHOOK_PORT }, async () => {
+  server.listen({ host: "0.0.0.0", port: env.WEBHOOK_PORT }, async () => {
     await bot.api.setWebhook(env.WEBHOOK_URL + env.TOKEN)
 
     // Delete commands before setting new ones
@@ -253,7 +254,7 @@ if (env.WEBHOOK_ENABLED) {
     })
     .catch((e) => {
       console.error(Color.Red, 'Something went wrong!', e)
-      process.exit()
+      process.exit(1)
     })
 }
 
